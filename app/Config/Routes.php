@@ -45,27 +45,51 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     $routes->get('/', 'Admin\Products::index');
     $routes->get('trashed', 'Admin\Products::trashed');
 
-    // Fitur Khusus Admin/Produksi
-    $routes->group('', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
-        $routes->get('create', 'Admin\Products::create');
-        $routes->post('/', 'Admin\Products::store'); // Simpan baru
-        $routes->get('edit/(:num)', 'Admin\Products::edit/$1');
-        $routes->put('(:num)', 'Admin\Products::update/$1'); // Update data (Method PUT)
-        $routes->delete('(:num)', 'Admin\Products::destroy/$1'); // Hapus
-        
-        
-        // Fitur Gambar 
-        $routes->get('(:num)/images', 'Admin\Products::images/$1');
-        $routes->get('(:num)/upload-image', 'Admin\Products::uploadImage/$1');
-        $routes->post('(:num)/upload-image', 'Admin\Products::doUploadImage/$1');
-        $routes->delete('images/(:num)', 'Admin\Products::destroyImage/$1');
-        
-        $routes->get('getCategoriesAjax', 'Admin\Products::getCategoriesAjax');
-        $routes->post('getAttributesByCategory', 'Admin\Products::getAttributesByCategory');
+        // Fitur Khusus Admin/Produksi
+        $routes->group('', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
+            $routes->get('create', 'Admin\Products::create');
+            $routes->post('/', 'Admin\Products::store'); // Simpan baru
+            $routes->get('edit/(:num)', 'Admin\Products::edit/$1');
+            $routes->put('(:num)', 'Admin\Products::update/$1'); // Update data (Method PUT)
+            $routes->delete('(:num)', 'Admin\Products::destroy/$1'); // Hapus
+            
+            
+            // Fitur Gambar 
+            $routes->get('(:num)/images', 'Admin\Products::images/$1');
+            $routes->get('(:num)/upload-image', 'Admin\Products::uploadImage/$1');
+            $routes->post('(:num)/upload-image', 'Admin\Products::doUploadImage/$1');
+            $routes->delete('images/(:num)', 'Admin\Products::destroyImage/$1');
+            
+            $routes->get('getCategoriesAjax', 'Admin\Products::getCategoriesAjax');
+            $routes->post('getAttributesByCategory', 'Admin\Products::getAttributesByCategory');
+        });
     });
-});
 
 
+    // --- PRODUKSI ---
+    $routes->group('produksi', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
+        $routes->get('/', 'Admin\Produksi::index');
+        $routes->get('tambah', 'Admin\Produksi::tambah');
+        $routes->post('simulasi', 'Admin\Produksi::simulasi');
+        $routes->post('simpan', 'Admin\Produksi::simpan');
+        $routes->get('show/(:num)', 'Admin\Produksi::show/$1');
+    });
+
+    // --- PENJUALAN ---
+    $routes->group('penjualan', ['filter' => 'authAdmin:admin,penjualan'], function($routes) {
+        $routes->get('/', 'Admin\Penjualan::index');
+        $routes->get('create', 'Admin\Penjualan::create');
+        $routes->post('simpan', 'Admin\Penjualan::simpan');
+        $routes->get('show/(:num)', 'Admin\Penjualan::show/$1');
+    });
+
+    // --- REPORTS ---
+    $routes->group('reports', ['filter' => 'authAdmin:admin,pemilik'], function($routes) {
+        $routes->get('/', 'Admin\Reports::index');
+        $routes->get('penjualan', 'Admin\Reports::penjualan');
+        $routes->get('produksi', 'Admin\Reports::produksi');
+        $routes->get('stok-bahan', 'Admin\Reports::stokBahan');
+    });
     
     // --- BAHAN BAKU (Inventory) ---
     // Pemilik bisa LIHAT, tapi cuma Admin & Gudang yang bisa eksekusi CRUD
@@ -104,6 +128,16 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
             // Delete butuh 2 parameter: ID Attribute dan ID Option
            $routes->get('delete/(:num)', 'Admin\AttributeOptions::destroy/$1/$2');
         });
+    });
+
+    // --- RECIPES ---
+    $routes->group('recipes', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
+        $routes->get('/', 'Admin\Recipes::index');
+        $routes->get('detail/(:num)', 'Admin\Recipes::detail/$1');
+        $routes->post('simpan/(:num)', 'Admin\Recipes::simpan/$1');
+        $routes->post('update/(:num)/(:num)', 'Admin\Recipes::update/$1/$2');
+        $routes->get('hapus/(:num)/(:num)', 'Admin\Recipes::hapus/$1/$2');
+        $routes->get('getBahanAjax', 'Admin\Recipes::getBahanAjax');
     });
 
     // --- STOK MASUK (Inventory) ---

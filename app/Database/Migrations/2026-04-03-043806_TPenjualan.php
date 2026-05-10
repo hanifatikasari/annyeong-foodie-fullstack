@@ -21,8 +21,8 @@ class TPenjualan extends Migration
                 'unique'     => true,
             ],
             'total_harga' => [
-                'type'       => 'int1',
-                'constraint' => '8',
+                'type'       => 'int',
+                'constraint' => '11',
                 'unsigned'   => true,
                 'default'    => 0,
             ],
