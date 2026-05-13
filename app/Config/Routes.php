@@ -150,4 +150,67 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
              $routes->get('getBahanbakuAjax', 'Admin\StokMasuk::getBahanbakuAjax');
         });  
     });
+    
+    // ============================================================
+    // E-COMMERCE FRONTEND ROUTES
+    // ============================================================
+
+    // Product search
+    $routes->get('search', 'Shop::search');
+
+    // Cart
+    $routes->get('cart',                   'Cart::index');
+    $routes->post('cart/add',              'Cart::add');
+    $routes->post('cart/update',           'Cart::update');
+    $routes->post('cart/remove',           'Cart::remove');
+    $routes->get('cart/clear',             'Cart::clear');
+
+    // Checkout & Orders (wajib login)
+    $routes->group('checkout', ['filter' => 'authFrontend'], function($routes) {
+        $routes->get('/',                  'Checkout::index');
+        $routes->post('process',           'Checkout::process');
+        $routes->get('success/(:segment)', 'Checkout::success/$1');
+        $routes->get('upload/(:segment)',  'Checkout::uploadForm/$1');
+        $routes->post('upload/(:segment)', 'Checkout::uploadBukti/$1');
+    });
+
+    // Customer account (wajib login)
+    $routes->group('account', ['filter' => 'authFrontend'], function($routes) {
+        $routes->get('/',                  'Account::index');
+        $routes->get('orders',             'Account::orders');
+        $routes->get('orders/(:segment)',  'Account::orderDetail/$1');
+        $routes->get('profile',            'Account::profile');
+        $routes->post('profile/update',    'Account::updateProfile');
+        $routes->get('track/(:segment)',   'Account::trackOrder/$1');
+    });
+
+    // Track order (publik)
+    $routes->get('track',                  'Shop::track');
+    $routes->post('track',                 'Shop::trackOrder');
+
+    // About
+    $routes->get('about',                  'Shop::about');
+
+    // Reviews
+    $routes->post('products/review',       'Shop::submitReview');
+
+    // ============================================================
+    // ADMIN EXTENSION - Payment & Order Management
+    // ============================================================
+    $routes->group('admin', ['filter' => 'authAdmin:admin,penjualan,pemilik'], function($routes) {
+        $routes->get('orders',                          'Admin\Orders::index');
+        $routes->get('orders/(:num)',                   'Admin\Orders::detail/$1');
+        $routes->post('orders/verify/(:num)',           'Admin\Orders::verify/$1');
+        $routes->post('orders/status/(:num)',           'Admin\Orders::updateStatus/$1');
+        $routes->get('orders/bukti/(:segment)',         'Admin\Orders::viewBukti/$1');
+    });
+
+    // ============================================================
+    // FRONTEND CHECKOUT ROUTES (wajib login)
+    // ============================================================
+    $routes->group('checkout', ['filter' => 'authFrontend'], function ($routes) {
+        $routes->get('/', 'Checkout::index');
+        $routes->match(['get', 'post'], 'process', 'Checkout::process');
+        $routes->match(['get', 'post'], 'upload/(:segment)', 'Checkout::upload/$1');
+    });
 });

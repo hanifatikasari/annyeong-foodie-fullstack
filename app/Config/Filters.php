@@ -36,7 +36,8 @@ class Filters extends BaseFilters
         'performance'   => \CodeIgniter\Filters\PerformanceMetrics::class,
         'isAdmin'       => \App\Filters\AdminAuthFilter::class,
         'authAdmin'     => \App\Filters\AdminAuthFilter::class,
-    ];
+        'authFrontend' => \App\Filters\FrontendAuthFilter::class,
+        ];
 
     /**
      * List of special required filters.

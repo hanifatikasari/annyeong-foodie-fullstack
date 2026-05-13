@@ -196,6 +196,13 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             </li>
                         </ul>
                     </li>
+
+                    <!-- Tambahkan menu ini di dalam grup penjualan -->
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/orders') ?>" class="nav-link <?= ($currentAdminSubMenu == 'online_order') ? 'active' : '' ?>">
+                            <i class="far fa-circle nav-icon"></i><p>Pesanan Online</p>
+                        </a>
+                    </li>
                 <?php endif; ?>
 
                 <!-- ===================================================== -->

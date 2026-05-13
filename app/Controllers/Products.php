@@ -10,65 +10,71 @@ class Products extends BaseController
     protected $categoryModel;
     protected $productImageModel;
     protected $perPage = 12;
-    protected $data = [];
 
     public function __construct()
     {
-        $this->productModel = new ProductModel();
-        $this->categoryModel = new CategoryModel();
-        $this->productImageModel = new ProductImageModel();  
-        $this->data['auth'] = new \IonAuth\Libraries\IonAuth();
-        
+        helper('cart_helper');
+        $this->productModel      = new ProductModel();
+        $this->categoryModel     = new CategoryModel();
+        $this->productImageModel = new ProductImageModel();
 
-        $this->data['categories'] = $this->categoryModel->getNestedCategories();;
-        $this->data['ordering'] = [
-            site_url('products') => 'Default',
-            site_url('products?order=price-asc') => 'Price - Low to High',
-            site_url('products?order=price-desc') => 'Price - High to Low',
-            site_url('products?order=created_at-desc') => 'Newest to Oldest',
-            site_url('products?order=created_at-asc') => 'Oldest to Newest',
+        $this->data['auth']       = new \IonAuth\Libraries\IonAuth();
+        $this->data['categories'] = $this->categoryModel->getNestedCategories();
+        $this->data['ordering']   = [
+            site_url('products')                         => 'Default',
+            site_url('products?order=price-asc')         => 'Harga Terendah',
+            site_url('products?order=price-desc')        => 'Harga Tertinggi',
+            site_url('products?order=created_at-desc')   => 'Terbaru',
         ];
         $this->data['selectedOrder'] = site_url('products');
     }
 
     public function index()
     {
-        // Query dibersihkan dari join brand dan select brandName/brandSlug
         $products = $this->productModel
-            ->select("products.*, categories.name as categoryName, categories.slug as categorySlug, (SELECT MIN(price) FROM products AS variants WHERE (products.id = variants.id AND variants.type = 'simple') OR products.id = variants.parent_id LIMIT 1) price")
-            ->join('product_categories', 'products.id = product_categories.product_id', 'left')
-            ->join('categories', 'product_categories.category_id = categories.id', 'left')
-            // ->where('status', $this->productModel::ACTIVE)
-            ->where('published_at !=', null)
+            ->select('products.*,
+                (SELECT MIN(price) FROM products AS v
+                 WHERE v.parent_id = products.id OR (v.id = products.id AND products.type = "simple")) as lowest_price')
+            ->where('products.published_at IS NOT NULL')
             ->where('products.parent_id IS NULL');
-        
-       
-        
-        if ($priceRange = $this->request->getGet('price')) {
-            $prices = explode('-', $priceRange);
-            $lowPrice = removeAllCharsExceptNumbers($prices[0]);
-            $highPrice = removeAllCharsExceptNumbers($prices[1]);
 
-            if ($lowPrice && $highPrice && ($lowPrice < $highPrice)) {
-                $products = $products->where("products.price >= $lowPrice AND products.price <= $highPrice OR exists(SELECT * FROM products AS variants WHERE products.id = variants.parent_id AND price >= $lowPrice AND price <= $highPrice)");
+        $category = $this->request->getGet('category');
+        if ($category) {
+            $cat = $this->categoryModel->where('slug', $category)->first();
+            if ($cat) {
+                $products->join('product_categories', 'products.id = product_categories.product_id')
+                         ->where('product_categories.category_id', $cat->id);
+            }
+        }
+
+        if ($priceRange = $this->request->getGet('price')) {
+            [$low, $high] = array_map('intval', explode('-', $priceRange));
+            if ($low && $high && $low < $high) {
+                $products->where("products.price BETWEEN $low AND $high");
             }
         }
 
         $orderField = 'created_at';
-        $orderType = 'desc';
+        $orderType  = 'desc';
         if ($order = $this->request->getGet('order')) {
-            list($orderField, $orderType) = explode('-', $order);
+            [$orderField, $orderType] = explode('-', $order);
         }
-        $products = $products->orderBy($orderField, $orderType);
-        
+        $products->orderBy($orderField, $orderType);
 
-        $this->data['products'] = $products->paginate($this->perPage, 'bootstrap');
-        $this->data['pager'] = $this->productModel->pager;
+        $results = $products->paginate($this->perPage, 'bootstrap');
+        foreach ($results as &$p) {
+            $img = $this->productImageModel->where('product_id', $p->id)->orderBy('id','ASC')->first();
+            $p->featured_image = $img;
+        }
+
+        $this->data['products']      = $results;
+        $this->data['pager']         = $this->productModel->pager;
+        $this->data['selectedOrder'] = site_url('products' . ($order ? '?order=' . $order : ''));
 
         return view('themes/' . $this->data['currentTheme'] . '/products/index', $this->data);
     }
 
-     public function show($sku, $slug = null)
+    public function show($sku, $slug = null)
     {
         $product = $this->productModel
             ->where('sku', $sku)
@@ -79,19 +85,73 @@ class Products extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // Ambil gambar pertama produk
-        $product->featured_image = $this->productImageModel
+        // Images
+        $product->images = $this->productImageModel
             ->where('product_id', $product->id)
             ->orderBy('id', 'ASC')
-            ->first();
+            ->findAll();
 
-        // Tambahkan product ke data global
-        $this->data['product'] = $product;
+        $product->featured_image = count($product->images) > 0 ? $product->images[0] : null;
 
-        // Gunakan view show.php
-        return view(
-            'themes/' . $this->data['currentTheme'] . '/products/show',
-            $this->data
-        );
+        // EAV Attributes
+        $attributes = \Config\Database::connect()
+            ->table('product_attribute_values pav')
+            ->select('a.name as attr_name, ao.name as attr_value')
+            ->join('attributes a', 'a.id = pav.attribute_id')
+            ->join('attribute_options ao', 'ao.id = pav.attribute_option_id', 'left')
+            ->where('pav.product_id', $product->id)
+            ->get()->getResult();
+
+        $product->attributes = $attributes;
+
+        // Inventory
+        $inv = model('ProductInventoryModel')->where('product_id', $product->id)->first();
+        $product->stok = $inv ? $inv->qty : 0;
+
+        // Reviews
+        $reviewModel          = model('ReviewModel');
+        $this->data['reviews'] = $reviewModel->getByProduct($product->id);
+        $this->data['avg_rating'] = $reviewModel->getAverageRating($product->id);
+
+        // Related products (same category)
+        $catIds = \Config\Database::connect()
+            ->table('product_categories')
+            ->where('product_id', $product->id)
+            ->get()->getResult();
+
+        $related = [];
+        if (!empty($catIds)) {
+             // Ambil semua category_id dari object
+            $categoryIds = [];
+            foreach ($catIds as $cat) {
+                $categoryIds[] = $cat->category_id;
+            }
+            
+            $related = $this->productModel
+                ->select('products.*')
+                ->join('product_categories pc', 'products.id = pc.product_id')
+                ->whereIn('pc.category_id', $categoryIds)
+                ->where('products.id !=', $product->id)
+                ->where('products.published_at IS NOT NULL')
+                ->where('products.parent_id IS NULL')
+                ->limit(4)
+                ->findAll();
+
+            // Attach image
+            foreach ($related as $item) {
+                $img = $this->productImageModel
+                    ->where('product_id', $item->id)
+                    ->orderBy('id', 'ASC')
+                    ->first();
+
+                $item->featured_image = $img;
+            }
+        }
+
+        $this->data['related']  = $related;
+        $this->data['product']  = $product;
+        $this->data['title']    = $product->name;
+
+        return view('themes/' . $this->data['currentTheme'] . '/products/show', $this->data);
     }
 }
