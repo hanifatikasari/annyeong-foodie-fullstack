@@ -20,11 +20,11 @@ class Orders extends BaseController
         $orders = $query->orderBy('id', 'DESC')->paginate(15, 'bootstrap');
 
         // Load UserModel
-        $userModel = model('UserModel');
+        $userModel = new \IonAuth\Models\UserModel();
 
         // Tambahkan customer_name ke setiap order
         foreach ($orders as &$order) {
-            $user = $userModel->find($order['user_id']);
+            $user = $userModel->find($order['customer_id']);
 
             $order['customer_name'] = $user
                 ? trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''))

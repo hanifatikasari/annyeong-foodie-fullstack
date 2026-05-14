@@ -8,96 +8,64 @@ class Home extends BaseController
     {
         helper('cart_helper');
 
-        // ==========================================================
-        // Ambil produk terlaris dari t_penjualan_detail
-        // ==========================================================
+        // FIX ISSUE #1: Hanya tampilkan child categories dari "Produk Jadi"
+        $categoryModel = model('CategoryModel');
+        $this->data['categories'] = $categoryModel->getStorefrontCategories();
+
+        // *** TRENDING PRODUCTS (best seller) ***
         $bestSelling = model('PenjualanDetailModel')->getBestSelling(8);
 
-        $bestSellingIds = [];
-        foreach ($bestSelling as $item) {
-            $bestSellingIds[] = $item->product_id;
-        }
-
-        // ==========================================================
-        // Ambil data produk trending
-        // ==========================================================
         $trendingProducts = [];
 
-        if (!empty($bestSellingIds)) {
+        if (!empty($bestSelling)) {
+            $bestIds = array_map(fn($b) => is_object($b) ? $b->product_id : $b['product_id'], $bestSelling);
+
             $trendingProducts = model('ProductModel')
-                ->select('products.*, product_inventories.qty as stok')
-                ->join(
-                    'product_inventories',
-                    'products.id = product_inventories.product_id',
-                    'left'
-                )
-                ->whereIn('products.id', $bestSellingIds)
-                ->where('products.published_at IS NOT NULL')
+                ->select('products.*, COALESCE(product_inventories.qty, 0) as stok')
+                ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
+                ->whereIn('products.id', $bestIds)
                 ->where('products.parent_id IS NULL')
+                ->where('products.published_at IS NOT NULL')
                 ->findAll();
         }
 
-        // ==========================================================
-        // Jika produk trending kurang dari 4, tambahkan produk terbaru
-        // ==========================================================
+        // Fallback: jika kurang dari 4, tambahkan produk terbaru
         if (count($trendingProducts) < 4) {
-            $existingIds = [];
+            $existingIds = array_map(fn($p) => is_object($p) ? $p->id : $p['id'], $trendingProducts);
 
-            foreach ($trendingProducts as $product) {
-                $existingIds[] = $product->id;
-            }
-
-            $fallback = model('ProductModel')
-                ->select('products.*, product_inventories.qty as stok')
-                ->join(
-                    'product_inventories',
-                    'products.id = product_inventories.product_id',
-                    'left'
-                )
-                ->where('products.published_at IS NOT NULL')
-                ->where('products.parent_id IS NULL');
+            $fallbackQuery = model('ProductModel')
+                ->select('products.*, COALESCE(product_inventories.qty, 0) as stok')
+                ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
+                ->where('products.parent_id IS NULL')
+                ->where('products.published_at IS NOT NULL');
 
             if (!empty($existingIds)) {
-                $fallback->whereNotIn('products.id', $existingIds);
+                $fallbackQuery->whereNotIn('products.id', $existingIds);
             }
 
-            $extra = $fallback
+            $extra = $fallbackQuery
                 ->orderBy('products.id', 'DESC')
                 ->findAll(4 - count($trendingProducts));
 
             $trendingProducts = array_merge($trendingProducts, $extra);
         }
 
-        // ==========================================================
-        // Attach featured image ke setiap produk
-        // ==========================================================
-        foreach ($trendingProducts as $product) {
-            $image = model('ProductImageModel')
-                ->where('product_id', $product->id)
+        // Attach featured image
+        foreach ($trendingProducts as &$p) {
+            $img = model('ProductImageModel')
+                ->where('product_id', is_object($p) ? $p->id : $p['id'])
                 ->orderBy('id', 'ASC')
                 ->first();
-
-            $product->featured_image = $image;
+            if (is_object($p)) {
+                $p->featured_image = $img;
+            } else {
+                $p['featured_image'] = $img;
+            }
         }
 
-        // ==========================================================
-        // Ambil kategori produk
-        // ==========================================================
-        $categories = model('CategoryModel')
-            ->where('name', 'Produk Jadi')
-            ->orderBy('name', 'ASC')
-            ->findAll(10);
-
-        // ==========================================================
-        // Kirim data ke view
-        // ==========================================================
         $this->data['trendingProducts'] = $trendingProducts;
-        $this->data['categories'] = $categories;
-        $this->data['title'] = 'Annyeong Foodie - Korean Food';
+        $this->data['title']            = 'Annyeong Foodie - Korean Food Pemalang';
 
-        return view(
-            'themes/' . $this->data['currentTheme'] . '/pages/home',
-            $this->data
-        );
+        return view('themes/' . $this->data['currentTheme'] . '/pages/home', $this->data);
     }
 }
