@@ -36,7 +36,7 @@
                             <div class="card-body">
                                 <i class="fa fa-clock-o fa-3x text-warning mb-2"></i>
                                 <h4 class="font-weight-bold">
-                                    <?= count(array_filter($orders, fn($o) => in_array($o['status_order'], ['pending_payment','pending_verification']))) ?>
+                                    <?= count(array_filter($orders, fn($o) => in_array($o->order_status, ['pending_payment','pending_verification']))) ?>
                                 </h4>
                                 <p class="text-muted mb-2">Menunggu Verifikasi</p>
                             </div>
@@ -47,7 +47,7 @@
                             <div class="card-body">
                                 <i class="fa fa-check-circle fa-3x text-success mb-2"></i>
                                 <h4 class="font-weight-bold">
-                                    <?= count(array_filter($orders, fn($o) => $o['status_order'] === 'completed')) ?>
+                                    <?= count(array_filter($orders, fn($o) => $o->order_status === 'completed')) ?>
                                 </h4>
                                 <p class="text-muted mb-2">Pesanan Selesai</p>
                             </div>
@@ -61,18 +61,20 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong><?= esc($recentOrder['invoice_no']) ?></strong><br>
-                                    <small class="text-muted"><?= date('d M Y', strtotime($recentOrder['created_at'])) ?></small>
+                                    <strong><?= esc($recentOrder->invoice_no) ?></strong><br>
+                                    <small class="text-muted"><?= date('d M Y', strtotime($recentOrder->created_at)) ?></small>
                                 </div>
                                 <div>
-                                    <span class="badge status-badge status-<?= $recentOrder['status_order'] ?>">
-                                        <?= ucwords(str_replace('_', ' ', $recentOrder['status_order'])) ?>
+                                    <span class="badge status-badge status-<?= $recentOrder->order_status ?>">
+                                        <?= ucwords(str_replace('_', ' ', $recentOrder->order_status)) ?>
                                     </span>
                                 </div>
                                 <div>
-                                    <strong>Rp <?= number_format($recentOrder['total_bayar']) ?></strong>
+                                    <strong>Rp <?= number_format($recentOrder->total_bayar) ?></strong>
                                 </div>
-                                <a href="<?= site_url('account/orders/' . $recentOrder['invoice_no']) ?>" class="btn btn-sm btn-outline-primary">Detail</a>
+                             <a href="<?= site_url('account/orders/detail/' . $recentOrder->id) ?>" class="btn btn-sm btn-outline-primary">
+                                Detail
+                            </a>
                             </div>
                         </div>
                     </div>

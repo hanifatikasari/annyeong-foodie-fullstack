@@ -2,30 +2,38 @@
 
 namespace App\Controllers;
 
+use App\Models\PenjualanModel;
+
 class Account extends BaseController
 {
     // ---------------------------------------------------------------
     // DASHBOARD
-    // FIX ISSUE #6: method getOrdersByUser() — pastikan ada di model
-    // FIX ISSUE #8: null guard pada $currentUser
+    // FIX ISSUE #7: gunakan getOrdersByCustomer() secara konsisten
     // ---------------------------------------------------------------
     public function index()
     {
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login');
+        }
+
         $userId = $this->currentUser->id ?? 0;
-
-        // Menggunakan method yang telah diperbaiki di PenjualanModel
         $orders = model('PenjualanModel')->getOrdersByCustomer($userId);
+        $recentOrder = model('PenjualanModel')->getLatestOrderByCustomer($userId);
 
-        $pendingCount   = count(array_filter($orders, fn($o) => in_array(
-            is_object($o) ? $o->status_order : $o['status_order'],
-            ['pending_payment', 'pending_verification']
-        )));
-        $completedCount = count(array_filter($orders, fn($o) =>
-            (is_object($o) ? $o->status_order : $o['status_order']) === 'completed'
-        ));
+        $pendingCount = 0;
+        $completedCount = 0;
+        foreach ($orders as $o) {
+            $status = $o->order_status ?? '';
+            if (in_array($status, ['pending_payment', 'pending_verification'])) {
+                $pendingCount++;
+            }
+            if ($status === 'completed') {
+                $completedCount++;
+            }
+        }
 
         $this->data['orders']         = $orders;
-        $this->data['recentOrder']    = !empty($orders) ? $orders[0] : null;
+        $this->data['recentOrder']    = $recentOrder;
         $this->data['pendingCount']   = $pendingCount;
         $this->data['completedCount'] = $completedCount;
         $this->data['title']          = 'Dashboard Akun';
@@ -38,8 +46,11 @@ class Account extends BaseController
     // ---------------------------------------------------------------
     public function orders()
     {
-        $userId = $this->currentUser->id ?? 0;
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login');
+        }
 
+        $userId = $this->currentUser->id ?? 0;
         $this->data['orders'] = model('PenjualanModel')->getOrdersByCustomer($userId);
         $this->data['title']  = 'Riwayat Pesanan';
 
@@ -49,40 +60,58 @@ class Account extends BaseController
     // ---------------------------------------------------------------
     // DETAIL PESANAN
     // ---------------------------------------------------------------
-    public function orderDetail(string $invoice)
+    public function orderDetail($id)
     {
-        $order = model('PenjualanModel')->getOrderByInvoice($invoice);
+        // Pastikan user sudah login
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login');
+        }
 
-        // Validasi: pastikan order milik user yang sedang login
-        $orderUserId = is_object($order) ? ($order->customer_id ?? null) : ($order['customer_id'] ?? null);
+        // Ambil order + data customer berdasarkan ID
+        $order = model('PenjualanModel')->getOrderWithCustomerById($id);
 
-        if (!$order || (int) $orderUserId !== (int) $this->currentUser->id) {
+
+        // Jika order tidak ditemukan
+        if (!$order) {
             return redirect()->to('account/orders')
                 ->with('error', 'Pesanan tidak ditemukan.');
         }
 
-        $orderId = is_object($order) ? $order->id : $order['id'];
-        $details = model('PenjualanDetailModel')->getDetailByPenjualan($orderId);
+        // Validasi: pastikan order milik user yang sedang login
+        // Kolom yang digunakan adalah customer_id
+        if ((int) ($order->customer_id ?? 0) !== (int) $this->currentUser->id) {
+            return redirect()->to('account/orders')
+                ->with('error', 'Akses ditolak.');
+        }
 
+        // Ambil detail item pesanan
+        $details = model('PenjualanDetailModel')->getDetailByPenjualan($order->id);
+
+        // Kirim data ke view
         $this->data['order']   = $order;
         $this->data['details'] = $details;
-        $this->data['title']   = 'Detail Pesanan ' . $invoice;
+        $this->data['title']   = 'Detail Pesanan ' . $order->invoice_no;
 
+        // Tampilkan halaman detail pesanan
         return view('themes/indomarket/account/order_detail', $this->data);
     }
 
     // ---------------------------------------------------------------
     // PROFIL
-    // FIX ISSUE #8: null guard, pass $user terpisah + $currentUser
+    // FIX ISSUE #8: ambil data terbaru dari DB, null-safe
     // ---------------------------------------------------------------
     public function profile()
     {
-        // Ambil data user terbaru langsung dari DB agar selalu up-to-date
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login');
+        }
+
+        // Ambil data terbaru langsung dari DB (bukan dari session Ion Auth)
         $user = \Config\Database::connect()
             ->table('users')
             ->where('id', $this->currentUser->id)
             ->get()
-            ->getRow(); // getRow() mengembalikan object
+            ->getRow(); // getRow() → object
 
         $this->data['user']  = $user ?? $this->currentUser;
         $this->data['title'] = 'Profil Saya';
@@ -92,27 +121,29 @@ class Account extends BaseController
 
     // ---------------------------------------------------------------
     // UPDATE PROFIL
-    // FIX ISSUE #3:
-    //   - Gunakan $db->table('users')->where()->update() dengan format benar
-    //   - Pastikan hanya kolom yang ada di DB yang di-update
-    //   - Tambahkan validasi minimal
+    // FIX ISSUE #1: Pemetaan field form → kolom DB yang benar
+    //
+    // Form menggunakan nama Indonesia:
+    //   alamat   → address
+    //   kota     → city
+    //   provinsi → province
+    //   kode_pos → postal_code
+    //
+    // Kolom DB aktual (dari prompt):
+    //   address, city, province, postal_code
     // ---------------------------------------------------------------
     public function updateProfile()
     {
-        $builder = $db->table('users');
-
-        $result = $builder->where('id', $userId)
-                  ->update($updateData);
-
-        if (!$result) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal menyimpan profil. Coba lagi.');
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login');
         }
 
+        $userId = $this->currentUser->id;
+
+        // Validasi minimal
         $rules = [
-            'first_name' => 'required|min_length[2]|max_length[30]',
-            'last_name'  => 'permit_empty|max_length[30]',
+            'first_name' => 'required|min_length[2]|max_length[50]',
+            'last_name'  => 'permit_empty|max_length[50]',
             'phone'      => 'permit_empty|max_length[20]',
         ];
 
@@ -122,23 +153,25 @@ class Account extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
-        // Data yang akan di-update — sesuaikan dengan kolom di tabel users
+        // FIX #1: Peta nama field form → nama kolom DB aktual
         $updateData = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name'  => $this->request->getPost('last_name') ?? '',
-            'phone'      => $this->request->getPost('phone') ?? '',
-            'address'    => $this->request->getPost('alamat') ?? '',
-            'city'       => $this->request->getPost('kota') ?? '',
-            'province'   => $this->request->getPost('provinsi') ?? '',
-            'postal_code' => $this->request->getPost('kode_pos') ?? '',
+            'first_name'  => $this->request->getPost('first_name'),
+            'last_name'   => $this->request->getPost('last_name') ?? '',
+            'phone'       => $this->request->getPost('phone') ?? '',
+            'address'     => $this->request->getPost('alamat') ?? '',      // form: alamat  → DB: address
+            'city'        => $this->request->getPost('kota') ?? '',        // form: kota    → DB: city
+            'province'    => $this->request->getPost('provinsi') ?? '',    // form: provinsi → DB: province
+            'postal_code' => $this->request->getPost('kode_pos') ?? '',   // form: kode_pos → DB: postal_code
         ];
 
         // Upload avatar (opsional)
         $avatarFile = $this->request->getFile('avatar');
         if ($avatarFile && $avatarFile->isValid() && !$avatarFile->hasMoved()) {
             $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-            if (in_array($avatarFile->getMimeType(), $allowedTypes)) {
-                // Pastikan folder ada
+
+            if (in_array($avatarFile->getMimeType(), $allowedTypes)
+                && $avatarFile->getSize() <= 2 * 1024 * 1024) {
+
                 $uploadDir = FCPATH . 'uploads/avatars';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
@@ -150,16 +183,16 @@ class Account extends BaseController
             }
         }
 
-        // FIX: Gunakan QueryBuilder dengan benar
-        $db = \Config\Database::connect();
-        $db->table('users')
-           ->where('id', $userId)
-           ->update($updateData);
+        // FIX #1: Gunakan QueryBuilder raw — lebih aman dan langsung
+        $db     = \Config\Database::connect();
+        $result = $db->table('users')
+                     ->where('id', $userId)
+                     ->update($updateData);
 
-        // Cek apakah ada error
-        if ($db->affectedRows() === false) {
+        if ($result === false) {
             return redirect()->back()
-                ->with('error', 'Gagal menyimpan profil. Coba lagi.');
+                ->withInput()
+                ->with('error', 'Gagal menyimpan profil. Silakan coba lagi.');
         }
 
         return redirect()->to('account/profile')
@@ -167,22 +200,22 @@ class Account extends BaseController
     }
 
     // ---------------------------------------------------------------
-    // TRACK ORDER (dari akun)
+    // TRACK ORDER (dari halaman akun)
     // ---------------------------------------------------------------
     public function trackOrder(string $invoice)
     {
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login');
+        }
+
         $order = model('PenjualanModel')->getOrderByInvoice($invoice);
 
-        $orderUserId = is_object($order) ? ($order->customer_id ?? null) : ($order['customer_id'] ?? null);
-
-        if (!$order || (int) $orderUserId !== (int) $this->currentUser->id) {
+        if (!$order || (int) ($order->customer_id ?? 0) !== (int) $this->currentUser->id) {
             return redirect()->to('account/orders');
         }
 
-        $orderId = is_object($order) ? $order->id : $order['id'];
-
         $this->data['order']   = $order;
-        $this->data['details'] = model('PenjualanDetailModel')->getDetailByPenjualan($orderId);
+        $this->data['details'] = model('PenjualanDetailModel')->getDetailByPenjualan($order->id);
         $this->data['title']   = 'Lacak Pesanan ' . $invoice;
 
         return view('themes/indomarket/account/order_detail', $this->data);

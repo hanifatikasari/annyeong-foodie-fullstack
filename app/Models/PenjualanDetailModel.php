@@ -5,8 +5,17 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * PenjualanDetailModel
- * FIX: returnType = 'object' sesuai requirement project
+ * PenjualanDetailModel — disesuaikan dengan skema DB aktual.
+ *
+ * Skema DB aktual dari prompt:
+ *   t_penjualan_detail:
+ *     - id
+ *     - penjualan_id
+ *     - product_id
+ *     - qty
+ *     - selling_price  (bukan price)
+ *     - subtotal
+ *     - hpp_price      (untuk hitung laba — opsional)
  */
 class PenjualanDetailModel extends Model
 {
@@ -14,15 +23,18 @@ class PenjualanDetailModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'object';
     protected $allowedFields = [
-        'penjualan_id', 'product_id', 'qty',
-        'hpp_price', 'selling_price', 'subtotal',
+        'penjualan_id',
+        'product_id',
+        'qty',
+        'selling_price',      
+        'subtotal',
+        'hpp_price',  
     ];
     protected $useTimestamps = false;
 
     /**
      * Ambil detail beserta nama produk.
-     * NOTE: Mengembalikan array of objects (bukan array of arrays)
-     * karena returnType = 'object'
+     * Return: array of objects
      */
     public function getDetailByPenjualan(int $penjualanId): array
     {
@@ -34,6 +46,7 @@ class PenjualanDetailModel extends Model
 
     /**
      * Ambil produk terlaris berdasarkan total qty terjual.
+     * Return: array of objects
      */
     public function getBestSelling(int $limit = 4): array
     {

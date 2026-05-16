@@ -35,7 +35,7 @@
         </div>
 
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Daftar Pesanan Online</h3></div>
+            <div class="card-header"><h3 class="card-title">Daftar Online Orders</h3></div>
             <div class="card-body table-responsive p-0">
                 <?= view('admin/shared/flash_message') ?>
                 <table class="table table-hover text-nowrap">
@@ -52,20 +52,27 @@
                     </thead>
                     <tbody>
                         <?php foreach ($orders as $order): ?>
+                            <?php if (!$order) continue; ?>
                             <tr>
-                                <td><a href="<?= site_url('admin/orders/' . $order['id']) ?>"><?= esc($order['invoice_no']) ?></a></td>
                                 <td>
-                                    <?= esc($order['customer_name']) ?>
+                                    <a href="<?= site_url('admin/orders/detail/' . $order->id) ?>">
+                                        <?= esc($order->invoice_no) ?>
+                                    </a>
                                 </td>
-                                <td>Rp <?= number_format($order['total_bayar']) ?></td>
-                                <td><?= esc($order['pembayaran']) ?></td>
                                 <td>
-                                    <span class="badge status-badge status-<?= $order['status_order'] ?>">
-                                        <?= ucwords(str_replace('_', ' ', $order['status_order'])) ?>
-                                    </span>
+                                    <?= esc($order->customer_name ?? '-') ?>
                                 </td>
-                                <td><?= date('d M Y H:i', strtotime($order['created_at'])) ?></td>
-                                <td><a href="<?= site_url('admin/orders/' . $order['id']) ?>" class="btn btn-sm btn-info">Detail</a></td>
+                                <td>Rp <?= number_format($order->total_bayar) ?></td>
+                                <td><?= esc($order->pembayaran) ?></td>
+                                <td>
+    <?= var_export($order->order_status, true) ?>
+</td>
+                                <td><?= date('d M Y H:i', strtotime($order->created_at)) ?></td>
+                                <td>
+                                    <a href="<?= site_url('admin/orders/detail/' . $order->id) ?>" class="btn btn-sm btn-info">
+                                        Detail
+                                    </a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                         <?php if (empty($orders)): ?>
@@ -75,7 +82,39 @@
                 </table>
             </div>
             <div class="card-footer">
-                <?= $pager->links('bootstrap', 'bootstrap') ?>
+                <?php if (($totalPages ?? 1) > 1): ?>
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+
+                            <!-- Previous -->
+                            <li class="page-item <?= ($currentPage <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link"
+                                href="<?= site_url('admin/orders?page=' . ($currentPage - 1) . ($status ? '&status=' . urlencode($status) : '')) ?>">
+                                    &laquo;
+                                </a>
+                            </li>
+
+                            <!-- Page Numbers -->
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                                    <a class="page-link"
+                                    href="<?= site_url('admin/orders?page=' . $i . ($status ? '&status=' . urlencode($status) : '')) ?>">
+                                        <?= $i ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <!-- Next -->
+                            <li class="page-item <?= ($currentPage >= $totalPages) ? 'disabled' : '' ?>">
+                                <a class="page-link"
+                                href="<?= site_url('admin/orders?page=' . ($currentPage + 1) . ($status ? '&status=' . urlencode($status) : '')) ?>">
+                                    &raquo;
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             </div>
         </div>
     </div>

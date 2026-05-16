@@ -7,7 +7,7 @@ $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
-$routes->setAutoRoute(true);
+$routes->setAutoRoute(false);
 
 // 1. FRONTEND (E-BISNIS) - TANPA FILTER
 $routes->get('/', 'Home::index');
@@ -75,13 +75,28 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('show/(:num)', 'Admin\Produksi::show/$1');
     });
 
+    $routes->group('admin', ['filter' => 'authAdmin:admin,penjualan,pemilik'], function($routes) {
+        $routes->get('orders', 'Admin\Orders::index');
+        $routes->get('orders/detail/(:num)', 'Admin\Orders::detail/$1');
+        $routes->post('orders/verify/(:num)', 'Admin\Orders::verify/$1');
+        $routes->post('orders/update-status/(:num)', 'Admin\Orders::updateStatus/$1');
+    });
+
     // --- PENJUALAN ---
     $routes->group('penjualan', ['filter' => 'authAdmin:admin,penjualan'], function($routes) {
         $routes->get('/', 'Admin\Penjualan::index');
         $routes->get('create', 'Admin\Penjualan::create');
         $routes->post('simpan', 'Admin\Penjualan::simpan');
         $routes->get('show/(:num)', 'Admin\Penjualan::show/$1');
-    });
+        });
+
+        // Orders
+    $routes->get('orders', 'Admin\Orders::index');
+    $routes->get('orders/detail/(:num)', 'Admin\Orders::detail/$1');
+    $routes->post('orders/verify/(:num)', 'Admin\Orders::verify/$1');
+    $routes->post('orders/update-status/(:num)', 'Admin\Orders::updateStatus/$1');
+    $routes->post('orders/updateStatus/(:num)', 'Admin\Orders::updateStatus/$1');
+    
 
     // --- REPORTS ---
     $routes->group('reports', ['filter' => 'authAdmin:admin,pemilik'], function($routes) {
@@ -151,7 +166,10 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         });  
     });
     
-    // ============================================================
+    
+});
+
+// ============================================================
     // E-COMMERCE FRONTEND ROUTES
     // ============================================================
 
@@ -174,15 +192,24 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('upload/(:segment)', 'Checkout::uploadBukti/$1');
     });
 
-    // Customer account (wajib login)
+    // =========================
+    // CUSTOMER ACCOUNT
+    // =========================
     $routes->group('account', ['filter' => 'authFrontend'], function($routes) {
-        $routes->get('/',                  'Account::index');
-        $routes->get('orders',             'Account::orders');
-        $routes->get('orders/(:segment)',  'Account::orderDetail/$1');
-        $routes->get('profile',            'Account::profile');
-        $routes->post('profile/update',    'Account::updateProfile');
-        $routes->get('track/(:segment)',   'Account::trackOrder/$1');
+        $routes->get('/', 'Account::index');
+        $routes->get('orders', 'Account::orders');
+
+         // Route spesifik harus lebih dulu
+        $routes->get('orders/detail/(:num)', 'Account::orderDetail/$1');
+
+        // Route alternatif lama
+        $routes->get('orders/(:segment)', 'Account::orderDetail/$1');
+
+        $routes->get('profile', 'Account::profile');
+        $routes->post('profile/update', 'Account::updateProfile');
+        $routes->get('track', 'Track::index');
     });
+    
 
     // Track order (publik)
     $routes->get('track',                  'Shop::track');
@@ -213,4 +240,3 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->match(['get', 'post'], 'process', 'Checkout::process');
         $routes->match(['get', 'post'], 'upload/(:segment)', 'Checkout::upload/$1');
     });
-});

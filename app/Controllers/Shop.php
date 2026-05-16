@@ -71,7 +71,7 @@ class Shop extends BaseController
         $this->injectCategories();
 
         // Jika ada invoice dari GET (dari home page form)
-        $invoiceFromGet = $this->request->getGet('invoice');
+        $invoiceFromGet = $this->request->getGet('invoice_no');
 
         $this->data['invoiceFromGet'] = $invoiceFromGet ?? '';
         $this->data['title']          = 'Lacak Pesanan';

@@ -17,7 +17,7 @@
                             <div class="form-group">
                                 <label class="font-weight-bold">Nomor Invoice</label>
                                 <input type="text" name="invoice_no" class="form-control form-control-lg"
-                                       placeholder="contoh: AES-20260512-001" required value="<?= esc($this->request->getGet('invoice') ?? '') ?>">
+                                       placeholder="contoh: AES-20260512-001" required value="<?= esc($this->request->getGet('invoice_no') ?? '') ?>">
                             </div>
                             <button type="submit" class="btn btn-primary btn-block btn-lg">
                                 <i class="fa fa-search mr-1"></i> Lacak Pesanan

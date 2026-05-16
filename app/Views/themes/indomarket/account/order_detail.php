@@ -18,7 +18,10 @@
                     'completed'            => ['label' => 'Selesai',                 'color' => 'success'],
                     'cancelled'            => ['label' => 'Dibatalkan',              'color' => 'danger'],
                 ];
-                $st = $statusMap[$order['status_order']] ?? ['label' => $order['status_order'], 'color' => 'secondary'];
+               $st = $statusMap[$order->order_status] ?? [
+    'label' => $order->order_status,
+    'color' => 'secondary'
+];
                 ?>
 
                 <div class="card shadow-sm mb-3">
@@ -28,11 +31,11 @@
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
-                            <div class="col-md-4"><small class="text-muted">Invoice</small><div class="font-weight-bold"><?= esc($order['invoice_no']) ?></div></div>
-                            <div class="col-md-4"><small class="text-muted">Tanggal</small><div><?= date('d M Y H:i', strtotime($order['created_at'])) ?></div></div>
-                            <div class="col-md-4"><small class="text-muted">Pembayaran</small><div><?= esc($order['pembayaran']) ?></div></div>
-                            <div class="col-md-8 mt-2"><small class="text-muted">Alamat Pengiriman</small><div><?= esc($order['alamat_pengiriman']) ?></div></div>
-                            <div class="col-md-4 mt-2"><small class="text-muted">Penerima</small><div><?= esc($order['nama_penerima']) ?> — <?= esc($order['no_hp_penerima']) ?></div></div>
+                            <div class="col-md-4"><small class="text-muted">Invoice</small><div class="font-weight-bold"><?= esc($order->invoice_no) ?></div></div>
+                            <div class="col-md-4"><small class="text-muted">Tanggal</small><div><?= date('d M Y H:i', strtotime($order->created_at)) ?></div></div>
+                            <div class="col-md-4"><small class="text-muted">Pembayaran</small><div><?= esc($order->pembayaran) ?></div></div>
+                            <div class="col-md-8 mt-2"><small class="text-muted">Alamat Pengiriman</small><div><?= esc($order->shipping_address) ?></div></div>
+                            <div class="col-md-4 mt-2"><small class="text-muted">Penerima</small><div><?= esc($order->first_name) ?> <?= esc($order->last_name) ?> — <?= esc($order->phone) ?></div></div>
                         </div>
 
                         <div class="table-responsive">
@@ -43,39 +46,39 @@
                                 <tbody>
                                     <?php foreach ($details as $d): ?>
                                         <tr>
-                                            <td><?= esc($d['product_name']) ?><br><small class="text-muted"><?= esc($d['sku']) ?></small></td>
-                                            <td class="text-center"><?= $d['qty'] ?></td>
-                                            <td class="text-right">Rp <?= number_format($d['selling_price']) ?></td>
-                                            <td class="text-right font-weight-bold">Rp <?= number_format($d['subtotal']) ?></td>
+                                            <td><?= esc($d->product_name) ?><br><small class="text-muted"><?= esc($d->sku) ?></small></td>
+                                            <td class="text-center"><?= $d->qty ?></td>
+                                            <td class="text-right">Rp <?= number_format($d->selling_price) ?></td>
+                                            <td class="text-right font-weight-bold">Rp <?= number_format($d->subtotal) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                                 <tfoot>
                                     <tr class="table-primary">
                                         <th colspan="3">Total Bayar</th>
-                                        <th class="text-right">Rp <?= number_format($order['total_bayar']) ?></th>
+                                        <th class="text-right">Rp <?= number_format($order->total_bayar) ?></th>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
 
-                        <?php if (!empty($order['bukti_bayar'])): ?>
+                        <?php if (!empty($order->bukti_bayar)): ?>
                             <div class="mt-3">
                                 <strong>Bukti Pembayaran:</strong><br>
-                                <?php $ext = pathinfo($order['bukti_bayar'], PATHINFO_EXTENSION); ?>
+                                <?php $ext = pathinfo($order->bukti_bayar, PATHINFO_EXTENSION); ?>
                                 <?php if (in_array(strtolower($ext), ['jpg','jpeg','png'])): ?>
-                                    <img src="<?= base_url($order['bukti_bayar']) ?>" class="img-fluid rounded mt-2" style="max-width:300px;">
+                                    <img src="<?= base_url($order->bukti_bayar) ?>" class="img-fluid rounded mt-2" style="max-width:300px;">
                                 <?php else: ?>
-                                    <a href="<?= base_url($order['bukti_bayar']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                                    <a href="<?= base_url($order->bukti_bayar) ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
                                         <i class="fa fa-file-pdf-o mr-1"></i> Lihat Bukti
                                     </a>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
-                        <?php if ($order['status_order'] === 'pending_payment'): ?>
+                        <?php if ($order->order_status === 'pending_payment'): ?>
                             <div class="mt-3">
-                                <a href="<?= site_url('checkout/upload/' . $order['invoice_no']) ?>" class="btn btn-warning">
+                                <a href="<?= site_url('checkout/upload/' . $order->invoice_no) ?>" class="btn btn-warning">
                                     <i class="fa fa-upload mr-1"></i> Upload Bukti Pembayaran
                                 </a>
                             </div>

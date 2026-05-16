@@ -5,32 +5,65 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * PenjualanModel
+ * PenjualanModel — disesuaikan dengan skema DB aktual.
  *
- * FIX ISSUE #6: Konsistensi nama method — gunakan getOrdersByUser()
- * FIX: returnType = 'object' sesuai requirement project
+ * Skema DB aktual dari prompt:
+ *   t_penjualan:
+ *     - id
+ *     - invoice        (bukan invoice_no)
+ *     - customer_id    (bukan user_id)
+ *     - total_harga
+ *     - diskon
+ *     - total_bayar
+ *     - pembayaran
+ *     - uang_diterima
+ *     - kasir_id
+ *     - tipe_order
+ *     - order_status   (bukan status_order)
+ *     - payment_status
+ *     - nama_penerima
+ *     - no_hp_penerima
+ *     - shipping_address (bukan alamat_pengiriman)
+ *     - catatan_order
+ *     - payment_proof   (bukan bukti_bayar)
+ *     - verified_at
+ *     - verified_by
+ *     - created_at
+ *     - updated_at
  */
 class PenjualanModel extends Model
 {
     protected $table            = 't_penjualan';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'object';  // FIX: harus object, bukan array
-    protected $allowedFields    = [
-        'invoice_no', 'total_harga', 'diskon', 'total_bayar',
-        'pembayaran', 'uang_diterima', 'kasir_id', 'customer_id',
-        'status_order', 'nama_penerima', 'no_hp_penerima',
-        'alamat_pengiriman', 'catatan_order', 'bukti_bayar',
-        'verified_at', 'verified_by',
-    ];
-    protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
+    protected $returnType       = 'object';
+    protected $useTimestamps    = true;
+    protected $createdField     = 'created_at';
+    protected $updatedField     = 'updated_at';
 
-    /**
-     * Generate nomor invoice unik.
-     * Format: AES-YYYYMMDD-001
-     */
+    protected $allowedFields = [
+        'invoice_no',
+        'customer_id',
+        'total_harga',
+        'diskon',
+        'total_bayar',
+        'pembayaran',
+        'uang_diterima',
+        'kasir_id',
+        'order_status',
+        'payment_status',
+        'shipping_address',
+        'catatan_customer',
+        'payment_proof',
+        'verified_at',
+        'verified_by',
+        'created_at',
+        'updated_at',
+    ];
+
+    // ----------------------------------------------------------------
+    // Generate nomor invoice online — Format: AES-YYYYMMDD-001
+    // ----------------------------------------------------------------
     public function generateInvoiceNo(): string
     {
         $date   = date('Ymd');
@@ -41,7 +74,7 @@ class PenjualanModel extends Model
                      ->first();
 
         $seq = 1;
-        if ($last) {
+        if ($last && !empty($last->invoice_no)) {
             $parts = explode('-', $last->invoice_no ?? '');
             $seq   = ((int) end($parts)) + 1;
         }
@@ -50,51 +83,214 @@ class PenjualanModel extends Model
     }
 
     /**
-     * FIX ISSUE #6: Nama method yang benar dan konsisten.
-     * Mengambil semua order online milik user tertentu.
+     * Alias untuk kompatibilitas kode lama
+     * yang masih memanggil generateInvoice().
      */
-    public function getOrdersByUser(int $userId): array
+    public function generateInvoice(): string
     {
-        return $this->where('customer_id', $userId)
+        return $this->generateInvoiceNo();
+    }
+
+    // ----------------------------------------------------------------
+    // FIX ISSUE #7: getOrdersByCustomer() sebagai nama canonical
+    // ----------------------------------------------------------------
+    public function getOrdersByCustomer(int $customerId): array
+    {
+        return $this->where('customer_id', $customerId)
                     ->orderBy('id', 'DESC')
                     ->findAll();
     }
 
     /**
-     * Alias untuk backward compatibility jika ada kode yang memanggil nama lama.
+     * Alias — agar tidak break kode lama yang masih pakai getOrdersByUser()
      */
-    public function getOrdersByCustomer(int $customerId): array
+    public function getOrdersByUser(int $userId): array
     {
-        return $this->getOrdersByUser($customerId);
+        return $this->getOrdersByCustomer($userId);
     }
 
-    /**
-     * Ambil order berdasarkan nomor invoice.
-     */
+    // ----------------------------------------------------------------
+    // Ambil order berdasarkan invoice number
+    // ----------------------------------------------------------------
     public function getOrderByInvoice(string $invoice): ?object
     {
         return $this->where('invoice_no', $invoice)->first();
     }
 
-    /**
-     * Ambil semua order online yang menunggu verifikasi.
+     /**
+     * Ambil satu order + data customer berdasarkan invoice.
+     *
+     * Field tambahan:
+     * - first_name
+     * - last_name
+     * - phone
+     * - email
+     * - address
+     * - city
+     * - province
+     * - postal_code
      */
-    public function getPendingPayments(): array
+     public function getOrderWithCustomerByInvoice(string $invoice): ?object
     {
-        return $this->whereIn('status_order', ['pending_payment', 'pending_verification'])
-                    ->orderBy('id', 'DESC')
-                    ->findAll();
+        return $this->select('
+                        t_penjualan.*,
+                        users.first_name,
+                        users.last_name,
+                        users.phone,
+                        users.email,
+                        users.address,
+                        users.city,
+                        users.province,
+                        users.postal_code
+                    ')
+                    ->join('users', 'users.id = t_penjualan.customer_id', 'left')
+                    ->where('t_penjualan.invoice_no', $invoice)
+                    ->first();
+    }
+
+     /**
+     * Ambil satu order + data customer berdasarkan ID.
+     */
+    public function getOrderWithCustomerById(int $id): ?object
+    {
+        return $this->select('
+                        t_penjualan.*,
+                        users.first_name,
+                        users.last_name,
+                        users.phone,
+                        users.email,
+                        users.address,
+                        users.city,
+                        users.province,
+                        users.postal_code
+                    ')
+                    ->join('users', 'users.id = t_penjualan.customer_id', 'left')
+                    ->where('t_penjualan.id', $id)
+                    ->first();
+    }
+
+     /**
+     * Ambil semua pesanan online untuk admin.
+     *
+     * Optional filter:
+     * - status
+     * - pagination
+     */
+    public function getOnlineOrdersForAdmin(string $status = '', int $perPage = 15)
+    {
+        $builder = $this->select('
+                            t_penjualan.*,
+                            users.first_name,
+                            users.last_name,
+                            users.phone,
+                            users.email,
+                            CONCAT(
+                                COALESCE(users.first_name, ""),
+                                " ",
+                                COALESCE(users.last_name, "")
+                            ) AS customer_name
+                        ')
+                        ->join('users', 'users.id = t_penjualan.customer_id', 'left')
+                        ->like('t_penjualan.invoice_no', 'AES-', 'after'); // Hanya invoice online (AES-)
+
+        if (!empty($status)) {
+            $builder->where('t_penjualan.order_status', $status);
+        }
+
+        $builder->orderBy('t_penjualan.id', 'DESC');
+
+        // Jika digunakan dengan paginate(), controller bisa memanggil:
+        // $model->getOnlineOrdersForAdmin(...)->paginate(...)
+        return $builder;
     }
 
     /**
-     * Ambil semua order online (untuk admin).
+     * Ambil semua transaksi POS (invoice INV-).
      */
-    public function getOnlineOrders(string $status = ''): array
+    public function getPosSales()
     {
-        $query = $this;
-        if ($status) {
-            $query->where('status_order', $status);
-        }
-        return $query->orderBy('id', 'DESC')->findAll();
+        return $this->select('
+                        t_penjualan.*,
+                        users.first_name,
+                        users.last_name
+                    ')
+                    ->join('users', 'users.id = t_penjualan.kasir_id', 'left')
+                    ->like('t_penjualan.invoice_no', 'INV-', 'after')
+                    ->orderBy('t_penjualan.id', 'DESC');
+    }
+
+    /**
+     * Verifikasi pembayaran.
+     */
+    public function verifyPayment(int $id, ?int $verifiedBy = null): bool
+    {
+        return (bool) $this->update($id, [
+            'payment_status' => 'verified',
+            'order_status'   => 'verified',
+            'verified_at'    => date('Y-m-d H:i:s'),
+            'verified_by'    => $verifiedBy,
+        ]);
+    }
+
+    /**
+     * Update status order.
+     */
+   public function updateStatus(int $id)
+{
+    $newStatus = $this->request->getPost('order_status');
+
+    $allowed = [
+        'pending_payment',
+        'pending_verification',
+        'verified',
+        'processing',
+        'ready',
+        'completed',
+        'cancelled',
+    ];
+
+    if (!in_array($newStatus, $allowed)) {
+        return redirect()->back()->with('error', 'Status tidak valid.');
+    }
+
+    $penjualanModel = new \App\Models\PenjualanModel();
+
+    $success = $penjualanModel->updateOrderStatus($id, $newStatus);
+
+    if (!$success) {
+        return redirect()->back()->with('error', 'Gagal memperbarui status pesanan.');
+    }
+
+    // Cek ulang hasil update
+    $updated = $penjualanModel->find($id);
+
+    if (!$updated || empty($updated->order_status)) {
+        return redirect()->back()->with(
+            'error',
+            'Update dianggap berhasil, tetapi nilai order_status tidak tersimpan.'
+        );
+    }
+
+    return redirect()->to(site_url('admin/orders/detail/' . $id))
+        ->with('success', 'Status pesanan berhasil diperbarui!');
+}
+
+    /**
+     * Ambil pesanan terbaru customer.
+     */
+    public function getLatestOrderByCustomer(int $customerId): ?object
+    {
+        return $this->where('customer_id', $customerId)
+                    ->orderBy('id', 'DESC')
+                    ->first();
+    }
+
+    /**
+     * Hitung total pesanan customer.
+     */
+    public function countOrdersByCustomer(int $customerId): int
+    {
+        return $this->where('customer_id', $customerId)
+                    ->countAllResults();
     }
 }

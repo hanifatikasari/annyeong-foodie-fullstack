@@ -17,12 +17,13 @@ class Penjualan extends BaseController
         $perPage = $this->request->getGet('perPage') ?? 10;
 
         $model = model('PenjualanModel');
-        $model->select('t_penjualan.*, users.first_name, users.last_name')
-              ->join('users', 'users.id = t_penjualan.kasir_id', 'left');
+        $query = $model->getPosSales();
 
         if (!empty($keyword)) {
             $model->like('t_penjualan.invoice_no', $keyword);
         }
+
+        $penjualan = $query->paginate($perPage, 'bootstrap');
 
         $data = [
             'title'               => 'Data Penjualan',

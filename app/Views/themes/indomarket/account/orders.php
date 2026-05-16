@@ -26,18 +26,25 @@
                                     <tbody>
                                         <?php foreach ($orders as $order): ?>
                                             <tr>
-                                                <td class="font-weight-bold"><?= esc($order['invoice_no']) ?></td>
-                                                <td><?= date('d M Y', strtotime($order['created_at'])) ?></td>
-                                                <td>Rp <?= number_format($order['total_bayar']) ?></td>
+                                                <td class="font-weight-bold"><?= esc($order->invoice_no) ?></td>
+                                                <td><?= date('d M Y', strtotime($order->created_at)) ?></td>
+                                                <td>Rp <?= number_format($order->total_bayar) ?></td>
                                                 <td>
-                                                    <span class="badge status-badge status-<?= $order['status_order'] ?>">
-                                                        <?= ucwords(str_replace('_', ' ', $order['status_order'])) ?>
+                                                    <span class="badge status-badge status-<?= $order->order_status ?>">
+                                                        <?= ucwords(str_replace('_', ' ', $order->order_status)) ?>
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <a href="<?= site_url('account/orders/' . $order['invoice_no']) ?>" class="btn btn-sm btn-outline-primary">Detail</a>
-                                                    <?php if ($order['status_order'] === 'pending_payment'): ?>
-                                                        <a href="<?= site_url('checkout/upload/' . $order['invoice_no']) ?>" class="btn btn-sm btn-warning">Upload Bukti</a>
+                                                    <a href="<?= site_url('account/orders/detail/' . $order->id) ?>"
+                                                    class="btn btn-sm btn-info">
+                                                        Detail
+                                                    </a>
+
+                                                    <?php if ($order->order_status === 'pending_payment'): ?>
+                                                        <a href="<?= site_url('checkout/upload/' . $order->invoice_no) ?>"
+                                                        class="btn btn-sm btn-warning">
+                                                            Upload Bukti
+                                                        </a>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>

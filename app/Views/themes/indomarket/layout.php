@@ -40,7 +40,7 @@
     <script src="<?= base_url('/themes/indomarket/assets/js/core/jquery-ui.min.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="<?= base_url('/themes/indomarket/assets/js/argon-design-system.js') ?>"></script>
-    <script src="<?= base_url('/themes/indomarket/assets/js/main.js') ?>"></script>
+    <!-- <script src="<?= base_url('/themes/indomarket/assets/js/main.js') ?>"></script> -->
 
     <script>
     // AJAX Add to Cart

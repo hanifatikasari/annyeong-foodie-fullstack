@@ -7,8 +7,8 @@
             <div class="col-sm-6"><h1>Detail Pesanan</h1></div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= site_url('admin/orders') ?>">Pesanan Online</a></li>
-                    <li class="breadcrumb-item active"><?= esc($order['invoice_no']) ?></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/orders') ?>">Online Orders</a></li>
+                    <li class="breadcrumb-item active"><?= esc($order->invoice_no) ?></li>
                 </ol>
             </div>
         </div>
@@ -23,23 +23,28 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title"><?= esc($order['invoice_no']) ?></h3>
-                        <span class="badge status-badge status-<?= $order['status_order'] ?> p-2">
-                            <?= ucwords(str_replace('_', ' ', $order['status_order'])) ?>
+                        <h3 class="card-title"><?= esc($order->invoice_no) ?></h3>
+                        <span class="badge status-badge status-<?= $order->order_status ?> p-2">
+                            <?= ucwords(str_replace('_', ' ', $order->order_status)) ?>
                         </span>
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <strong>Penerima:</strong> <?= esc($order['nama_penerima']) ?><br>
-                                <strong>No. HP:</strong> <?= esc($order['no_hp_penerima']) ?><br>
-                                <strong>Alamat:</strong><br><?= esc($order['alamat_pengiriman']) ?>
+                               <strong>Penerima:</strong>
+                                <?= esc(trim(($order->first_name ?? '') . ' ' . ($order->last_name ?? ''))) ?><br>
+
+                                <strong>No. HP:</strong>
+                                <?= esc($order->phone ?? '-') ?><br>
+
+                                <strong>Alamat:</strong><br>
+                                <?= nl2br(esc($order->shipping_address ?? '-')) ?>
                             </div>
                             <div class="col-md-6">
-                                <strong>Tanggal:</strong> <?= date('d M Y H:i', strtotime($order['created_at'])) ?><br>
-                                <strong>Pembayaran:</strong> <?= esc($order['pembayaran']) ?><br>
-                                <?php if (!empty($order['catatan_order'])): ?>
-                                    <strong>Catatan:</strong> <?= esc($order['catatan_order']) ?>
+                                <strong>Tanggal:</strong> <?= date('d M Y H:i', strtotime($order->created_at)) ?><br>
+                                <strong>Pembayaran:</strong> <?= esc($order->pembayaran) ?><br>
+                                <?php if (!empty($order->catatan_customer)): ?>
+                                    <strong>Catatan:</strong> <?= esc($order->catatan_customer) ?>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -51,31 +56,31 @@
                             <tbody>
                                 <?php foreach ($details as $d): ?>
                                     <tr>
-                                        <td><?= esc($d['product_name']) ?> <small class="text-muted">(<?= esc($d['sku']) ?>)</small></td>
-                                        <td class="text-center"><?= $d['qty'] ?></td>
-                                        <td class="text-right">Rp <?= number_format($d['selling_price']) ?></td>
-                                        <td class="text-right">Rp <?= number_format($d['subtotal']) ?></td>
+                                        <td><?= esc($d->product_name) ?> <small class="text-muted">(<?= esc($d->sku) ?>)</small></td>
+                                        <td class="text-center"><?= $d->qty ?></td>
+                                        <td class="text-right">Rp <?= number_format($d->selling_price) ?></td>
+                                        <td class="text-right">Rp <?= number_format($d->subtotal) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                             <tfoot>
                                 <tr class="table-primary">
                                     <th colspan="3">TOTAL</th>
-                                    <th class="text-right">Rp <?= number_format($order['total_bayar']) ?></th>
+                                    <th class="text-right">Rp <?= number_format($order->total_bayar) ?></th>
                                 </tr>
                             </tfoot>
                         </table>
 
-                        <?php if (!empty($order['bukti_bayar'])): ?>
+                        <?php if (!empty($order->payment_proof)): ?>
                             <div class="mt-3">
                                 <strong>Bukti Pembayaran:</strong><br>
-                                <?php $ext = pathinfo($order['bukti_bayar'], PATHINFO_EXTENSION); ?>
+                                <?php $ext = pathinfo($order->payment_proof, PATHINFO_EXTENSION); ?>
                                 <?php if (in_array(strtolower($ext), ['jpg','jpeg','png'])): ?>
-                                    <a href="<?= base_url($order['bukti_bayar']) ?>" target="_blank">
-                                        <img src="<?= base_url($order['bukti_bayar']) ?>" class="img-fluid mt-2 rounded" style="max-width:300px;">
+                                    <a href="<?= base_url($order->payment_proof) ?>" target="_blank">
+                                        <img src="<?= base_url($order->payment_proof) ?>" class="img-fluid mt-2 rounded" style="max-width:300px;">
                                     </a>
                                 <?php else: ?>
-                                    <a href="<?= base_url($order['bukti_bayar']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                                    <a href="<?= base_url($order->payment_proof) ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
                                         <i class="fa fa-file-pdf-o mr-1"></i> Lihat Bukti PDF
                                     </a>
                                 <?php endif; ?>
@@ -87,12 +92,12 @@
 
             <!-- Actions -->
             <div class="col-md-4">
-                <?php if (in_array($order['status_order'], ['pending_verification'])): ?>
+                <?php if (in_array($order->order_status, ['pending_verification'])): ?>
                     <div class="card card-success">
                         <div class="card-header"><h3 class="card-title">Verifikasi Pembayaran</h3></div>
                         <div class="card-body">
                             <p>Pastikan pembayaran sudah diterima sebelum verifikasi.</p>
-                            <form action="<?= site_url('admin/orders/verify/' . $order['id']) ?>" method="post">
+                            <form action="<?= site_url('admin/orders/verify/' . $order->id) ?>" method="post">
                                 <?= csrf_field() ?>
                                 <button class="btn btn-success btn-block" onclick="return confirm('Verifikasi pembayaran ini?')">
                                     <i class="fa fa-check-circle mr-1"></i> Verifikasi Pembayaran
@@ -105,12 +110,12 @@
                 <div class="card">
                     <div class="card-header"><h3 class="card-title">Update Status</h3></div>
                     <div class="card-body">
-                        <form action="<?= site_url('admin/orders/status/' . $order['id']) ?>" method="post">
+                        <form action="<?= site_url('admin/orders/update-status/' . $order->id) ?>" method="post">
                             <?= csrf_field() ?>
                             <div class="form-group">
-                                <select name="status_order" class="form-control">
+                                <select name="order_status" class="form-control">
                                     <?php foreach (['pending_payment','pending_verification','verified','processing','ready','completed','cancelled'] as $s): ?>
-                                        <option value="<?= $s ?>" <?= $order['status_order'] === $s ? 'selected' : '' ?>>
+                                        <option value="<?= $s ?>" <?= $order->order_status === $s ? 'selected' : '' ?>>
                                             <?= ucwords(str_replace('_', ' ', $s)) ?>
                                         </option>
                                     <?php endforeach; ?>

@@ -76,7 +76,7 @@ $currentUser = $currentUser ?? null;
                 <!-- Logo -->
                 <div class="col-lg-3 col-6">
                     <a href="<?= site_url() ?>" class="navbar-brand text-decoration-none">
-                        <span style="font-size:1.5rem;font-weight:800;color:#e83e8c;">
+                        <span style="font-size:1.5rem;font-weight:800;color:#5e72e4;">
                             <i class="fa fa-shopping-bag mr-1"></i>Annyeong Foodie
                         </span>
                     </a>
@@ -117,7 +117,7 @@ $currentUser = $currentUser ?? null;
                                       style="
                                           position:absolute;
                                           top:-8px;right:-10px;
-                                          background:#e83e8c;color:#fff;
+                                          background:#5e72e4;color:#fff;
                                           border-radius:50%;
                                           width:19px;height:19px;
                                           font-size:11px;font-weight:700;
