@@ -77,12 +77,8 @@ class Orders extends BaseController
             return redirect()->back()->with('error', 'Order tidak ditemukan.');
         }
 
-        model('PenjualanModel')->update($id, [
-            'order_status'   => 'verified',
-            'payment_status' => 'verified',
-            'verified_at'    => date('Y-m-d H:i:s'),
-            'verified_by'    => $this->currentUser->id,
-        ]);
+        model('PenjualanModel')
+            ->updateOrderStatus($id, 'verified');
 
         return redirect()->to('admin/orders/' . $id)
             ->with('success', 'Pembayaran berhasil diverifikasi! Status diubah ke Verified.');
@@ -109,7 +105,8 @@ class Orders extends BaseController
             return redirect()->back()->with('error', 'Status tidak valid.');
         }
 
-        model('PenjualanModel')->update($id, ['order_status' => $newStatus]);
+        model('PenjualanModel')
+            ->updateOrderStatus($id, $newStatus);
 
         return redirect()->to('admin/orders/detail/' . $id)
             ->with('success', 'Status pesanan berhasil diperbarui!');

@@ -64,7 +64,7 @@ class Home extends BaseController
         }
 
         $this->data['trendingProducts'] = $trendingProducts;
-        $this->data['title']            = 'Annyeong Foodie - Korean Food Pemalang';
+        $this->data['title']            = 'Annyeong Foodie - Korean Food';
 
         return view('themes/' . $this->data['currentTheme'] . '/pages/home', $this->data);
     }

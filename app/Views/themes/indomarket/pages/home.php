@@ -137,8 +137,8 @@
         <p class="mb-4">Lacak pesanan Anda dengan mudah menggunakan nomor invoice.</p>
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <form action="<?= site_url('track') ?>" method="get" class="input-group">
-                    <input type="text" name="invoice" class="form-control" placeholder="Masukkan nomor invoice...">
+                <form action="<?= site_url('track/search') ?>" method="get" class="input-group">
+                    <input type="text" name="invoice_no" class="form-control" placeholder="Masukkan nomor invoice...">
                     <div class="input-group-append">
                         <button class="btn btn-light" type="submit"><i class="fa fa-search"></i> Lacak</button>
                     </div>

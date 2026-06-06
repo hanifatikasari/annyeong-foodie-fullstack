@@ -10,7 +10,7 @@ use CodeIgniter\Model;
  * Skema DB aktual dari prompt:
  *   t_penjualan:
  *     - id
- *     - invoice        (bukan invoice_no)
+ *     - invoice_no        (bukan invoice)
  *     - customer_id    (bukan user_id)
  *     - total_harga
  *     - diskon
@@ -235,45 +235,12 @@ class PenjualanModel extends Model
     /**
      * Update status order.
      */
-   public function updateStatus(int $id)
-{
-    $newStatus = $this->request->getPost('order_status');
-
-    $allowed = [
-        'pending_payment',
-        'pending_verification',
-        'verified',
-        'processing',
-        'ready',
-        'completed',
-        'cancelled',
-    ];
-
-    if (!in_array($newStatus, $allowed)) {
-        return redirect()->back()->with('error', 'Status tidak valid.');
+   public function updateOrderStatus(int $id, string $status): bool
+    {
+        return $this->update($id, [
+            'order_status' => $status,
+        ]);
     }
-
-    $penjualanModel = new \App\Models\PenjualanModel();
-
-    $success = $penjualanModel->updateOrderStatus($id, $newStatus);
-
-    if (!$success) {
-        return redirect()->back()->with('error', 'Gagal memperbarui status pesanan.');
-    }
-
-    // Cek ulang hasil update
-    $updated = $penjualanModel->find($id);
-
-    if (!$updated || empty($updated->order_status)) {
-        return redirect()->back()->with(
-            'error',
-            'Update dianggap berhasil, tetapi nilai order_status tidak tersimpan.'
-        );
-    }
-
-    return redirect()->to(site_url('admin/orders/detail/' . $id))
-        ->with('success', 'Status pesanan berhasil diperbarui!');
-}
 
     /**
      * Ambil pesanan terbaru customer.

@@ -11,12 +11,12 @@
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info mb-3">
-                            <strong>Invoice:</strong> <?= esc($order['invoice_no']) ?><br>
-                            <strong>Total Bayar:</strong> Rp <?= number_format($order['total_bayar']) ?><br>
-                            <strong>Metode:</strong> <?= esc($order['pembayaran']) ?>
+                            <strong>Invoice:</strong> <?= esc($order->invoice_no) ?><br>
+                            <strong>Total Bayar:</strong> Rp <?= number_format($order->total_bayar) ?><br>
+                            <strong>Metode:</strong> <?= esc($order->pembayaran) ?>
                         </div>
 
-                        <?php if ($order['pembayaran'] === 'QRIS'): ?>
+                        <?php if ($order->pembayaran === 'QRIS'): ?>
                             <div class="text-center mb-3">
                                 <img src="<?= base_url('themes/indomarket/assets/img/qris.png') ?>" alt="QRIS" class="img-fluid" style="max-width:250px;">
                                 <p class="text-muted small mt-2">Scan QR ini dengan aplikasi dompet digital Anda</p>
@@ -26,11 +26,11 @@
                                 <strong>Info Transfer:</strong><br>
                                 Bank BCA: <strong>1234567890</strong><br>
                                 Atas Nama: <strong>Annyeong Foodie</strong><br>
-                                Jumlah: <strong>Rp <?= number_format($order['total_bayar']) ?></strong>
+                                Jumlah: <strong>Rp <?= number_format($order->total_bayar) ?></strong>
                             </div>
                         <?php endif; ?>
 
-                        <form action="<?= site_url('checkout/upload/' . $order['invoice_no']) ?>" method="post" enctype="multipart/form-data">
+                        <form action="<?= site_url('checkout/upload/' . $order->invoice_no) ?>" method="post" enctype="multipart/form-data">
                             <?= csrf_field() ?>
                             <div class="form-group">
                                 <label><strong>Upload Bukti Transfer</strong> <span class="text-danger">*</span></label>

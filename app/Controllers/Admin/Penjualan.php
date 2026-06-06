@@ -20,7 +20,7 @@ class Penjualan extends BaseController
         $query = $model->getPosSales();
 
         if (!empty($keyword)) {
-            $model->like('t_penjualan.invoice_no', $keyword);
+            $query->like('t_penjualan.invoice_no', $keyword);
         }
 
         $penjualan = $query->paginate($perPage, 'bootstrap');
@@ -29,7 +29,7 @@ class Penjualan extends BaseController
             'title'               => 'Data Penjualan',
             'currentAdminMenu'    => 'sales',
             'currentAdminSubMenu' => 'order',
-            'penjualan'           => $model->orderBy('t_penjualan.id', 'DESC')->paginate($perPage, 'bootstrap'),
+            'penjualan'           => $penjualan,
             'pager'               => $model->pager,
             'keyword'             => $keyword,
             'perPage'             => $perPage,

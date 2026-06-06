@@ -68,7 +68,7 @@ class Account extends BaseController
         }
 
         // Ambil order + data customer berdasarkan ID
-        $order = model('PenjualanModel')->getOrderWithCustomerById($id);
+        $order = model('PenjualanModel')->getOrderWithCustomerById((int)$id);
 
 
         // Jika order tidak ditemukan

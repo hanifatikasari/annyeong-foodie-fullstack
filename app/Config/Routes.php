@@ -75,13 +75,6 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('show/(:num)', 'Admin\Produksi::show/$1');
     });
 
-    $routes->group('admin', ['filter' => 'authAdmin:admin,penjualan,pemilik'], function($routes) {
-        $routes->get('orders', 'Admin\Orders::index');
-        $routes->get('orders/detail/(:num)', 'Admin\Orders::detail/$1');
-        $routes->post('orders/verify/(:num)', 'Admin\Orders::verify/$1');
-        $routes->post('orders/update-status/(:num)', 'Admin\Orders::updateStatus/$1');
-    });
-
     // --- PENJUALAN ---
     $routes->group('penjualan', ['filter' => 'authAdmin:admin,penjualan'], function($routes) {
         $routes->get('/', 'Admin\Penjualan::index');
@@ -212,8 +205,8 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     
 
     // Track order (publik)
-    $routes->get('track',                  'Shop::track');
-    $routes->post('track',                 'Shop::trackOrder');
+    $routes->get('track', 'Track::index');
+    $routes->get('track/search', 'Track::search');
 
     // About
     $routes->get('about',                  'Shop::about');
