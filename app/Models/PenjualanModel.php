@@ -59,6 +59,11 @@ class PenjualanModel extends Model
         'verified_by',
         'created_at',
         'updated_at',
+        // === Kolom Midtrans (ditambahkan) ===
+        'snap_token',
+        'midtrans_transaction_id',
+        'midtrans_payment_type',
+        'midtrans_status',
     ];
 
     // ----------------------------------------------------------------

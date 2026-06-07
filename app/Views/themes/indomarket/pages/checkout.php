@@ -141,41 +141,84 @@ $user = $user ?? null;
                             </h6>
                         </div>
                         <div class="card-body">
+
+                            <!-- ========================================
+                                OPSI 1: Midtrans (Direkomendasikan)
+                                Kartu Kredit, GoPay, OVO, Dana, VA Bank
+                                ======================================== -->
                             <div class="custom-control custom-radio mb-3">
                                 <input type="radio"
-                                       id="payQRIS"
-                                       name="pembayaran"
-                                       value="QRIS"
-                                       class="custom-control-input"
-                                       <?= old('pembayaran', 'QRIS') === 'QRIS' ? 'checked' : '' ?>
-                                       required>
-                                <label class="custom-control-label" for="payQRIS">
-                                    <strong><i class="fa fa-qrcode mr-1 text-primary"></i> QRIS</strong>
+                                    id="payMidtrans"
+                                    name="pembayaran"
+                                    value="Midtrans"
+                                    class="custom-control-input"
+                                    <?= old('pembayaran', 'Midtrans') === 'Midtrans' ? 'checked' : '' ?>
+                                    required>
+                                <label class="custom-control-label" for="payMidtrans">
+                                    <strong>
+                                        <i class="fa fa-credit-card mr-1 text-primary"></i>
+                                        Bayar Online (Midtrans)
+                                        <span class="badge badge-success ml-1" style="font-size:10px;">RECOMMENDED</span>
+                                    </strong>
                                     <small class="text-muted d-block ml-4 mt-1">
-                                        Scan QR code dengan aplikasi dompet digital Anda
-                                        (GoPay, OVO, Dana, ShopeePay, dll)
+                                        <strong>Tersedia:</strong> Kartu Kredit/Debit, GoPay, OVO, Dana,
+                                        ShopeePay, Virtual Account BCA/BNI/BRI/Mandiri, QRIS, dan lainnya.
+                                        <br>Proses otomatis, tidak perlu upload bukti.
                                     </small>
                                 </label>
                             </div>
 
+                            <!-- Divider -->
+                            <div class="d-flex align-items-center mb-3">
+                                <hr class="flex-grow-1">
+                                <span class="text-muted small px-2">atau bayar manual</span>
+                                <hr class="flex-grow-1">
+                            </div>
+
+                            <!-- ========================================
+                                OPSI 2: QRIS (Manual Upload)
+                                ======================================== -->
+                            <div class="custom-control custom-radio mb-3">
+                                <input type="radio"
+                                    id="payQRIS"
+                                    name="pembayaran"
+                                    value="QRIS"
+                                    class="custom-control-input"
+                                    <?= old('pembayaran') === 'QRIS' ? 'checked' : '' ?>>
+                                <label class="custom-control-label" for="payQRIS">
+                                    <strong><i class="fa fa-qrcode mr-1 text-info"></i> QRIS (Upload Bukti Manual)</strong>
+                                    <small class="text-muted d-block ml-4 mt-1">
+                                        Scan QR code kami, lalu upload bukti pembayaran.
+                                        Diverifikasi tim dalam 1-3 jam kerja.
+                                    </small>
+                                </label>
+                            </div>
+
+                            <!-- ========================================
+                                OPSI 3: Transfer Bank (Manual Upload)
+                                ======================================== -->
                             <div class="custom-control custom-radio">
                                 <input type="radio"
-                                       id="payTransfer"
-                                       name="pembayaran"
-                                       value="Transfer"
-                                       class="custom-control-input"
-                                       <?= old('pembayaran') === 'Transfer' ? 'checked' : '' ?>>
+                                    id="payTransfer"
+                                    name="pembayaran"
+                                    value="Transfer"
+                                    class="custom-control-input"
+                                    <?= old('pembayaran') === 'Transfer' ? 'checked' : '' ?>>
                                 <label class="custom-control-label" for="payTransfer">
-                                    <strong><i class="fa fa-university mr-1 text-success"></i> Transfer Bank</strong>
+                                    <strong><i class="fa fa-university mr-1 text-success"></i> Transfer Bank (Upload Bukti Manual)</strong>
                                     <small class="text-muted d-block ml-4 mt-1">
                                         BCA: <strong>1234567890</strong> a/n <strong>Annyeong Foodie</strong>
+                                        <br>Transfer lalu upload bukti. Diverifikasi tim dalam 1-3 jam kerja.
                                     </small>
                                 </label>
                             </div>
 
                             <?php if (session('errors.pembayaran')): ?>
-                                <div class="text-danger small mt-2"><?= session('errors.pembayaran') ?></div>
+                                <div class="text-danger small mt-2">
+                                    <?= session('errors.pembayaran') ?>
+                                </div>
                             <?php endif; ?>
+
                         </div>
                     </div>
                 </div>

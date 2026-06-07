@@ -65,8 +65,32 @@
                                 <td>Rp <?= number_format($order->total_bayar) ?></td>
                                 <td><?= esc($order->pembayaran) ?></td>
                                 <td>
-    <?= var_export($order->order_status, true) ?>
-</td>
+                                    <?php
+                                    $statusColors = [
+                                        'pending_payment'      => 'warning',
+                                        'pending_verification' => 'info',
+                                        'verified'             => 'success',
+                                        'processing'           => 'primary',
+                                        'ready'                => 'secondary',
+                                        'completed'            => 'success',
+                                        'cancelled'            => 'danger',
+                                    ];
+                                    $statusLabels = [
+                                        'pending_payment'      => 'Menunggu Bayar',
+                                        'pending_verification' => 'Verifikasi',
+                                        'verified'             => 'Terverifikasi',
+                                        'processing'           => 'Diproses',
+                                        'ready'                => 'Siap Kirim',
+                                        'completed'            => 'Selesai',
+                                        'cancelled'            => 'Dibatalkan',
+                                    ];
+                                    $sc = $statusColors[$order->order_status] ?? 'secondary';
+                                    $sl = $statusLabels[$order->order_status] ?? $order->order_status;
+                                    ?>
+                                    <span class="badge badge-<?= $sc ?>">
+                                        <?= esc($sl) ?>
+                                    </span>
+                                </td>
                                 <td><?= date('d M Y H:i', strtotime($order->created_at)) ?></td>
                                 <td>
                                     <a href="<?= site_url('admin/orders/detail/' . $order->id) ?>" class="btn btn-sm btn-info">

@@ -13,6 +13,7 @@ $routes->setAutoRoute(false);
 $routes->get('/', 'Home::index');
 $routes->get('products', 'Products::index');
 $routes->get('products/(:segment)/(:segment)', 'Products::show/$1/$2');
+$routes->get('test-midtrans', 'TestMidtrans::index');
 
 // 2. AUTHENTICATION
 $routes->group('auth', function($routes) {
@@ -163,6 +164,16 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
 });
 
 // ============================================================
+// MIDTRANS WEBHOOK — HARUS PUBLIK (tanpa auth filter apapun)
+// URL ini yang didaftarkan di dashboard Midtrans
+// ============================================================
+$routes->get('midtrans-test', 'MidtransNotification::handle');
+$routes->post('midtrans/notification', 'MidtransNotification::handle');
+$routes->get('hello', function() {
+    return 'hello world';
+});
+
+// ============================================================
     // E-COMMERCE FRONTEND ROUTES
     // ============================================================
 
@@ -183,6 +194,9 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('success/(:segment)', 'Checkout::success/$1');
         $routes->get('upload/(:segment)',  'Checkout::uploadForm/$1');
         $routes->post('upload/(:segment)', 'Checkout::uploadBukti/$1');
+            // === Baris baru untuk Midtrans ===
+        $routes->get('pay/(:segment)',     'Checkout::pay/$1');
+        $routes->get('return/(:segment)',  'Checkout::midtransReturn/$1');
     });
 
     // =========================
@@ -223,13 +237,4 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('orders/verify/(:num)',           'Admin\Orders::verify/$1');
         $routes->post('orders/status/(:num)',           'Admin\Orders::updateStatus/$1');
         $routes->get('orders/bukti/(:segment)',         'Admin\Orders::viewBukti/$1');
-    });
-
-    // ============================================================
-    // FRONTEND CHECKOUT ROUTES (wajib login)
-    // ============================================================
-    $routes->group('checkout', ['filter' => 'authFrontend'], function ($routes) {
-        $routes->get('/', 'Checkout::index');
-        $routes->match(['get', 'post'], 'process', 'Checkout::process');
-        $routes->match(['get', 'post'], 'upload/(:segment)', 'Checkout::upload/$1');
     });

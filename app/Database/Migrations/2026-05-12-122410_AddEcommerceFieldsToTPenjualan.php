@@ -18,24 +18,27 @@ class AddEcommerceFieldsToTPenjualan extends Migration
             'order_status' => [
                 'type'       => 'ENUM',
                 'constraint' => [
-                    'pending',
-                    'diproses',
-                    'dikirim',
-                    'selesai',
-                    'dibatalkan',
+                    'pending_payment',
+                    'pending_verification',
+                    'verified',
+                    'processing',
+                    'ready',
+                    'completed',
+                    'cancelled'
                 ],
-                'default' => 'pending',
+                'default' => 'pending_payment',
                 'after'   => 'customer_id',
             ],
 
             'payment_status' => [
                 'type'       => 'ENUM',
                 'constraint' => [
-                    'menunggu_pembayaran',
-                    'menunggu_verifikasi',
-                    'lunas',
+                    'unpaid',
+                    'pending_verification',
+                    'verified',
+                    'rejected'
                 ],
-                'default' => 'menunggu_pembayaran',
+                'default' => 'unpaid',
                 'after'   => 'order_status',
             ],
 
