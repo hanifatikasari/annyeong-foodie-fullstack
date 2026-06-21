@@ -85,31 +85,117 @@ class Orders extends BaseController
     }
 
     // ---------------------------------------------------------------
-    // UPDATE STATUS
-    // FIX #3: update 'order_status'
+    // UPDATE STATUS — Update status pesanan dan restore stok jika dibatalkan
     // ---------------------------------------------------------------
     public function updateStatus(int $id)
     {
         $newStatus = $this->request->getPost('order_status');
-        $allowed   = [
-            'pending_payment',
-            'pending_verification',
-            'verified',
+
+        $allowedStatuses = [
+            'pending',
             'processing',
-            'ready',
+            'shipped',
             'completed',
-            'cancelled',
+            'cancelled'
         ];
 
-        if (!in_array($newStatus, $allowed)) {
-            return redirect()->back()->with('error', 'Status tidak valid.');
+        if (!in_array($newStatus, $allowedStatuses)) {
+            return redirect()->back()
+                ->with('error', 'Status tidak valid.');
+        }
+
+        $order = model('PenjualanModel')->find($id);
+
+        if (!$order) {
+            return redirect()->back()
+                ->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        $currentStatus = $order->order_status;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Allowed Status Transition
+        |--------------------------------------------------------------------------
+        | pending    -> processing, cancelled
+        | processing -> shipped, completed, cancelled
+        | shipped    -> completed
+        | completed  -> final
+        | cancelled  -> final
+        |--------------------------------------------------------------------------
+        */
+
+        $allowedTransitions = [
+            'pending' => [
+                'processing',
+                'cancelled'
+            ],
+
+            'processing' => [
+                'shipped',
+                'completed',
+                'cancelled'
+            ],
+
+            'shipped' => [
+                'completed'
+            ],
+
+            'completed' => [],
+
+            'cancelled' => [],
+        ];
+
+        if (
+            !isset($allowedTransitions[$currentStatus]) ||
+            !in_array($newStatus, $allowedTransitions[$currentStatus])
+        ) {
+
+            return redirect()->back()
+                ->with(
+                    'error',
+                    "Status tidak dapat diubah dari '{$currentStatus}' ke '{$newStatus}'."
+                );
+        }
+
+        // ============================================================
+        // Restore stok HANYA saat pertama kali masuk ke cancelled
+        // ============================================================
+        if ($newStatus === 'cancelled') {
+
+            $details = model('PenjualanDetailModel')
+                ->where('penjualan_id', $id)
+                ->findAll();
+
+            $inventoryModel = model('ProductInventoryModel');
+
+            foreach ($details as $item) {
+
+                $inventory = $inventoryModel
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
+                if ($inventory) {
+
+                    $inventoryModel->update(
+                        $inventory->id,
+                        [
+                            'qty' => $inventory->qty + $item->qty
+                        ]
+                    );
+                }
+            }
         }
 
         model('PenjualanModel')
             ->updateOrderStatus($id, $newStatus);
 
-        return redirect()->to('admin/orders/detail/' . $id)
-            ->with('success', 'Status pesanan berhasil diperbarui!');
+        return redirect()
+            ->to('admin/orders/detail/' . $id)
+            ->with(
+                'success',
+                'Status pesanan berhasil diperbarui!'
+            );
     }
 
     // ---------------------------------------------------------------

@@ -230,8 +230,8 @@ class PenjualanModel extends Model
     public function verifyPayment(int $id, ?int $verifiedBy = null): bool
     {
         return (bool) $this->update($id, [
-            'payment_status' => 'verified',
-            'order_status'   => 'verified',
+            'payment_status' => 'paid',
+            'order_status'   => 'processing',
             'verified_at'    => date('Y-m-d H:i:s'),
             'verified_by'    => $verifiedBy,
         ]);

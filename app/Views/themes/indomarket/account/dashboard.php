@@ -36,7 +36,7 @@
                             <div class="card-body">
                                 <i class="fa fa-clock-o fa-3x text-warning mb-2"></i>
                                 <h4 class="font-weight-bold">
-                                    <?= count(array_filter($orders, fn($o) => in_array($o->order_status, ['pending_payment','pending_verification']))) ?>
+                                    <?= count(array_filter($orders, fn($o) => in_array($o->order_status, ['pending']))) ?>
                                 </h4>
                                 <p class="text-muted mb-2">Menunggu Verifikasi</p>
                             </div>

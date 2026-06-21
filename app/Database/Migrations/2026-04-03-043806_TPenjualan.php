@@ -39,7 +39,7 @@ class TPenjualan extends Migration
             ],
             'pembayaran' => [
                 'type'       => 'ENUM',
-                'constraint' => ['Cash', 'QRIS', 'Transfer'],
+                'constraint' => ['Cash', 'QRIS', 'Transfer', 'Midtrans'],
                 'default'    => 'Cash',
             ],
             'uang_diterima' => [ // Uang yang dikasih pelanggan (untuk hitung kembalian)

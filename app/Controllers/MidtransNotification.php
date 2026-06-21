@@ -80,33 +80,68 @@ class MidtransNotification extends Controller
             // Credit card payment
             if ($fraudStatus === 'challenge') {
                 // Perlu review manual (flagged sebagai potensi fraud)
-                $newOrderStatus   = 'pending_verification';
-                $newPaymentStatus = 'menunggu_verifikasi';
+                $newOrderStatus   = 'pending';
+                $newPaymentStatus = 'pending_verification';
                 log_message('info', "[Midtrans Webhook] {$invoiceNo}: Challenge fraud, butuh review manual");
             } elseif ($fraudStatus === 'accept') {
                 // Pembayaran CC berhasil
                 $newOrderStatus   = 'processing';
-                $newPaymentStatus = 'lunas';
+                $newPaymentStatus = 'paid';
                 log_message('info', "[Midtrans Webhook] {$invoiceNo}: Credit card berhasil - LUNAS");
             }
         } elseif ($transactionStatus === 'settlement') {
             // Bank transfer / e-wallet sudah settle (T+1 atau langsung)
             $newOrderStatus   = 'processing';
-            $newPaymentStatus = 'lunas';
+            $newPaymentStatus = 'paid';
             log_message('info', "[Midtrans Webhook] {$invoiceNo}: Settlement - LUNAS");
 
         } elseif ($transactionStatus === 'pending') {
             // VA/ewallet sudah dibuat tapi belum dibayar
-            // Tidak ubah status, biarkan pending_payment
+            // Tidak ubah status, biarkan pending
             log_message('info', "[Midtrans Webhook] {$invoiceNo}: Pending - menunggu pembayaran");
 
-        } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire', 'failure'])) {
-            // Pembayaran gagal/kadaluarsa/dibatalkan
-            // CATATAN: Stok sudah terlanjur dikurangi saat order dibuat.
-            // Untuk production, pertimbangkan mengembalikan stok di sini.
+        } elseif (in_array($transactionStatus, [
+            'deny',
+            'cancel',
+            'expire',
+            'failure'
+        ])) {
+
+            // Restore stok hanya jika order belum pernah dibatalkan
+            if ($order->order_status !== 'cancelled') {
+
+                $detailModel = model('PenjualanDetailModel');
+                $inventoryModel = model('ProductInventoryModel');
+
+                $details = $detailModel
+                    ->where('penjualan_id', $order->id)
+                    ->findAll();
+
+                foreach ($details as $detail) {
+
+                    $inventory = $inventoryModel
+                        ->where('product_id', $detail->product_id)
+                        ->first();
+
+                    if ($inventory) {
+
+                        $inventoryModel->update(
+                            $inventory->id,
+                            [
+                                'qty' => $inventory->qty + $detail->qty
+                            ]
+                        );
+                    }
+                }
+            }
+
             $newOrderStatus   = 'cancelled';
-            $newPaymentStatus = 'menunggu_pembayaran';
-            log_message('info', "[Midtrans Webhook] {$invoiceNo}: GAGAL/CANCEL - status: {$transactionStatus}");
+            $newPaymentStatus = 'unpaid';
+
+            log_message(
+                'info',
+                "[Midtrans Webhook] {$invoiceNo}: stok berhasil dikembalikan"
+            );
         }
 
         // ============================================================
@@ -121,7 +156,7 @@ class MidtransNotification extends Controller
         ];
 
         // Jika lunas, tandai verified_at dan verified_by system (0 = system)
-        if ($newPaymentStatus === 'lunas' && $order->payment_status !== 'lunas') {
+        if ($newPaymentStatus === 'paid' && $order->payment_status !== 'paid') {
             $updateData['verified_at'] = date('Y-m-d H:i:s');
             $updateData['verified_by'] = null; // null = system/otomatis
         }

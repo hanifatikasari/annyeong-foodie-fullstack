@@ -9,7 +9,7 @@ class CategoryModel extends Model
     protected $table         = 'categories';
     protected $primaryKey    = 'id';
     protected $returnType    = 'object';
-    protected $allowedFields = ['name', 'slug', 'parent_id', 'description', 'image'];
+    protected $allowedFields = ['name', 'slug', 'prefix', 'parent_id', 'description', 'image'];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

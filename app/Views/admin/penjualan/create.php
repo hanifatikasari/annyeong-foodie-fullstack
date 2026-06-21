@@ -94,9 +94,29 @@
                             <label class="col-sm-5 col-form-label">Metode Bayar</label>
                             <div class="col-sm-7">
                                 <select name="pembayaran" id="pembayaranSelect" class="form-control form-control-sm">
-                                    <option value="Cash">Cash</option>
-                                    <option value="QRIS">QRIS</option>
-                                    <option value="Transfer">Transfer</option>
+                                    <?php if ($enableQris): ?>
+                                    <option value="QRIS">
+                                        QRIS
+                                    </option>
+                                    <?php endif; ?>
+
+                                    <?php if ($enableTransfer): ?>
+                                    <option value="Transfer">
+                                        Transfer Bank
+                                    </option>
+                                    <?php endif; ?>
+
+                                    <?php if ($enableMidtrans): ?>
+                                    <option value="Midtrans">
+                                        Midtrans
+                                    </option>
+                                    <?php endif; ?>
+
+                                    <?php if ($enableCash): ?>
+                                    <option value="Cash">
+                                        Cash
+                                    </option>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>

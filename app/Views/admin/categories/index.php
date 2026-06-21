@@ -69,7 +69,11 @@
 								<td><span class="badge badge-secondary"><?= $category->prefix ?></span></td>
 								<td><?= $category->name ?></td>
 								<td>
-									<a href="<?= site_url('admin/categories/edit/'. $category->id) ?>" class="badge bg-info">edit</a>
+									<a href="<?= site_url('admin/categories/edit/' . $category->id .
+										'?page=' . $pager->getCurrentPage('bootstrap')) ?>"
+										class="badge bg-info">
+										edit
+									</a>
 									<a href="<?= site_url('admin/categories/hapus/'. $category->id) ?>" class="badge bg-danger" onclick="return confirm('Hapus kategori ini?')">delete</a>
 								</td>
 							</tr>

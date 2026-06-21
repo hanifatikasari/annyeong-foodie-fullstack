@@ -20,11 +20,9 @@
         .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,.15); }
         .star-rating { color: #ffc107; }
         .status-badge { font-size:12px; padding:4px 10px; border-radius:20px; }
-        .status-pending_payment { background:#fff3cd; color:#856404; }
-        .status-pending_verification { background:#cff4fc; color:#055160; }
-        .status-verified { background:#d1e7dd; color:#0a3622; }
+        .status-pending { background:#fff3cd; color:#856404; }
         .status-processing { background:#cfe2ff; color:#084298; }
-        .status-ready { background:#e2d9f3; color:#432874; }
+        .status-shipped { background:#e2d9f3; color:#432874; }
         .status-completed { background:#d1e7dd; color:#0a3622; }
         .status-cancelled { background:#f8d7da; color:#842029; }
     </style>

@@ -14,6 +14,7 @@
     <form role="form" method="post" action="<?= site_url('admin/categories/simpan') ?>">
         <?= csrf_field() ?>
         <input type="hidden" name="id" value="<?= $isEdit ? $category->id : '' ?>"/>
+        <input type="hidden" name="page" value="<?= $page ?? 1 ?>"/>
 
         <div class="card-body" style="<?= $isEdit ? 'background-color: #fffdf5;' : '' ?>">
             <?= view('admin/shared/flash_message') ?>
@@ -70,7 +71,7 @@
         <div class="card-footer">
             <button type="submit" class="btn <?= $btnClass ?>"><?= $isEdit ? 'Save Changes' : 'Add Category' ?></button>
             <?php if ($isEdit): ?>
-                <a href="<?= site_url('admin/categories') ?>" class="btn btn-default float-right">Cancel</a>
+                <a href="<?= site_url('admin/categories') ?>" class="btn btn-default float-right">Back</a>
             <?php endif;?>
         </div>
     </form>

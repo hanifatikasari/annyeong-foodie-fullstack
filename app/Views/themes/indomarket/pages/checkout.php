@@ -2,17 +2,6 @@
 <?= $this->section('content') ?>
 
 <?php
-/**
- * Checkout View
- *
- * FIX ISSUE #4:
- * - name="no_hp_penerima" HARUS sama persis dengan validation rule
- * - name="alamat_pengiriman" HARUS sama persis dengan validation rule
- * - Preload user data dengan null-safe (??)
- *
- * FIX ISSUE #8:
- * - Guard: $user bisa null, gunakan $user->phone ?? ''
- */
 $user = $user ?? null;
 ?>
 
@@ -146,6 +135,7 @@ $user = $user ?? null;
                                 OPSI 1: Midtrans (Direkomendasikan)
                                 Kartu Kredit, GoPay, OVO, Dana, VA Bank
                                 ======================================== -->
+                            <?php if ($enableMidtrans): ?>
                             <div class="custom-control custom-radio mb-3">
                                 <input type="radio"
                                     id="payMidtrans"
@@ -154,6 +144,7 @@ $user = $user ?? null;
                                     class="custom-control-input"
                                     <?= old('pembayaran', 'Midtrans') === 'Midtrans' ? 'checked' : '' ?>
                                     required>
+
                                 <label class="custom-control-label" for="payMidtrans">
                                     <strong>
                                         <i class="fa fa-credit-card mr-1 text-primary"></i>
@@ -167,17 +158,24 @@ $user = $user ?? null;
                                     </small>
                                 </label>
                             </div>
+                            <?php endif; ?>
 
                             <!-- Divider -->
+                           <?php if (
+                                $enableMidtrans &&
+                                ($enableQris || $enableTransfer)
+                            ): ?>
                             <div class="d-flex align-items-center mb-3">
                                 <hr class="flex-grow-1">
                                 <span class="text-muted small px-2">atau bayar manual</span>
                                 <hr class="flex-grow-1">
                             </div>
+                            <?php endif; ?>
 
                             <!-- ========================================
                                 OPSI 2: QRIS (Manual Upload)
                                 ======================================== -->
+                            <?php if ($enableQris): ?>
                             <div class="custom-control custom-radio mb-3">
                                 <input type="radio"
                                     id="payQRIS"
@@ -193,10 +191,12 @@ $user = $user ?? null;
                                     </small>
                                 </label>
                             </div>
+                            <?php endif; ?>
 
                             <!-- ========================================
                                 OPSI 3: Transfer Bank (Manual Upload)
                                 ======================================== -->
+                            <?php if ($enableTransfer): ?>
                             <div class="custom-control custom-radio">
                                 <input type="radio"
                                     id="payTransfer"
@@ -212,6 +212,7 @@ $user = $user ?? null;
                                     </small>
                                 </label>
                             </div>
+                            <?php endif; ?>
 
                             <?php if (session('errors.pembayaran')): ?>
                                 <div class="text-danger small mt-2">

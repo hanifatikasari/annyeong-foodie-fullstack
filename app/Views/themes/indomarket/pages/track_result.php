@@ -5,11 +5,9 @@
     <div class="container">
         <?php
         $statusMap = [
-            'pending_payment'      => ['label' => 'Menunggu Pembayaran',    'icon' => 'fa-clock-o',         'color' => 'warning'],
-            'pending_verification' => ['label' => 'Verifikasi Pembayaran',  'icon' => 'fa-search',          'color' => 'info'],
-            'verified'             => ['label' => 'Pembayaran Terverifikasi','icon' => 'fa-check-circle',   'color' => 'success'],
+            'pending'              => ['label' => 'Menunggu Pembayaran',    'icon' => 'fa-clock-o',         'color' => 'warning'],
             'processing'           => ['label' => 'Sedang Diproses',        'icon' => 'fa-cog',             'color' => 'primary'],
-            'ready'                => ['label' => 'Siap Dikirim/Diambil',   'icon' => 'fa-box',             'color' => 'purple'],
+            'Shipped'              => ['label' => 'Dikirim',                'icon' => 'fa-box',             'color' => 'purple'],
             'completed'            => ['label' => 'Selesai',                'icon' => 'fa-thumbs-up',       'color' => 'success'],
             'cancelled'            => ['label' => 'Dibatalkan',             'icon' => 'fa-times-circle',    'color' => 'danger'],
         ];
@@ -80,7 +78,7 @@
                             </table>
                         </div>
 
-                        <?php if (($order->order_status ?? '') === 'pending_payment'): ?>
+                        <?php if (($order->order_status ?? '') === 'pending'): ?>
                             <div class="text-center mt-3">
                                 <a href="<?= site_url('checkout/upload/' . $order->invoice_no) ?>" class="btn btn-warning">
                                     <i class="fa fa-upload mr-1"></i> Upload Bukti Pembayaran

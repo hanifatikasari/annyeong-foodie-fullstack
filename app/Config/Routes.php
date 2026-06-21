@@ -160,6 +160,20 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         });  
     });
     
+    // --- SETTINGS ---
+    $routes->group('settings', ['filter' => 'authAdmin:admin'], function($routes) {
+
+        $routes->get(
+            'payment',
+            'Admin\SettingsController::payment'
+        );
+
+        $routes->post(
+            'payment/save',
+            'Admin\SettingsController::savePayment'
+        );
+
+    });
     
 });
 
@@ -168,7 +182,11 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
 // URL ini yang didaftarkan di dashboard Midtrans
 // ============================================================
 $routes->get('midtrans-test', 'MidtransNotification::handle');
+$routes->get('midtrans-test', 'TestMidtrans::index');
+
+$routes->get('midtrans/notification', 'MidtransNotification::handle');
 $routes->post('midtrans/notification', 'MidtransNotification::handle');
+
 $routes->get('hello', function() {
     return 'hello world';
 });

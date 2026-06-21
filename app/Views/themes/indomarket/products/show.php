@@ -97,9 +97,10 @@
                             <i class="fa fa-cart-plus mr-1"></i> Tambah ke Keranjang
                         </button>
                     </form>
-                    <a href="<?= site_url('cart') ?>" class="btn btn-outline-primary">
-                        <i class="fa fa-shopping-cart mr-1"></i> Lihat Keranjang
+                    <a href="<?= site_url('checkout') ?>" class="btn btn-success btn-block btn-lg shadow-sm">
+                        <i class="fa fa-lock mr-1"></i> Checkout Sekarang
                     </a>
+                   
                 <?php endif; ?>
             </div>
         </div>

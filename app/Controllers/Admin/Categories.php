@@ -36,6 +36,7 @@ class Categories extends BaseController {
     public function edit($id) {
         $category = model('CategoryModel')->find($id);
         $perPage = $this->request->getGet('perPage') ?? 5;
+        $page = $this->request->getGet('page') ?? 1;
 
         if (!$category) {
             return redirect()->to('admin/categories')->with('error', 'Data tidak ditemukan');
@@ -44,12 +45,13 @@ class Categories extends BaseController {
         $data = [
             'title'            => 'Edit Category',
             'currentAdminMenu' => 'catalogue',
-            'categories'       => model('CategoryModel')->paginate($perPage, 'bootstrap'),
+            'categories'       => model('CategoryModel')->paginate($perPage, 'bootstrap', $page),
             'pager'            => model('CategoryModel')->pager,
             'category'         => $category, 
             'parentOptions'    => model('CategoryModel')->where('parent_id', null)->findAll(),
             'perPage'          => $perPage,
             'keyword'          => $this->request->getGet('table_search'),
+            'page'             => $page,
         ];
         return view('admin/categories/index', $data);
     }
@@ -59,6 +61,7 @@ class Categories extends BaseController {
         $name     = $this->request->getPost('name');
         $parentId = $this->request->getPost('parent_id');   
         $prefix   = strtoupper($this->request->getPost('prefix'));
+        $page     = $this->request->getPost('page') ?? 1;
         
         // Rules Validasi (Gunakan nama tabel yang benar: m_categories atau categories)
         $rules = [
@@ -97,7 +100,9 @@ class Categories extends BaseController {
         try {
             if ($id) {
                 model('CategoryModel')->update($id, $data);
-                $msg = "Kategori [$prefix] berhasil diupdate!";
+                return redirect()
+                    ->to('admin/categories/edit/' . $id. '?page=' .$page)
+                    ->with('success', "Kategori [$prefix] berhasil diupdate!");
             } else {
                 model('CategoryModel')->save($data);
                 $msg = "Kategori baru [$prefix] berhasil dibuat!";

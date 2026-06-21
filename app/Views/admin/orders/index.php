@@ -24,7 +24,7 @@
                     <label class="mr-2">Filter Status:</label>
                     <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
-                        <?php foreach (['pending_payment','pending_verification','verified','processing','ready','completed','cancelled'] as $s): ?>
+                        <?php foreach (['pending','processing','shipped','completed','cancelled'] as $s): ?>
                             <option value="<?= $s ?>" <?= $status === $s ? 'selected' : '' ?>>
                                 <?= ucwords(str_replace('_', ' ', $s)) ?>
                             </option>
@@ -67,22 +67,19 @@
                                 <td>
                                     <?php
                                     $statusColors = [
-                                        'pending_payment'      => 'warning',
-                                        'pending_verification' => 'info',
-                                        'verified'             => 'success',
-                                        'processing'           => 'primary',
-                                        'ready'                => 'secondary',
-                                        'completed'            => 'success',
-                                        'cancelled'            => 'danger',
+                                        'pending'    => 'warning',
+                                        'processing' => 'primary',
+                                        'shipped'    => 'info',
+                                        'completed'  => 'success',
+                                        'cancelled'  => 'danger',
                                     ];
+
                                     $statusLabels = [
-                                        'pending_payment'      => 'Menunggu Bayar',
-                                        'pending_verification' => 'Verifikasi',
-                                        'verified'             => 'Terverifikasi',
-                                        'processing'           => 'Diproses',
-                                        'ready'                => 'Siap Kirim',
-                                        'completed'            => 'Selesai',
-                                        'cancelled'            => 'Dibatalkan',
+                                        'pending'    => 'Menunggu Bayar',
+                                        'processing' => 'Diproses',
+                                        'shipped'    => 'Dikirim',
+                                        'completed'  => 'Selesai',
+                                        'cancelled'  => 'Dibatalkan',
                                     ];
                                     $sc = $statusColors[$order->order_status] ?? 'secondary';
                                     $sl = $statusLabels[$order->order_status] ?? $order->order_status;

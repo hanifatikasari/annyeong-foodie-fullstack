@@ -40,6 +40,37 @@ class Checkout extends BaseController
         $this->data['user']  = $user ?? $this->currentUser;
         $this->data['title'] = 'Checkout';
 
+        $settingModel = model('SettingModel');
+        $this->data['enableMidtrans'] =
+            (bool) $settingModel->getValue(
+                'payment_midtrans_enabled',
+                0
+            );
+
+        $this->data['enableTransfer'] =
+            (bool) $settingModel->getValue(
+                'payment_transfer_enabled',
+                0
+            );
+
+        $this->data['enableQris'] =
+            (bool) $settingModel->getValue(
+                'payment_qris_enabled',
+                0
+            );
+
+        if (
+            !$this->data['enableMidtrans']
+            && !$this->data['enableTransfer']
+            && !$this->data['enableQris']
+        ) {
+            return redirect()->to('/')
+                ->with(
+                    'error',
+                    'Saat ini pembayaran sedang tidak tersedia.'
+                );
+        }
+
         return view('themes/indomarket/pages/checkout', $this->data);
     }
 
@@ -70,6 +101,58 @@ class Checkout extends BaseController
         }
 
         $pembayaran = $this->request->getPost('pembayaran');
+
+        $settingModel = model('SettingModel');
+        $enableMidtrans =
+            (bool) $settingModel->getValue(
+                'payment_midtrans_enabled',
+                0
+            );
+
+        $enableTransfer =
+            (bool) $settingModel->getValue(
+                'payment_transfer_enabled',
+                0
+            );
+
+        $enableQris =
+            (bool) $settingModel->getValue(
+                'payment_qris_enabled',
+                0
+            );
+
+            if (
+                $pembayaran === 'Midtrans'
+                && !$enableMidtrans
+            ) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error',
+                        'Pembayaran Midtrans sedang dinonaktifkan.'
+                    );
+            }
+
+            if (
+                $pembayaran === 'Transfer'
+                && !$enableTransfer
+            ) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error',
+                        'Transfer Bank sedang dinonaktifkan.'
+                    );
+            }
+
+            if (
+                $pembayaran === 'QRIS'
+                && !$enableQris
+            ) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error',
+                        'Pembayaran QRIS sedang dinonaktifkan.'
+                    );
+            }
         $totalHarga = cart_total();
 
         // ============================================================
@@ -115,8 +198,8 @@ class Checkout extends BaseController
                 'total_bayar'      => $totalHarga,
                 'pembayaran'       => $pembayaran,
                 'uang_diterima'    => 0,
-                'order_status'     => 'pending_payment',
-                'payment_status'   => 'menunggu_pembayaran',
+                'order_status'     => 'pending',
+                'payment_status'   => 'unpaid',
                 'shipping_address' => $this->request->getPost('alamat_pengiriman'),
                 'catatan_customer' => $this->request->getPost('catatan_customer') ?? '',
                 'snap_token'       => $snapToken, // null untuk manual payment
@@ -144,7 +227,9 @@ class Checkout extends BaseController
                     'hpp_price'     => $hpp,
                 ]);
 
-                // Kurangi stok
+                //-----------------------------------------------
+                // Kurangi stok di inventory (jika ada)
+                //-----------------------------------------------
                 $inv = $invModel->where('product_id', $item['product_id'])->first();
                 if ($inv) {
                     $newQty = max(0, (int) $inv->qty - $qty);
@@ -323,7 +408,7 @@ class Checkout extends BaseController
 
         $this->data['order'] = $order;
         $this->data['title'] = 'Upload Bukti Pembayaran';
-
+        
         return view('themes/indomarket/pages/upload_bukti', $this->data);
     }
 
@@ -364,10 +449,12 @@ class Checkout extends BaseController
 
         model('PenjualanModel')->update($order->id, [
             'payment_proof'  => 'uploads/bukti_bayar/' . $fileName,
-            'order_status'   => 'pending_verification',
-            'payment_status' => 'menunggu_verifikasi',
+            'order_status'   => 'pending',
+            'payment_status' => 'pending_verification',
         ]);
 
+        //agar user tidak bisa akses checkout/upload/nomor invoice
+       
         return redirect()->to('account/orders/detail/' . $order->id)
             ->with('success', 'Bukti pembayaran berhasil diupload! Menunggu verifikasi dari tim kami.');
     }

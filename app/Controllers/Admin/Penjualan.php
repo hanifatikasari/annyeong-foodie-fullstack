@@ -58,6 +58,32 @@ class Penjualan extends BaseController
             'products'            => $products,
         ];
 
+        $settingModel = model('SettingModel');
+
+        $data['enableCash'] =
+            (bool) $settingModel->getValue(
+                'payment_cash_enabled',
+                1
+            );
+
+        $data['enableMidtrans'] =
+            (bool) $settingModel->getValue(
+                'payment_midtrans_enabled',
+                0
+            );
+
+        $data['enableTransfer'] =
+            (bool) $settingModel->getValue(
+                'payment_transfer_enabled',
+                0
+            );
+
+        $data['enableQris'] =
+            (bool) $settingModel->getValue(
+                'payment_qris_enabled',
+                0
+            );
+
         return view('admin/penjualan/create', $data);
     }
 

@@ -24,7 +24,7 @@ class Account extends BaseController
         $completedCount = 0;
         foreach ($orders as $o) {
             $status = $o->order_status ?? '';
-            if (in_array($status, ['pending_payment', 'pending_verification'])) {
+            if (in_array($status, ['pending'])) {
                 $pendingCount++;
             }
             if ($status === 'completed') {

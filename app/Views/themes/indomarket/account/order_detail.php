@@ -9,15 +9,13 @@
             </div>
             <div class="col-lg-9">
                 <?php
-                $statusMap = [
-                    'pending_payment'      => ['label' => 'Menunggu Pembayaran',     'color' => 'warning'],
-                    'pending_verification' => ['label' => 'Verifikasi Pembayaran',   'color' => 'info'],
-                    'verified'             => ['label' => 'Pembayaran Terverifikasi','color' => 'success'],
-                    'processing'           => ['label' => 'Sedang Diproses',         'color' => 'primary'],
-                    'ready'                => ['label' => 'Siap Dikirim/Diambil',    'color' => 'secondary'],
-                    'completed'            => ['label' => 'Selesai',                 'color' => 'success'],
-                    'cancelled'            => ['label' => 'Dibatalkan',              'color' => 'danger'],
-                ];
+                 $statusMap = [
+                'pending'              => ['label' => 'Menunggu Pembayaran',    'icon' => 'fa-clock-o',         'color' => 'warning'],
+                'processing'           => ['label' => 'Sedang Diproses',        'icon' => 'fa-cog',             'color' => 'primary'],
+                'Shipped'              => ['label' => 'Dikirim',                'icon' => 'fa-box',             'color' => 'purple'],
+                'completed'            => ['label' => 'Selesai',                'icon' => 'fa-thumbs-up',       'color' => 'success'],
+                'cancelled'            => ['label' => 'Dibatalkan',             'icon' => 'fa-times-circle',    'color' => 'danger'],
+            ];
                $st = $statusMap[$order->order_status] ?? [
     'label' => $order->order_status,
     'color' => 'secondary'
@@ -62,21 +60,24 @@
                             </table>
                         </div>
 
-                        <?php if (!empty($order->bukti_bayar)): ?>
+                        <?php if (!empty($order->payment_proof)): ?>
                             <div class="mt-3">
                                 <strong>Bukti Pembayaran:</strong><br>
-                                <?php $ext = pathinfo($order->bukti_bayar, PATHINFO_EXTENSION); ?>
+                                <?php $ext = pathinfo($order->payment_proof, PATHINFO_EXTENSION); ?>
                                 <?php if (in_array(strtolower($ext), ['jpg','jpeg','png'])): ?>
-                                    <img src="<?= base_url($order->bukti_bayar) ?>" class="img-fluid rounded mt-2" style="max-width:300px;">
+                                    <img src="<?= base_url($order->payment_proof) ?>" class="img-fluid rounded mt-2" style="max-width:300px;">
                                 <?php else: ?>
-                                    <a href="<?= base_url($order->bukti_bayar) ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                                    <a href="<?= base_url($order->payment_proof) ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
                                         <i class="fa fa-file-pdf-o mr-1"></i> Lihat Bukti
                                     </a>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
-                        <?php if ($order->order_status === 'pending_payment'): ?>
+                        <?php if (
+                            $order->payment_status === 'unpaid'
+                            && in_array($order->pembayaran, ['Transfer', 'QRIS'])
+                        ): ?>
                             <div class="mt-3">
                                 <a href="<?= site_url('checkout/upload/' . $order->invoice_no) ?>" class="btn btn-warning">
                                     <i class="fa fa-upload mr-1"></i> Upload Bukti Pembayaran

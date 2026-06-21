@@ -8,8 +8,8 @@
 
                 <?php
                 $isMidtrans   = ($order->pembayaran ?? '') === 'Midtrans';
-                $isLunas      = ($order->payment_status ?? '') === 'lunas';
-                $isPending    = in_array($order->order_status ?? '', ['pending_payment', 'pending_verification']);
+                $isLunas      = ($order->payment_status ?? '') === 'paid';
+                $isPending    = ($order->order_status ?? '') === 'pending';
                 $isCancelled  = ($order->order_status ?? '') === 'cancelled';
 
                 // Ambil flash messages
@@ -70,33 +70,55 @@
                         <?php endif; ?>
 
                         <!-- Info order -->
-                        <div class="alert alert-light border mt-4 text-left">
-                            <div class="row">
-                                <div class="col-6">
-                                    <small class="text-muted d-block">Nomor Invoice</small>
-                                    <strong><?= esc($order->invoice_no ?? '-') ?></strong>
-                                </div>
-                                <div class="col-6">
-                                    <small class="text-muted d-block">Total Pembayaran</small>
-                                    <strong>Rp <?= number_format($order->total_bayar ?? 0) ?></strong>
-                                </div>
-                                <div class="col-6 mt-2">
-                                    <small class="text-muted d-block">Metode Bayar</small>
-                                    <strong><?= esc($order->pembayaran ?? '-') ?></strong>
-                                </div>
-                                <div class="col-6 mt-2">
-                                    <small class="text-muted d-block">Status</small>
-                                    <?php
-                                    $statusLabel = [
-                                        'pending_payment'      => '<span class="badge badge-warning">Menunggu Pembayaran</span>',
-                                        'pending_verification' => '<span class="badge badge-info">Verifikasi Pembayaran</span>',
-                                        'processing'           => '<span class="badge badge-primary">Diproses</span>',
-                                        'verified'             => '<span class="badge badge-success">Terverifikasi</span>',
-                                        'completed'            => '<span class="badge badge-success">Selesai</span>',
-                                        'cancelled'            => '<span class="badge badge-danger">Dibatalkan</span>',
-                                    ];
-                                    echo $statusLabel[$order->order_status ?? ''] ?? '<span class="badge badge-secondary">' . esc($order->order_status ?? '-') . '</span>';
-                                    ?>
+                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="card-body">
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block">Nomor Invoice</small>
+                                        <strong><?= esc($order->invoice_no ?? '-') ?></strong>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block">Total Pembayaran</small>
+                                        <strong>Rp <?= number_format($order->total_bayar ?? 0) ?></strong>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block">Metode Bayar</small>
+                                        <strong><?= esc($order->pembayaran ?? '-') ?></strong>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block">Status Pembayaran</small>
+
+                                        <?php
+                                        if ($order->payment_status === 'paid') {
+                                            echo '<span class="badge badge-success">Lunas</span>';
+                                        } elseif ($order->payment_status === 'pending_verification') {
+                                            echo '<span class="badge badge-info">Menunggu Verifikasi</span>';
+                                        } else {
+                                            echo '<span class="badge badge-warning">Belum Dibayar</span>';
+                                        }
+                                        ?>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block">Status Pesanan</small>
+
+                                        <?php
+                                        $statusLabel = [
+                                            'pending'    => 'Menunggu Pembayaran',
+                                            'processing' => 'Diproses',
+                                            'shipped'    => 'Dikirim',
+                                            'completed'  => 'Selesai',
+                                            'cancelled'  => 'Dibatalkan',
+                                        ];
+
+                                        echo $statusLabel[$order->order_status] ?? $order->order_status;
+                                        ?>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -136,7 +158,11 @@
                         <!-- Tombol aksi -->
                         <div class="d-flex justify-content-center flex-wrap mt-4" style="gap:10px;">
 
-                            <?php if (!$isMidtrans && !$isCancelled && ($order->order_status ?? '') === 'pending_payment'): ?>
+                            <?php if (
+                                !$isMidtrans && 
+                                !$isCancelled && 
+                                ($order->payment_status ?? '') === 'unpaid'
+                            ): ?>
                                 <!-- Tombol upload untuk pembayaran manual -->
                                 <a href="<?= site_url('checkout/upload/' . ($order->invoice_no ?? '')) ?>"
                                    class="btn btn-primary btn-lg">
@@ -144,7 +170,7 @@
                                 </a>
                             <?php endif; ?>
 
-                            <?php if ($isMidtrans && ($order->order_status ?? '') === 'pending_payment' && !empty($order->snap_token)): ?>
+                            <?php if ($isMidtrans && ($order->order_status ?? '') === 'pending' && !empty($order->snap_token)): ?>
                                 <!-- Tombol bayar ulang jika Midtrans masih pending -->
                                 <a href="<?= site_url('checkout/pay/' . ($order->invoice_no ?? '')) ?>"
                                    class="btn btn-warning btn-lg">

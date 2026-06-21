@@ -233,7 +233,28 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             <p>User Management</p>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/settings/payment') ?>"
+                        class="nav-link <?= ($currentAdminSubMenu == 'payment_setting') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            <p>Payment Settings</p>
+                        </a>
+                    </li>
                 <?php endif; ?>
+
+                <!-- ===================================================== -->
+                <!-- WEBSITE -->
+                <!-- ===================================================== -->
+                <li class="nav-header">WEBSITE</li>
+
+                <li class="nav-item">
+                    <a href="<?= site_url('/') ?>"
+                    class="nav-link">
+                        <i class="nav-icon fas fa-store"></i>
+                        <p>Back to Online Store</p>
+                    </a>
+                </li>
 
                 <!-- ===================================================== -->
                 <!-- ACCOUNT -->

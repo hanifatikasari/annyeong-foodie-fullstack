@@ -92,7 +92,7 @@
 
             <!-- Actions -->
             <div class="col-md-4">
-                <?php if (in_array($order->order_status, ['pending_verification'])): ?>
+                <?php if (in_array($order->order_status, ['pending'])): ?>
                     <div class="card card-success">
                         <div class="card-header"><h3 class="card-title">Verifikasi Pembayaran</h3></div>
                         <div class="card-body">
@@ -114,7 +114,7 @@
                             <?= csrf_field() ?>
                             <div class="form-group">
                                 <select name="order_status" class="form-control">
-                                    <?php foreach (['pending_payment','pending_verification','verified','processing','ready','completed','cancelled'] as $s): ?>
+                                    <?php foreach (['pending','processing','shipped','completed','cancelled'] as $s): ?>
                                         <option value="<?= $s ?>" <?= $order->order_status === $s ? 'selected' : '' ?>>
                                             <?= ucwords(str_replace('_', ' ', $s)) ?>
                                         </option>

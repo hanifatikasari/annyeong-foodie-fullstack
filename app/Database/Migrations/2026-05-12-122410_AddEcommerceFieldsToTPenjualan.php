@@ -18,15 +18,13 @@ class AddEcommerceFieldsToTPenjualan extends Migration
             'order_status' => [
                 'type'       => 'ENUM',
                 'constraint' => [
-                    'pending_payment',
-                    'pending_verification',
-                    'verified',
+                    'pending',
                     'processing',
-                    'ready',
+                    'shipped',
                     'completed',
-                    'cancelled'
+                    'cancelled' 
                 ],
-                'default' => 'pending_payment',
+                'default' => 'pending',
                 'after'   => 'customer_id',
             ],
 
@@ -35,8 +33,10 @@ class AddEcommerceFieldsToTPenjualan extends Migration
                 'constraint' => [
                     'unpaid',
                     'pending_verification',
-                    'verified',
-                    'rejected'
+                    'paid',
+                    'rejected',
+                    'expired',
+                    'cancelled'
                 ],
                 'default' => 'unpaid',
                 'after'   => 'order_status',

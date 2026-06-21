@@ -58,7 +58,11 @@ class Dashboard extends BaseController
         $stokMenipis = $db->table('products')
             ->select('products.name, products.sku, product_inventories.qty, product_inventories.low_stock_threshold')
             ->join('product_inventories', 'product_inventories.product_id = products.id')
-            ->where('product_inventories.qty <=', $db->escape('product_inventories.low_stock_threshold'), false)
+            ->where(
+                'product_inventories.qty <= product_inventories.low_stock_threshold',
+                null,
+                false
+            )
             ->where('products.deleted_at IS NULL')
             ->orderBy('product_inventories.qty', 'ASC')
             ->limit(5)

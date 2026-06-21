@@ -1,3 +1,6 @@
+<h1 style="color:red">
+TEST ORDERS.PHP
+</h1>
 <?= $this->extend('themes/indomarket/layout') ?>
 <?= $this->section('content') ?>
 
@@ -40,7 +43,10 @@
                                                         Detail
                                                     </a>
 
-                                                    <?php if ($order->order_status === 'pending_payment'): ?>
+                                                    <?php if (
+                                                        $order->order_status === 'pending'
+                                                        && in_array($order->pembayaran, ['Transfer', 'QRIS'])
+                                                    ): ?>
                                                         <a href="<?= site_url('checkout/upload/' . $order->invoice_no) ?>"
                                                         class="btn btn-sm btn-warning">
                                                             Upload Bukti
