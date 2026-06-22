@@ -58,12 +58,19 @@
 							<th>Price</th>
 							<th>Stock</th>
 							<th>Status</th>
-							<th style="width:15%">Action</th>
+							<th>BOM</th>
+							<th style="width:25%">Action</th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php if ($products): ?>
+							<?php $recipeModel = model('RecipeModel');?>
 							<?php foreach ($products as $product): ?>
+								<?php
+								$recipeCount = $recipeModel
+									->where('product_id', $product->id)
+									->countAllResults();
+								?>
 								<tr>
 									<td><?= $product->sku ?></td>
 									<td><?= !empty($product->featured_image) ? '<img src="' . base_url($product->featured_image->small) . '">' : null ?></td>
@@ -75,11 +82,40 @@
 									<td><?= $product->qty ?></td>
 									<td><?= ($product->published_at) ? 'Display in Catalog' : 'Save as Draft' ?></td>
 									<td>
+										<?php if ($recipeCount > 0): ?>
+											<span class="badge badge-success">
+												<?= $recipeCount ?> Bahan
+											</span>
+										<?php else: ?>
+											<span class="badge badge-danger">
+												Belum Ada BOM
+											</span>
+										<?php endif; ?>
+									</td>
+									<td>
+
 										<?php if (empty($product->deleted_at)): ?>
-											<a href="<?= site_url('admin/products/edit/'. $product->id) ?>" class="badge bg-info">edit</a>
-											<form method="POST" action="<?= site_url('admin/products/'. $product->id) ?>" accept-charset="UTF-8" class="delete" style="display:inline-block">
+
+											<a href="<?= site_url('admin/products/edit/'. $product->id) ?>" class="badge bg-info">
+												edit
+											</a>
+
+											<a href="<?= site_url('admin/recipes/detail/' . $product->id) ?>" class="badge bg-success">
+												BOM
+											</a>
+
+											<form method="POST"
+												action="<?= site_url('admin/products/'. $product->id) ?>"
+												accept-charset="UTF-8"
+												class="delete"
+												style="display:inline-block">
+
 												<input name="_method" type="hidden" value="DELETE">
-												<button class="badge bg-danger" style="border:none !important">delete</button>
+
+												<button class="badge bg-danger" style="border:none !important">
+													delete
+												</button>
+
 											</form>
 										<?php else: ?>
 											<a href="<?= site_url('admin/products/restore/'. $product->id) ?>" class="badge bg-warning">restore</a>

@@ -8,11 +8,11 @@
             <h1>Attribute Options for <?= esc($attribute->name) ?></h1>
           </div>
           <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="<?php echo site_url('admin/dashboard') ?>">Dashboard</a></li>
-              <li class="breadcrumb-item"><a href="<?php echo site_url('admin/attributes') ?>">Attributes</a></li>
-              <li class="breadcrumb-item active">Options</li>
-            </ol>
+             <ol class="breadcrumb float-sm-right">
+               <li class="breadcrumb-item"><a href="<?php echo site_url('admin/dashboard') ?>">Dashboard</a></li>
+               <li class="breadcrumb-item"><a href="<?php echo site_url('admin/attributes') ?>">Attributes</a></li>
+               <li class="breadcrumb-item active">Options</li>
+             </ol>
           </div>
         </div>
       </div>

@@ -48,6 +48,21 @@ class Recipes extends BaseController
     }
 
     /**
+     * Form pilih produk untuk buat resep baru
+     */
+    public function create()
+    {
+        $products = model('ProductModel')
+            ->where('deleted_at', null)
+            ->findAll();
+
+        return view('admin/recipes/create', [
+            'title' => 'New Recipe',
+            'products' => $products
+        ]);
+    }
+
+    /**
      * Form tambah/edit bahan untuk satu produk
      */
     public function detail($productId)
@@ -199,6 +214,28 @@ class Recipes extends BaseController
             'satuan'          => $b->satuan,
             'harga'           => $b->harga_beli_satuan,
         ], $data));
+    }
+
+    public function getProductAjax()
+    {
+        $q = $this->request->getGet('q');
+
+        $products = model('ProductModel')
+            ->select('id, name, sku')
+            ->like('name', $q)
+            ->where('deleted_at', null)
+            ->findAll();
+
+        $result = [];
+
+        foreach ($products as $p) {
+            $result[] = [
+                'id'   => $p->id,
+                'text' => $p->sku . ' - ' . $p->name
+            ];
+        }
+
+        return $this->response->setJSON($result);
     }
 
     /**

@@ -21,7 +21,11 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Daftar Produk — Klik untuk Kelola Resep</h3>
+                <h3 class="card-title">Daftar Resep Produk </h3>
+                <a href="<?= site_url('admin/recipes/create') ?>"
+                    class="btn btn-success btn-sm">
+                    <i class="fas fa-plus"></i> New Recipe
+                </a>
                 <div class="card-tools">
                     <form action="<?= site_url('admin/recipes') ?>" method="get" class="form-inline">
                         <div class="input-group input-group-sm">

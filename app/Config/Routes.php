@@ -53,7 +53,9 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
             $routes->get('edit/(:num)', 'Admin\Products::edit/$1');
             $routes->put('(:num)', 'Admin\Products::update/$1'); // Update data (Method PUT)
             $routes->delete('(:num)', 'Admin\Products::destroy/$1'); // Hapus
-            
+            $routes->get('(:num)/variants', 'Admin\Products::variants/$1');
+            $routes->get('(:num)/variants/create','Admin\Products::createVariant/$1');
+            $routes->post('(:num)/variants', 'Admin\Products::storeVariant/$1');
             
             // Fitur Gambar 
             $routes->get('(:num)/images', 'Admin\Products::images/$1');
@@ -147,6 +149,9 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('update/(:num)/(:num)', 'Admin\Recipes::update/$1/$2');
         $routes->get('hapus/(:num)/(:num)', 'Admin\Recipes::hapus/$1/$2');
         $routes->get('getBahanAjax', 'Admin\Recipes::getBahanAjax');
+        $routes->get('create', 'Admin\Recipes::create');
+        $routes->post('create', 'Admin\Recipes::create');
+        $routes->get('getProductAjax', 'Admin\Recipes::getProductAjax');
     });
 
     // --- STOK MASUK (Inventory) ---

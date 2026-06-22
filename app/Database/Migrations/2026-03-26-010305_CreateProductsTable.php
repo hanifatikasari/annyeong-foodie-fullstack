@@ -38,8 +38,8 @@ class CreateProductsTable extends Migration
 				'constraint' => 8,
 			],
 			'type' => [
-				'type' => 'CHAR',
-				'constraint' => 8,
+				'type' => 'enum',
+				'constraint' => ['simple', 'configurable'],
 			],
 			'name' => [
 				'type' => 'VARCHAR',

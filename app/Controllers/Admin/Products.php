@@ -148,6 +148,89 @@ class Products extends BaseController
         return $this->response->setJSON($attributes);
     }
 
+    public function variants($parentId)
+    {
+        $product = model('ProductModel')->find($parentId);
+
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $variants = model('ProductModel')
+            ->select('products.*, product_inventories.qty')
+            ->join(
+                'product_inventories',
+                'product_inventories.product_id = products.id',
+                'left'
+            )
+            ->where('products.parent_id', $parentId)
+            ->findAll();
+
+        $data = array_merge($this->getCommonData(), [
+            'product' => $product,
+            'variants' => $variants,
+            'productMenu' => 'product_variants',
+        ]);
+
+        return view('admin/products/variants', $data);
+    }
+
+    public function createVariant($parentId)
+    {
+        $parent = model('ProductModel')->find($parentId);
+
+        if (!$parent) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $data = array_merge($this->getCommonData(), [
+            'parentProduct' => $parent,
+        ]);
+
+        return view('admin/products/variant_form', $data);
+    }
+
+    public function storeVariant($parentId)
+    {
+        $parent = model('ProductModel')->find($parentId);
+
+        $categoryId = null;
+
+        if (!empty($parent->categories)) {
+            $categoryId = $parent->categories[0]->id;
+        }
+
+        $params = [
+            'parent_id' => $parentId,
+            'name'      => $this->request->getVar('name'),
+            'sku'       => $this->generateAutoSku($categoryId),
+            'type'      => model('ProductModel')::SIMPLE,
+            'price'     => $this->request->getVar('price'),
+            'user_id'   => session()->get('user_id'),
+        ];
+
+        $productModel = model('ProductModel');
+        $productModel->insert($params);
+
+        $variantId = $productModel->getInsertID();
+        if (!empty($parent->categories)) {
+            foreach ($parent->categories as $category) {
+                $this->db->table('product_categories')->insert([
+                    'product_id'  => $variantId,
+                    'category_id' => $category->id,
+                ]);
+            }
+        }
+
+        model('ProductInventoryModel')->save([
+            'product_id' => $variantId,
+            'qty'        => $this->request->getVar('stock')
+        ]);
+
+        return redirect()->to('/admin/products/' . $parentId . '/variants')
+                        ->with('success', 'Variant berhasil ditambahkan');
+    }
+
     private function getConfigurableAttributes($categoryIds = [])
     {
         if (empty($categoryIds)) {
@@ -234,29 +317,25 @@ class Products extends BaseController
         $db = \Config\Database::connect();
         $db->transStart();
         
-        if ($productModel->save($params)) 
-            {
-                $productId = $db->insertID();
-                    if ($typeInput == $productModel::SIMPLE) {
-                        
-                        // Simpan Stok ke tabel product_inventories
-                        $stock = $this->request->getVar('stock') ?? 0;
-                        $this->updateOrCreateInventory([
-                            'product_id' => $productId, 
-                            'qty'        => $stock
-                        ]);
+        if ($productModel->save($params))
+        {
+            $productId = $db->insertID();
 
-                        // Simpan Relasi Kategori
-                        if (!empty($categoryIds)) {
-                            $this->saveProductCategories($productId, $categoryIds);
-                        }
-                    } else {
-                        // Jika Configurable, generate variannya
-                        // Ambil object product untuk kebutuhan generateProductVariants
-                        $productObj = $productModel->find($productId);
-                        $this->generateProductVariants($productObj, $params);
-                    }
-            } else {
+            // simpan kategori untuk SEMUA tipe product
+            if (!empty($categoryIds)) {
+                $this->saveProductCategories($productId, $categoryIds);
+            }
+
+            if ($typeInput == $productModel::SIMPLE) {
+
+                $stock = $this->request->getVar('stock') ?? 0;
+
+                $this->updateOrCreateInventory([
+                    'product_id' => $productId,
+                    'qty' => $stock
+                ]);
+            }
+        } else {
                 // Jika save() gagal karena validasi model
                 $db->transRollback();
                 return redirect()->back()->withInput()->with('errors', $productModel->errors());
@@ -589,98 +668,7 @@ class Products extends BaseController
             ]);
         }
     }
-
-    private function generateProductVariants($product, $params)
-    {
-        $variantAttributes = !(empty($params['configurable'])) ? $params['configurable'] : [];
-        $configurableAttributes = array_column(model('AttributeModel')->where('is_configurable', true)->findAll(), 'code');
-
-        $variantAttributes = array_filter($variantAttributes, function ($value, $key) use ($configurableAttributes) {
-            return in_array($key, $configurableAttributes);
-        }, ARRAY_FILTER_USE_BOTH);
-
-        $variants = $this->generateVariantsWithAttributeCombinations($variantAttributes);
-
-        if ($variants) {
-            foreach ($variants as $variant) {
-                $variantParams = [
-                    'parent_id' => $product->id,
-                    'user_id' => $product->user_id,
-                    'sku' => $this->generateAutoSku($params['categories'][0]),
-                    'type' => model('ProductModel')::SIMPLE,
-                    'name' => $product->name . $this->convertVariantAttributesAsName($variant),
-                    'price' => 0,
-                    'published_at' => $params['published_at'] ?? null,
-                ];
-
-                model('ProductModel')->save($variantParams);
-                $newVariantID = model('ProductModel')->getInsertID();
-
-                $productCategoryTable = $this->db->table('product_categories');
-                if (!empty($params['categories'])) {
-                    foreach ($params['categories'] as $key => $categoryId) {
-                        $productCategoryTable->insert([
-                            'product_id' => $newVariantID,
-                            'category_id' => $categoryId,
-                        ]);
-                    }
-                }
-
-                $this->saveProductAttributeValues($newVariantID, $variant, $product->id);
-            }
-        }
-    }
-
-    private function saveProductAttributeValues($productID, $variant, $parentProductID)
-    {
-        foreach (array_values($variant) as $attributeOptionID) {
-            $attributeOption = model('AttributeOptionModel')->find($attributeOptionID);
-            
-            if (!$attributeOption) continue;
-            $attributeValueParams = [
-                'parent_product_id' => $parentProductID,
-                'product_id' => $productID,
-                'attribute_id' => $attributeOption->attribute_id,
-                'attribute_option_id' => $attributeOptionID,
-                'text_value' => $attributeOption->name,
-            ];
-
-            model('ProductAttributeValueModel')->save($attributeValueParams);
-        }
-    }
-
-    private function convertVariantAttributesAsName($variant)
-    {
-        $variantName = '';
-
-        foreach (array_keys($variant) as $key => $code) {
-            $attributeOptionID = $variant[$code];
-            $attributeOption = model('AttributeOptionModel')->find($attributeOptionID);
-
-            if ($attributeOption) {
-                $variantName .= ' - ' . $attributeOption->name;
-            }
-        }
-
-        return $variantName;
-    }
-
-    private function generateVariantsWithAttributeCombinations($arrays)
-    {
-        $result = [[]];
-		foreach ($arrays as $property => $property_values) {
-			$tmp = [];
-			foreach ($result as $result_item) {
-				foreach ($property_values as $property_value) {
-					$tmp[] = array_merge($result_item, array($property => $property_value));
-				}
-			}
-			$result = $tmp;
-		}
-		return $result;
-    }
-
-    
+   
     private function generateAutoSku($categoryId)
     {
         if (!$categoryId) return 'GEN-0000';
@@ -702,4 +690,4 @@ class Products extends BaseController
 
         return $prefix . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
-}
+} 
