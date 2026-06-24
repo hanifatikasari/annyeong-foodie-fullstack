@@ -23,49 +23,41 @@ class Products extends BaseController
     }
 
     // ---------------------------------------------------------------
-    // FIX ISSUE #1 & #2: Gunakan getStorefrontCategories() + fix query
+    // Shared data untuk semua halaman frontend produk
     // ---------------------------------------------------------------
     protected function getSharedData(): array
     {
-        // Hanya tampilkan child categories dari "Produk Jadi"
         $categories = $this->categoryModel->getStorefrontCategories();
 
         $ordering = [
-            site_url('products')                          => 'Default',
-            site_url('products?order=price-asc')          => 'Harga Terendah',
-            site_url('products?order=price-desc')         => 'Harga Tertinggi',
-            site_url('products?order=created_at-desc')    => 'Terbaru',
+            site_url('products')                       => 'Default',
+            site_url('products?order=price-asc')       => 'Harga Terendah',
+            site_url('products?order=price-desc')      => 'Harga Tertinggi',
+            site_url('products?order=created_at-desc') => 'Terbaru',
         ];
 
         return [
-            'categories'   => $categories,
-            'ordering'     => $ordering,
+            'categories' => $categories,
+            'ordering'   => $ordering,
         ];
     }
 
     // ---------------------------------------------------------------
     // PRODUCT LISTING
-    // FIX ISSUE #2:
-    //   - Hapus subquery lowest_price yang bermasalah
-    //   - Gunakan kolom price langsung
-    //   - Hanya tampilkan produk yang published dan bukan varian (parent_id IS NULL)
-    //   - Tambahkan filter berdasarkan storefront category (child dari Produk Jadi)
+    // Hanya tampilkan parent product (parent_id IS NULL)
     // ---------------------------------------------------------------
     public function index(): string
     {
         $sharedData = $this->getSharedData();
 
-        // *** BASE QUERY ***
-        // Ambil produk: published, bukan varian produk (parent_id IS NULL = produk utama)
-        // JOIN ke product_inventories untuk stok
         $builder = $this->productModel
             ->select('products.*, COALESCE(product_inventories.qty, 0) as stok')
             ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
             ->where('products.parent_id IS NULL')
             ->where('products.published_at IS NOT NULL');
 
-        // *** FILTER: CATEGORY ***
-        $categorySlug = $this->request->getGet('category');
+        // Filter: Kategori
+        $categorySlug     = $this->request->getGet('category');
         $selectedCategory = null;
 
         if ($categorySlug) {
@@ -76,9 +68,6 @@ class Products extends BaseController
                         ->where('product_categories.category_id', $cat->id);
             }
         } else {
-            // *** FIX ISSUE #2 — "Semua Produk" ***
-            // Jika tidak ada filter kategori, tampilkan semua produk yang termasuk
-            // dalam child categories dari "Produk Jadi"
             $storefrontCategories = $sharedData['categories'];
             if (!empty($storefrontCategories)) {
                 $catIds = array_map(fn($c) => $c->id, $storefrontCategories);
@@ -87,7 +76,7 @@ class Products extends BaseController
             }
         }
 
-        // *** FILTER: PRICE RANGE ***
+        // Filter: Rentang harga
         $priceRange = $this->request->getGet('price');
         if ($priceRange && strpos($priceRange, '-') !== false) {
             [$low, $high] = explode('-', $priceRange, 2);
@@ -98,29 +87,25 @@ class Products extends BaseController
             }
         }
 
-        // *** SORTING ***
-        $orderParam = $this->request->getGet('order');
+        // Sorting
+        $orderParam    = $this->request->getGet('order');
         $allowedOrders = [
-            'price-asc'          => ['products.price', 'ASC'],
-            'price-desc'         => ['products.price', 'DESC'],
-            'created_at-desc'    => ['products.created_at', 'DESC'],
-            'created_at-asc'     => ['products.created_at', 'ASC'],
-            'name-asc'           => ['products.name', 'ASC'],
+            'price-asc'       => ['products.price', 'ASC'],
+            'price-desc'      => ['products.price', 'DESC'],
+            'created_at-desc' => ['products.created_at', 'DESC'],
+            'created_at-asc'  => ['products.created_at', 'ASC'],
+            'name-asc'        => ['products.name', 'ASC'],
         ];
 
-        if ($orderParam && isset($allowedOrders[$orderParam])) {
-            [$orderField, $orderDir] = $allowedOrders[$orderParam];
-        } else {
-            $orderField = 'products.created_at';
-            $orderDir   = 'DESC';
-        }
+        [$orderField, $orderDir] = $orderParam && isset($allowedOrders[$orderParam])
+            ? $allowedOrders[$orderParam]
+            : ['products.created_at', 'DESC'];
 
         $builder->orderBy($orderField, $orderDir);
 
-        // *** PAGINATE ***
         $products = $builder->paginate($this->perPage, 'bootstrap');
 
-        // *** ATTACH FEATURED IMAGE ***
+        // Lampirkan gambar utama ke setiap produk
         foreach ($products as &$p) {
             $img = $this->productImageModel
                 ->where('product_id', $p->id)
@@ -146,11 +131,11 @@ class Products extends BaseController
 
     // ---------------------------------------------------------------
     // PRODUCT DETAIL
-    // FIX: akses sebagai object ($product->name, bukan $product['name'])
+    // NEW: Load variants lengkap (stok + gambar) untuk configurable
     // ---------------------------------------------------------------
     public function show($sku, $slug = null): string
     {
-        // Ambil produk dengan stok
+        // Ambil produk parent
         $product = $this->productModel
             ->select('products.*, COALESCE(product_inventories.qty, 0) as stok')
             ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
@@ -164,15 +149,71 @@ class Products extends BaseController
             );
         }
 
-        // Images
-        $product->images = $this->productImageModel
+        // Gambar parent
+        $product->images       = $this->productImageModel
             ->where('product_id', $product->id)
             ->orderBy('id', 'ASC')
             ->findAll();
-
         $product->featured_image = !empty($product->images) ? $product->images[0] : null;
 
-        // EAV Attributes — raw query lebih aman
+        // ---------------------------------------------------------------
+        // VARIANT LOADING — hanya untuk configurable product
+        // ---------------------------------------------------------------
+        $variants     = [];
+        $variantsJson = '[]';
+
+        if ($product->type === 'configurable') {
+            $rawVariants = $this->productModel
+                ->select('products.*, COALESCE(product_inventories.qty, 0) as stok')
+                ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
+                ->where('products.parent_id', $product->id)
+                ->orderBy('products.price', 'ASC')
+                ->findAll();
+            // Catatan: useSoftDeletes = true pada ProductModel secara otomatis
+            // menambahkan WHERE deleted_at IS NULL — variant yang di-soft-delete
+            // tidak akan muncul tanpa perlu filter manual.
+
+            $variantsForJs = [];
+
+            foreach ($rawVariants as $v) {
+                // Gambar variant; jika tidak ada → fallback ke gambar parent
+                $variantImages = $this->productImageModel
+                    ->where('product_id', $v->id)
+                    ->orderBy('id', 'ASC')
+                    ->findAll();
+
+                $imagesToUse       = !empty($variantImages) ? $variantImages : $product->images;
+                $v->variant_images = $imagesToUse;
+                $v->featured_image = !empty($imagesToUse) ? $imagesToUse[0] : null;
+
+                $variants[] = $v;
+
+                // Siapkan data untuk JS (di-embed sebagai JSON ke view)
+                $imagesForJs = array_map(fn($img) => [
+                    'large'  => base_url($img->large),
+                    'medium' => base_url($img->medium),
+                    'small'  => base_url($img->small),
+                ], $imagesToUse);
+
+                $variantsForJs[] = [
+                    'id'              => (int) $v->id,
+                    'name'            => $v->name,
+                    'sku'             => $v->sku,
+                    'price'           => (int) $v->price,
+                    'price_formatted' => 'Rp ' . number_format((int) $v->price),
+                    'stok'            => (int) $v->stok,
+                    'images'          => $imagesForJs,
+                ];
+            }
+
+            // Encode aman: escape karakter HTML di dalam JSON
+            $variantsJson = json_encode(
+                $variantsForJs,
+                JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+            );
+        }
+
+        // EAV Attributes
         $db = \Config\Database::connect();
         $product->attributes = $db->table('product_attribute_values pav')
             ->select('a.name as attr_name, ao.name as attr_value')
@@ -187,7 +228,7 @@ class Products extends BaseController
         $reviews     = $reviewModel->getByProduct($product->id);
         $avgRating   = $reviewModel->getAverageRating($product->id);
 
-        // Related products (same category, limit 4)
+        // Produk terkait (kategori sama, limit 4)
         $catIds = $db->table('product_categories')
             ->select('category_id')
             ->where('product_id', $product->id)
@@ -196,7 +237,7 @@ class Products extends BaseController
 
         $related = [];
         if (!empty($catIds)) {
-            $ids = array_column($catIds, 'category_id');
+            $ids     = array_column($catIds, 'category_id');
             $related = $this->productModel
                 ->select('products.*')
                 ->join('product_categories pc', 'products.id = pc.product_id')
@@ -220,11 +261,13 @@ class Products extends BaseController
         $sharedData = $this->getSharedData();
 
         $this->data = array_merge($this->data, $sharedData, [
-            'product'    => $product,
-            'reviews'    => $reviews,
-            'avg_rating' => $avgRating,
-            'related'    => $related,
-            'title'      => $product->name,
+            'product'      => $product,
+            'variants'     => $variants,      // array enriched variant objects
+            'variantsJson' => $variantsJson,  // JSON string untuk JavaScript
+            'reviews'      => $reviews,
+            'avg_rating'   => $avgRating,
+            'related'      => $related,
+            'title'        => $product->name,
         ]);
 
         return view('themes/' . $this->data['currentTheme'] . '/products/show', $this->data);

@@ -36,9 +36,10 @@ class ProductModel extends Model
 	protected $deletedField  = 'deleted_at';
 
 	protected $validationRules    = [
+		'id'    => 'permit_empty',
 		'type' => 'required',
 		'name'	=> 'required|min_length[3]',
-		'sku' => 'required|is_unique[products.sku,id,{id?}]',
+		'sku' => 'required|is_unique[products.sku,id,{id}]',
 		'price' => 'permit_empty', //configurable parent kadang memang tidak punya harga. adanya di simple productnya
 		'short_description' => 'permit_empty|max_length[100]'
 		

@@ -213,6 +213,7 @@ class Checkout extends BaseController
             $invModel = model('ProductInventoryModel');
 
             foreach ($cart as $item) {
+                //dd($cart);
                 $product = model('ProductModel')->find($item['product_id']);
                 $hpp     = $product ? ($product->hpp_total ?? 0) : 0;
                 $price   = $item['price'];
@@ -230,10 +231,16 @@ class Checkout extends BaseController
                 //-----------------------------------------------
                 // Kurangi stok di inventory (jika ada)
                 //-----------------------------------------------
-                $inv = $invModel->where('product_id', $item['product_id'])->first();
+                $inv = $invModel
+                    ->where('product_id', $item['product_id'])
+                    ->first();
+                
                 if ($inv) {
                     $newQty = max(0, (int) $inv->qty - $qty);
-                    $invModel->update($inv->id, ['qty' => $newQty]);
+                    $invModel->update(
+                        $inv->id, 
+                        ['qty' => $newQty]
+                    );
                 }
             }
 

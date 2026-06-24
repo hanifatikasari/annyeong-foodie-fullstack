@@ -19,6 +19,7 @@ class CreateProductInventoriesTable extends Migration
 				'type'           => 'mediumint',
 				'constraint'     => 8,
 				'unsigned'       => true,
+				'unique'         => true, // Set unique constraint on product_id
 			],
 			'qty' => [ // Saldo stok saat ini
 				'type' => 'mediumint',

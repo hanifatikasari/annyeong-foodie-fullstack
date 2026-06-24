@@ -38,32 +38,52 @@
     <script src="<?= base_url('/themes/indomarket/assets/js/core/jquery-ui.min.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="<?= base_url('/themes/indomarket/assets/js/argon-design-system.js') ?>"></script>
-    <!-- <script src="<?= base_url('/themes/indomarket/assets/js/main.js') ?>"></script> -->
 
     <script>
-    // AJAX Add to Cart
-    $(document).on('submit', '.form-add-cart', function(e) {
+    // ================================================================
+    // AJAX Add to Cart — berlaku untuk semua .form-add-cart di situs
+    // FIX: Selector cart badge diperbaiki (#cartCountBadge)
+    // NEW: Handle response needs_variant untuk configurable product
+    // ================================================================
+    $(document).on('submit', '.form-add-cart', function (e) {
         e.preventDefault();
         var form = $(this);
+
         $.ajax({
-            url: '<?= site_url("cart/add") ?>',
+            url:  '<?= site_url("cart/add") ?>',
             type: 'POST',
             data: form.serialize() + '&<?= csrf_token() ?>=<?= csrf_hash() ?>',
-            success: function(res) {
+            success: function (res) {
+                // Produk adalah configurable — redirect ke halaman detail
+                if (res.needs_variant) {
+                    window.location.href = res.redirect;
+                    return;
+                }
+
                 if (res.success) {
-                    $('.cart-count').text(res.count);
+                    // Update SEMUA elemen yang menampilkan jumlah cart
+                    $('#cartCountBadge, .cart-count').text(res.count);
                     toastMsg(res.message, 'success');
                 } else {
                     toastMsg(res.message, 'danger');
                 }
+            },
+            error: function () {
+                toastMsg('Terjadi kesalahan. Silakan coba lagi.', 'danger');
             }
         });
     });
 
+    // Toast notification global
     function toastMsg(msg, type) {
-        var toast = $('<div class="alert alert-' + type + ' position-fixed" style="bottom:20px;right:20px;z-index:9999;min-width:280px;">' + msg + '</div>');
+        var toast = $('<div class="alert alert-' + type
+            + ' position-fixed" style="bottom:20px;right:20px;z-index:9999;'
+            + 'min-width:280px;box-shadow:0 4px 15px rgba(0,0,0,.2);">'
+            + msg + '</div>');
         $('body').append(toast);
-        setTimeout(function() { toast.fadeOut(400, function() { $(this).remove(); }); }, 3000);
+        setTimeout(function () {
+            toast.fadeOut(400, function () { $(this).remove(); });
+        }, 3000);
     }
     </script>
 </body>

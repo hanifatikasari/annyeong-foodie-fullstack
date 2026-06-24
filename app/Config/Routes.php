@@ -45,6 +45,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     // Tampilan List & Sampah
     $routes->get('/', 'Admin\Products::index');
     $routes->get('trashed', 'Admin\Products::trashed');
+    $routes->get('restore/(:num)','Admin\Products::restore/$1');
 
         // Fitur Khusus Admin/Produksi
         $routes->group('', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
@@ -197,8 +198,8 @@ $routes->get('hello', function() {
 });
 
 // ============================================================
-    // E-COMMERCE FRONTEND ROUTES
-    // ============================================================
+// E-COMMERCE FRONTEND ROUTES
+// ============================================================
 
     // Product search
     $routes->get('search', 'Shop::search');

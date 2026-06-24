@@ -10,25 +10,67 @@
         <div class="col-3">
             <div class="form-group">
                 <label for="productSKU-<?= $variant->id ?>">SKU</label>
-                <?= form_input('variants['. $variant->id .'][sku]', set_value('sku', isset($variant->sku) ? ($variant->sku) : '' ), ['class' => 'form-control', 'id' => 'productSKU-'. $variant->id]) ?>
+                <?= form_input(
+                    'variants['.$variant->id.'][sku]',
+                    set_value(
+                        'variants['.$variant->id.'][sku]',
+                        $variant->sku ?? ''
+                    ),
+                    [
+                        'class' => 'form-control',
+                        'id'    => 'productSKU-'.$variant->id,
+                        'readonly' => true
+                    ]
+                ) ?>
+                <small class="text-muted">SKU akan dibuat otomatis oleh sistem.</small>
             </div>
         </div>
         <div class="col-5">
             <div class="form-group">
                 <label for="productName-<?= $variant->id ?>">Name</label>
-                <?= form_input('variants['. $variant->id .'][name]', set_value('name', isset($variant->name) ? ($variant->name) : '' ), ['class' => 'form-control', 'id' => 'productName-'. $variant->id]) ?>
+                <?= form_input(
+                    'variants['.$variant->id.'][name]',
+                    set_value(
+                        'variants['.$variant->id.'][name]',
+                        $variant->name ?? ''
+                    ),
+                    [
+                        'class' => 'form-control',
+                        'id'    => 'productName-'.$variant->id
+                    ]
+                ) ?>
             </div>
         </div>
         <div class="col-2">
             <div class="form-group">
                 <label for="productPrice-<?= $variant->id ?>">Price</label>
-                <?= form_input('variants['. $variant->id .'][price]', set_value('price', isset($variant->price) ? ($variant->price) : '' ), ['class' => 'form-control', 'id' => 'productPrice-'. $variant->id]) ?>
+                <?= form_input(
+                    'variants['.$variant->id.'][price]',
+                    set_value(
+                        'variants['.$variant->id.'][price]',
+                        $variant->price ?? ''
+                    ),
+                    [
+                        'class' => 'form-control',
+                        'id'    => 'productPrice-'.$variant->id
+                    ]
+                ) ?>
             </div>
         </div>
         <div class="col-2">
             <div class="form-group">
                 <label for="productStock-<?= $variant->id ?>">Stock</label>
-                <?= form_input('variants['. $variant->id .'][stock]', set_value('stock', isset($variant->stock) ? ($variant->stock) : '' ), ['class' => 'form-control', 'id' => 'productStock-'. $variant->id]) ?>
+                <?= form_input(
+                    'variants['.$variant->id.'][stock]',
+                    set_value(
+                        'variants['.$variant->id.'][stock]',
+                        $variant->stock ?? ''
+                    ),
+                    [
+                        'class' => 'form-control',
+                        'id'    => 'productStock-'.$variant->id
+                    ]
+                ) ?>
             </div>
         </div>
     </div>

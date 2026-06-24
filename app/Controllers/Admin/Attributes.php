@@ -30,6 +30,8 @@ class Attributes extends BaseController
             'pager'             => $this->attributeModel->pager,
             'keyword'           => $keyword,
             'perPage'           => $perPage,
+            'currentAdminMenu'    => 'catalogue',
+            'currentAdminSubMenu' => 'attributes',
             // Konstanta dropdown dari Model
             'attributeTypes'    => $this->attributeModel::ATTRIBUTE_TYPES,
             'isRequiredOptions' => $this->attributeModel::IS_REQUIRED_OPTIONS,

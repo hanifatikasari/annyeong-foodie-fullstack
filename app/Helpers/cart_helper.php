@@ -9,19 +9,35 @@ if (!function_exists('get_cart')) {
 }
 
 if (!function_exists('add_to_cart')) {
+    /**
+     * Tambahkan produk ke keranjang.
+     *
+     * PENTING:
+     * - Untuk configurable product, $productId yang dikirim HARUS berupa
+     *   ID variant (child/simple), bukan ID parent configurable.
+     * - Jika parent configurable dikirim, fungsi ini menolak (return false).
+     */
     function add_to_cart(int $productId, int $qty = 1): bool
     {
         $session = session();
         $cart    = get_cart();
         $model   = model('ProductModel');
-        $product = $model->select('products.*, product_inventories.qty as stok')
-                         ->join('product_inventories', 'products.id = product_inventories.product_id', 'left')
-                         ->find($productId);
+
+        $product = $model
+            ->select('products.*, product_inventories.qty as stok')
+            ->join('product_inventories', 'products.id = product_inventories.product_id', 'left')
+            ->find($productId);
 
         if (!$product) return false;
 
-        $price = $product->price ?? 0;
-        $stok  = $product->stok ?? 0;
+        // Guard: parent configurable tidak boleh ditambah langsung ke keranjang.
+        // User harus memilih variant (simple child) terlebih dahulu.
+        if ($product->type === 'configurable') {
+            return false;
+        }
+
+        $price = (int) ($product->price ?? 0);
+        $stok  = (int) ($product->stok  ?? 0);
 
         if (isset($cart[$productId])) {
             $newQty = $cart[$productId]['qty'] + $qty;
@@ -30,19 +46,32 @@ if (!function_exists('add_to_cart')) {
         } else {
             if ($qty > $stok) return false;
             $cart[$productId] = [
-                'product_id'   => $productId,
-                'name'         => $product->name,
-                'sku'          => $product->sku,
-                'price'        => $price,
-                'qty'          => $qty,
-                'stok'         => $stok,
-                'image'        => null,
+                'product_id' => $productId,
+                'name'       => $product->name,
+                'sku'        => $product->sku,
+                'price'      => $price,
+                'qty'        => $qty,
+                'stok'       => $stok,
+                'image'      => null,
             ];
 
+            // Cari gambar produk; jika variant tidak punya gambar → gunakan gambar parent
             $img = model('ProductImageModel')
-                        ->where('product_id', $productId)
-                        ->first();
-            if ($img) $cart[$productId]['image'] = $img->small;
+                ->where('product_id', $productId)
+                ->orderBy('id', 'ASC')
+                ->first();
+
+            if (!$img && $product->parent_id) {
+                // Fallback: gunakan gambar parent product
+                $img = model('ProductImageModel')
+                    ->where('product_id', $product->parent_id)
+                    ->orderBy('id', 'ASC')
+                    ->first();
+            }
+
+            if ($img) {
+                $cart[$productId]['image'] = $img->small;
+            }
         }
 
         $session->set('cart', $cart);

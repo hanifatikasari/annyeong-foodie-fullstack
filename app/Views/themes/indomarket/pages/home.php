@@ -105,19 +105,28 @@
                         <?php endif; ?>
                         <div class="product-content mt-2">
                             <h3 class="h6"><a href="<?= site_url('products/' . $product->sku . '/' . $product->slug) ?>"><?= esc($product->name) ?></a></h3>
-                            <div class="product-price d-flex justify-content-between align-items-center">
-                                <span class="text-primary font-weight-bold">Rp <?= number_format($product->price ?? 0) ?></span>
-                                <form class="form-add-cart">
+                            <div class="mt-1">
+                                <?php if ($product->type === 'configurable'): ?>
+                                    <small class="text-muted d-block" style="font-size:10px;">Mulai dari</small>
+                                <?php endif; ?>
+                                <span class="text-primary font-weight-bold">
+                                    Rp <?= number_format($product->type === 'configurable' ? ($product->lowest_price ?? 0) : ($product->price ?? 0)) ?>
+                                </span>
+                            </div>
+
+                            <?php if ($product->type === 'configurable'): ?>
+                                <a href="<?= site_url('products/' . $product->sku . '/' . $product->slug) ?>" class="btn btn-info btn-block btn-sm mt-2">
+                                    <i class="fa fa-eye mr-1"></i> Lihat Varian
+                                </a>
+                            <?php else: ?>
+                                <form class="form-add-cart mt-2">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="product_id" value="<?= $product->id ?>">
                                     <input type="hidden" name="qty" value="1">
-                                    <button type="submit" class="btn btn-primary btn-sm" <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
-                                        <i class="fa fa-cart-plus"></i>
+                                    <button type="submit" class="btn btn-primary btn-block btn-sm" <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
+                                        <i class="fa fa-cart-plus mr-1"></i> <?= ($product->stok ?? 0) > 0 ? 'Tambah ke Keranjang' : 'Stok Habis' ?>
                                     </button>
                                 </form>
-                            </div>
-                            <?php if (($product->stok ?? 0) <= 0): ?>
-                                <span class="badge badge-danger">Habis</span>
                             <?php endif; ?>
                         </div>
                     </div>

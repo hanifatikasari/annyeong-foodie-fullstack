@@ -24,8 +24,8 @@ class BahanBaku extends BaseController {
 
         $data = [
             'title'               => 'Daftar Bahan Baku',
-            'currentAdminMenu'    => 'catalogue', 
-            'currentAdminSubMenu' => 'bahanbaku', 
+            'currentAdminMenu'    => 'inventory', 
+            'currentAdminSubMenu' => 'bahan_baku', 
             'bahan'               => $bahanModel->orderBy('id','DESC')->paginate(10, 'bootstrap'),
             'categories'          => model('CategoryModel')->findAll(),
             'pager'               => $bahanModel->pager,
@@ -39,7 +39,7 @@ class BahanBaku extends BaseController {
         $data = [
             'title'               => 'Tambah Bahan Baku',
             'currentAdminMenu'    => 'inventory',
-            'currentAdminSubMenu' => 'bahanbaku',
+            'currentAdminSubMenu' => 'bahan_baku',
             'categories'          => model('CategoryModel')->where('parent_id', 1)->findAll(),
         ];
         return view('admin/bahanbaku/tambah', $data);
@@ -121,7 +121,7 @@ class BahanBaku extends BaseController {
         $data = [
             'title'               => 'Edit Bahan Baku',
             'currentAdminMenu'    => 'inventory',
-            'currentAdminSubMenu' => 'bahanbaku',
+            'currentAdminSubMenu' => 'bahan_baku',
             'bahan'               => $bahan,
             'categories'          => model('CategoryModel')->where('parent_id', 1)->findAll(),
         ];

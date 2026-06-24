@@ -244,6 +244,41 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                 <?php endif; ?>
 
                 <!-- ===================================================== -->
+                <!-- data manajemen -->
+                <!--==================================================== -->
+                <?php if ($ionAuth->inGroup(['admin','produksi','pemilik'])): ?>
+                <li class="nav-item has-treeview <?= ($currentAdminMenu == 'data_management') ? 'menu-open' : '' ?>">
+                    <a href="#"
+                    class="nav-link <?= ($currentAdminMenu == 'data_management') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-database"></i>
+                        <p>
+                            Data Management
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+
+                    <ul class="nav nav-treeview">
+
+                        <li class="nav-item">
+                            <a href="<?= site_url('admin/products/trashed') ?>"
+                            class="nav-link <?= ($currentAdminSubMenu == 'trash_bin') ? 'active' : '' ?>">
+                                <i class="far fa-trash-alt nav-icon"></i>
+                                <p>Trash Bin</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="<?= site_url('admin/backup') ?>"
+                            class="nav-link <?= ($currentAdminSubMenu == 'backup') ? 'active' : '' ?>">
+                                <i class="fas fa-save nav-icon"></i>
+                                <p>Backup & Restore</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+                <?php endif; ?>
+                <!-- ===================================================== -->
                 <!-- WEBSITE -->
                 <!-- ===================================================== -->
                 <li class="nav-header">WEBSITE</li>

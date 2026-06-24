@@ -105,9 +105,22 @@ class Products extends BaseController
 
     public function trashed()
     {
-        $this->getProducts(['onlyDeleted' => true]);
-        $this->data['currentAdminSubMenu'] = 'deleted-product';
-        return view('admin/products/index', $this->data);
+        $products = model('ProductModel')
+            ->onlyDeleted()
+            ->findAll();
+
+        $data = [
+            'title' => 'Trash Bin',
+            'products' => $products,
+
+            'currentAdminMenu' => 'data_management',
+            'currentAdminSubMenu' => 'trash_bin',
+        ];
+
+        return view(
+            'admin/data_management/trash_products',
+            $data
+        );
     }
 
     private function getProducts($options = [])
@@ -358,6 +371,8 @@ class Products extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
+        $productModel = model('ProductModel');
+
         $statusInput = $this->request->getVar('status'); // Ambil dari dropdown view
 
         $params = [
@@ -383,10 +398,14 @@ class Products extends BaseController
             $params['variants'] = $this->request->getVar('variants');
         }
 
-        model('ProductModel')->setValidationRule('sku', "required|is_unique[products.sku,id,$id]");
-
         $this->db->transStart();
-        if (!model('ProductModel')->save($params)) {
+        // $productModel->setValidationRule(
+        //     'sku',
+        //     'required'
+        // );
+
+        $productModel = model('ProductModel');
+        if (!$productModel->save($params)) {
             $this->db->transRollback(); // Paksa rollback jika validasi gagal
             
             $data = array_merge($this->getCommonData(), [
@@ -425,12 +444,12 @@ class Products extends BaseController
 
         $this->db->transComplete();
 
-        if (model('ProductModel')->errors()) {
+        if ($productModel->errors()) {
             $data = array_merge($this->getCommonData(), [
                 'product' => $product,
                 'productMenu' => 'product_details',
                 'categoryIds' => $params['categories'],
-                'errors' => model('ProductModel')->errors(),
+                'errors' => $productModel->errors(),
             ]);
             return view('admin/products/form', $data);
         } else {
@@ -441,27 +460,24 @@ class Products extends BaseController
 
     public function destroy($id)
     {
-        $product = model('ProductModel')->withDeleted()->find($id);
+        $product = model('ProductModel')->find($id);
 
         if (!$product) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        if (empty($product->deleted_at)) {
-            model('ProductModel')->delete($id);
+        model('ProductModel')->delete($id);
 
-            $this->session->setFlashdata('success', 'Product has been deleted.');
-            return redirect()->to('/admin/products');
-        } else {
-            $this->db->table('product_categories')->where('product_id', $id)->delete();
-            model('ProductAttributeValueModel')->where('product_id', $id)->delete();
-            model('ProductInventoryModel')->where('product_id', $id)->delete();
+        if ($product->type === 'configurable') {
 
-            model('ProductModel')->delete($id, true);
-
-            $this->session->setFlashdata('success', 'Product has been deleted permanently.');
-            return redirect()->to('/admin/products/trashed');
+            model('ProductModel')
+                ->where('parent_id', $id)
+                ->delete();
         }
+
+        return redirect()
+            ->to('/admin/products')
+            ->with('success', 'Product moved to trash.');
     }
 
     public function restore($id)
@@ -473,14 +489,31 @@ class Products extends BaseController
         }
 
         if ($product->deleted_at) {
-            $params = [
-                'deleted_at' => null,
-            ];
+            model('ProductModel')
+                ->withDeleted()
+                ->where('id', $id)
+                ->set([
+                    'deleted_at' => null
+                ])
+                ->update();
 
-            model('ProductModel')->update($id, $params);
+            if ($product->type === 'configurable') {
 
-            $this->session->setFlashdata('success', 'Product has been restored.');
-            return redirect()->to('/admin/products');
+                model('ProductModel')
+                    ->withDeleted()
+                    ->where('parent_id', $id)
+                    ->set([
+                        'deleted_at' => null
+                    ])
+                    ->update();
+            }
+
+            $this->session->setFlashdata(
+                'success',
+                'Product restored successfully.'
+            );
+
+            return redirect()->to('/admin/products/trashed');
         }
     }
 
@@ -629,15 +662,15 @@ class Products extends BaseController
     {
         if ($params['variants']) {
             foreach ($params['variants'] as $variantParams) {
+
                 $variantParams['published_at'] = $params['published_at'];
+
                 model('ProductModel')->save($variantParams);
 
-                $inventoryParams = [
+                $this->updateOrCreateInventory([
                     'product_id' => $variantParams['id'],
                     'qty' => $variantParams['stock'],
-                ];
-
-                model('ProductInventoryModel')->save($inventoryParams);
+                ]);
             }
         }
     }

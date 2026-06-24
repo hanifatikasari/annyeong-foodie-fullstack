@@ -20,10 +20,27 @@ class Home extends BaseController
         if (!empty($bestSelling)) {
             $bestIds = array_map(fn($b) => is_object($b) ? $b->product_id : $b['product_id'], $bestSelling);
 
+            // FIX: Cek apakah ID yang laris ini adalah varian (punya parent_id)
+            $checkParents = model('ProductModel')
+                ->select('id, parent_id')
+                ->whereIn('id', $bestIds)
+                ->findAll();
+
+            $finalIds = [];
+            foreach ($checkParents as $item) {
+                $parentId = is_object($item) ? $item->parent_id : $item['parent_id'];
+                $id = is_object($item) ? $item->id : $item['id'];
+                
+                // Jika punya parent_id, ambil ID induknya. Jika tidak, ambil ID-nya sendiri.
+                $finalIds[] = $parentId ?? $id; 
+            }
+            $finalIds = array_unique($finalIds);
+
+            // Gunakan $finalIds yang sudah divalidasi
             $trendingProducts = model('ProductModel')
                 ->select('products.*, COALESCE(product_inventories.qty, 0) as stok')
                 ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
-                ->whereIn('products.id', $bestIds)
+                ->whereIn('products.id', $finalIds)
                 ->where('products.parent_id IS NULL')
                 ->where('products.published_at IS NOT NULL')
                 ->findAll();

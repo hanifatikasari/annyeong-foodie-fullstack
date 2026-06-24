@@ -34,6 +34,7 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                            <th class="text-center">No</th>
                             <th>Name</th>
                             <th>Price</th>
                             <th>Stok</th>
@@ -41,8 +42,10 @@
                     </thead>
 
                     <tbody>
+                        <?php $no = 1; ?>
                         <?php foreach($variants as $variant): ?>
                         <tr>
+                            <td class="text-center"><?= $no++ ?></td>
                             <td><?= esc($variant->name) ?></td>
                             <td><?= number_format($variant->price) ?></td>
                             <td><?= number_format($variant->qty ?? 0) ?></td>

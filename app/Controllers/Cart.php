@@ -20,10 +20,46 @@ class Cart extends BaseController
         return view('themes/indomarket/pages/cart', $this->data);
     }
 
+    // ---------------------------------------------------------------
+    // ADD TO CART
+    // NEW: Cek configurable product — redirect ke detail + pilih varian
+    // ---------------------------------------------------------------
     public function add()
     {
         $productId = (int) $this->request->getPost('product_id');
         $qty       = max(1, (int) ($this->request->getPost('qty') ?? 1));
+
+        // Validasi: product_id wajib ada dan valid
+        if ($productId <= 0) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'count'   => cart_count(),
+                    'message' => 'Produk tidak valid.',
+                ]);
+            }
+            return redirect()->back()->with('error', 'Produk tidak ditemukan.');
+        }
+
+        // Cek apakah produk adalah configurable (parent) — wajib pilih varian dulu
+        $productCheck = model('ProductModel')->find($productId);
+        if ($productCheck && $productCheck->type === 'configurable') {
+            $detailUrl = site_url(
+                'products/' . $productCheck->sku . '/' . $productCheck->slug
+            );
+
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success'       => false,
+                    'needs_variant' => true,
+                    'count'         => cart_count(),
+                    'message'       => 'Silakan pilih varian produk terlebih dahulu.',
+                    'redirect'      => $detailUrl,
+                ]);
+            }
+            return redirect()->to($detailUrl)
+                ->with('info', 'Silakan pilih varian produk terlebih dahulu.');
+        }
 
         $success = add_to_cart($productId, $qty);
 
@@ -31,7 +67,9 @@ class Cart extends BaseController
             return $this->response->setJSON([
                 'success' => $success,
                 'count'   => cart_count(),
-                'message' => $success ? 'Produk ditambahkan ke keranjang!' : 'Stok tidak mencukupi.',
+                'message' => $success
+                    ? 'Produk ditambahkan ke keranjang!'
+                    : 'Stok tidak mencukupi.',
             ]);
         }
 
@@ -43,8 +81,7 @@ class Cart extends BaseController
     }
 
     // ---------------------------------------------------------------
-    // FIX ISSUE #7: Support action 'increment' dan 'decrement'
-    // sehingga tombol [+] dan [-] bisa kirim form kecil
+    // UPDATE CART — Support action 'increment' dan 'decrement'
     // ---------------------------------------------------------------
     public function update()
     {
@@ -63,12 +100,14 @@ class Cart extends BaseController
         update_cart($productId, $qty);
 
         if ($this->request->isAJAX()) {
-            $cart  = get_cart();
-            $item  = $cart[$productId] ?? null;
+            $cart = get_cart();
+            $item = $cart[$productId] ?? null;
             return $this->response->setJSON([
                 'success'   => true,
                 'newQty'    => $item ? $item['qty'] : 0,
-                'subtotal'  => $item ? number_format($item['price'] * $item['qty']) : '0',
+                'subtotal'  => $item
+                    ? number_format($item['price'] * $item['qty'])
+                    : '0',
                 'cartTotal' => number_format(cart_total()),
                 'count'     => cart_count(),
             ]);
