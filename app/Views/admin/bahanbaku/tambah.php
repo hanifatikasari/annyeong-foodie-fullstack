@@ -132,28 +132,28 @@
 </script>
 
 <script>
-$(document).ready(function() {
-    $('.select2').select2({
-        theme: 'bootstrap4',
-        placeholder: "Ketik nama kategori...",
-        allowClear: true,
-        ajax: {
-            url: "<?= site_url('admin/bahanbaku/getCategoriesAjax') ?>",
-            dataType: 'json',
-            delay: 250, // Menunggu user berhenti ngetik (biar nggak boros request)
-            data: function (params) {
-                return {
-                    q: params.term // Kata kunci yang diketik
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: data
-                };
-            },
-            cache: true
-        }
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            placeholder: "Ketik nama kategori...",
+            allowClear: true,
+            ajax: {
+                url: "<?= site_url('admin/bahanbaku/getCategoriesAjax') ?>",
+                dataType: 'json',
+                delay: 250, // Menunggu user berhenti ngetik (biar nggak boros request)
+                data: function (params) {
+                    return {
+                        q: params.term // Kata kunci yang diketik
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
     });
-});
 </script>
 <?= $this->endSection() ?>

@@ -17,7 +17,7 @@
 
                         <li class="breadcrumb-item">
                             <a href="<?= site_url('admin/products/edit/'.$product->id) ?>">
-                                <?= esc($product->name) ?>
+                                <?= esc('Edit ' . $product->name) ?>
                             </a>
                         </li>
 

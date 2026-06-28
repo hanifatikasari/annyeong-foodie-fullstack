@@ -24,7 +24,6 @@ class Recipes extends BaseController
         $productModel->select('products.*, product_inventories.qty')
                      ->join('product_inventories', 'product_inventories.product_id = products.id', 'left')
                      ->where('products.type', 'simple')
-                     ->where('products.parent_id IS NULL')
                      ->where('products.deleted_at IS NULL');
 
         if (!empty($keyword)) {
@@ -94,7 +93,6 @@ class Recipes extends BaseController
             'product'             => $product,
             'recipes'             => $recipes,
             'hppTotal'            => $hppTotal,
-            'bahanList'           => model('BahanBakuModel')->where('deleted_at IS NULL')->orderBy('nama_bahan')->findAll(),
         ];
 
         return view('admin/recipes/detail', $data);
@@ -202,40 +200,25 @@ class Recipes extends BaseController
     {
         $q = $this->request->getGet('q');
         $data = model('BahanBakuModel')
-            ->select('id, nama_bahan as text, satuan, harga_beli_satuan')
-            ->like('nama_bahan', $q)
+            ->select('id,nama_bahan,satuan,harga_beli_satuan')
+            ->like('nama_bahan',$q)
             ->where('deleted_at IS NULL')
-            ->limit(15)
+            ->orderBy('nama_bahan')
+            ->limit(20)
             ->findAll();
 
-        return $this->response->setJSON(array_map(fn($b) => [
-            'id'              => $b->id,
-            'text'            => $b->nama_bahan . ' (' . $b->satuan . ')',
-            'satuan'          => $b->satuan,
-            'harga'           => $b->harga_beli_satuan,
-        ], $data));
-    }
+        $result=[];
 
-    public function getProductAjax()
-    {
-        $q = $this->request->getGet('q');
-
-        $products = model('ProductModel')
-            ->select('id, name, sku')
-            ->like('name', $q)
-            ->where('deleted_at', null)
-            ->findAll();
-
-        $result = [];
-
-        foreach ($products as $p) {
-            $result[] = [
-                'id'   => $p->id,
-                'text' => $p->sku . ' - ' . $p->name
+        foreach($data as $b)
+        {
+            $result[]=[
+                'id'=>$b->id,
+                'text'=>$b->nama_bahan.' ('.$b->satuan.')',
+                'harga'=>$b->harga_beli_satuan,
+                'satuan'=>$b->satuan
             ];
         }
-
-        return $this->response->setJSON($result);
+    return $this->response->setJSON($result);
     }
 
     /**

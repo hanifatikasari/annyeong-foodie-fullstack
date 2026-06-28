@@ -6,7 +6,7 @@
 	<div class="container-fluid">
 		<div class="row mb-2">
 		  <div class="col-sm-6">
-			<h1>New Product</h1>
+			<h1>Product</h1>
 		  </div>
 		  <div class="col-sm-6">
 			<ol class="breadcrumb float-sm-right">
@@ -25,7 +25,7 @@
 			</ol>
 		  </div>
 		</div>
-	  </div><!-- /.container-fluid -->
+	  </div>
 </section>
 
 <!-- Main content -->
@@ -166,77 +166,65 @@
 
 <?=$this->section('script')?>
 	<script>
-	$(document).ready(function() {
-		$('#productCategories').select2({
-			theme: 'bootstrap4',
-			placeholder: "Ketik nama kategori...",
-			allowClear: true,
-			ajax: {
-				url: "<?= site_url('admin/products/getCategoriesAjax') ?>",
-				dataType: 'json',
-				delay: 250,
-				data: function (params) {
-					return {
-						q: params.term // Kata kunci yang diketik
-					};
-				},
-				processResults: function (data) {
-					return {
-						results: data
-					};
-				},
-				cache: true
-			}
+		$(document).ready(function() {
+			$('#productCategories').select2({
+				theme: 'bootstrap4',
+				placeholder: "Ketik nama kategori...",
+				allowClear: true,
+				ajax: {
+					url: "<?= site_url('admin/products/getCategoriesAjax') ?>",
+					dataType: 'json',
+					delay: 250,
+					data: function (params) {
+						return {
+							q: params.term // Kata kunci yang diketik
+						};
+					},
+					processResults: function (data) {
+						return {
+							results: data
+						};
+					},
+					cache: true
+				}
+			});
 		});
-	});
 	</script>
 
 	<script>
 		$('#productCategories').on('change', function () {
-
 			let categoryIds = $(this).val();
-
 			$.ajax({
 				url: "<?= site_url('admin/products/getAttributesByCategory') ?>",
 				type: 'POST',
 				data: {
 					category_ids: categoryIds
 				},
-
 				success: function(attributes) {
-
 					let html = '';
-
 					attributes.forEach(attr => {
-
 						html += `
 							<div class="form-group">
 								<label>${attr.name}</label>
-
 								<select
 									name="configurable[${attr.code}][]"
 									multiple
 									class="form-control configurable-select"
 								>
 						`;
-
 						attr.options.forEach(opt => {
-
 							html += `
 								<option value="${opt.id}">
 									${opt.name}
 								</option>
 							`;
 						});
-
 						html += `
 								</select>
 							</div>
 						`;
 					});
-
 					$('#attribute-container').html(html); //render
-					
 					$('.configurable-select').select2({
 						theme: 'bootstrap4',
 						placeholder: 'Pilih opsi...',
@@ -294,15 +282,10 @@
 
 <script>
 	function generateVariantCombinations() {
-
 		let attributes = [];
-
 		$('#attribute-container select').each(function() {
-
 			let attrName = $(this).attr('name');
-
 			let values = [];
-
 			$(this).find('option:selected').each(function () {
 				values.push({
 					id: $(this).val(),
@@ -322,35 +305,22 @@
 			$('#variant-combinations').html('');
 			return;
 		}
-
 		let combinations = [[]];
-
 		attributes.forEach(attr => {
-
 			let temp = [];
-
 			combinations.forEach(combo => {
-
 				attr.values.forEach(val => {
-
 					temp.push([
 						...combo,
 						val
 					]);
-
 				});
-
 			});
-
 			combinations = temp;
 		});
-
 		let html = '<hr><h5>Valid Variant Combinations</h5>';
-
 		combinations.forEach((combo, index) => {
-
 			let label = combo.map(c => c.text).join(' + ');
-
 			html += `
 				<div class="form-check mb-2">
 					<input 
@@ -360,7 +330,6 @@
 						value="${index}"
 						checked
 					>
-
 					<label class="form-check-label">
 						${label}
 					</label>

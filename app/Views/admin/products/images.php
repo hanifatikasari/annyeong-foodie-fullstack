@@ -16,11 +16,16 @@
 					<li class="breadcrumb-item">
 						<a href="<?= site_url('admin/products') ?>">Products</a>
 					</li>
+					<li class="breadcrumb-item">
+                        <a href="<?= site_url('admin/products/edit/'.$product->id) ?>">
+                            <?= esc('Edit ' . $product->name) ?>
+                        </a>
+                    </li>
 					<li class="breadcrumb-item active">Product Images</li>
 				</ol>
 			</div>
 		</div>
-	</div><!-- /.container-fluid -->
+	</div>
 </section>
 
 <!-- Main content -->
@@ -46,7 +51,7 @@
 						<h3 class="card-title">Product Images : <?= $product->name ?></h3>
 					</div>
 					<!-- /.card-header -->
-					<div class="card-body table-responsive p-0">
+					<div class="card-body table-responsive">
 						<?= view('admin/shared/flash_message') ?>
 						<table class="table table-hover text-nowrap">
 							<thead>

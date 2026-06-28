@@ -62,17 +62,17 @@
 
 	<!-- jQuery -->
 	<script src="<?php echo base_url()?>/admin/plugins/jquery/jquery.min.js"></script>
+	<!-- Bootstrap 4 -->
+	<script src="<?php echo base_url()?>/admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!-- ChartJS -->
+	<script src="<?php echo base_url()?>/admin/plugins/chart.js/Chart.min.js"></script>
+	<?= $this->renderSection('script') ?>
 	<!-- jQuery UI 1.11.4 -->
 	<script src="<?php echo base_url()?>/admin/plugins/jquery-ui/jquery-ui.min.js"></script>
 	<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 	<script>
 	$.widget.bridge('uibutton', $.ui.button)
 	</script>
-	<!-- Bootstrap 4 -->
-	<script src="<?php echo base_url()?>/admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<?= $this->renderSection('script') ?>
-	<!-- ChartJS -->
-	<script src="<?php echo base_url()?>/admin/plugins/chart.js/Chart.min.js"></script>
 	<!-- Sparkline -->
 	<script src="<?php echo base_url()?>/admin/plugins/sparklines/sparkline.js"></script>
 	<!-- JQVMap -->
@@ -91,10 +91,12 @@
 	<script src="<?php echo base_url()?>/admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 	<!-- AdminLTE App -->
 	<script src="<?php echo base_url()?>/admin/js/adminlte.js"></script>
+	
 	<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-	<script src="<?php echo base_url()?>/admin/js/pages/dashboard.js"></script>
+	<!-- <script src="<?php echo base_url()?>/admin/js/pages/dashboard.js"></script> -->
 	<!-- AdminLTE for demo purposes -->
-	<!-- <script src="<?php echo base_url()?>/admin/js/demo.js"></script> -->
+	<!-- <script src="<?php echo base_url()?>/admin/js/demo.js"></script>-->
+
 	<!-- searchable select -->
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 	<script>

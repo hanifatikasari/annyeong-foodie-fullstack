@@ -25,7 +25,7 @@
                         <p>Omzet Hari Ini (<?= $penjualanHariIni->jumlah ?? 0 ?> transaksi)</p>
                     </div>
                     <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                    <a href="<?= site_url('admin/penjualan') ?>" class="small-box-footer">
+                    <a href="<?= site_url('admin/report') ?>" class="small-box-footer">
                         Lihat Detail <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>

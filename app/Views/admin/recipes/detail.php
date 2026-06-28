@@ -34,15 +34,8 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label class="font-weight-bold">Bahan Baku <span class="text-danger">*</span></label>
-                                <select name="bahan_baku_id" id="bahanSelect" class="form-control" required>
+                                <select name="bahan_baku_id" id="bahanSelect" class="form-control select2" required>
                                     <option value="">-- Pilih Bahan --</option>
-                                    <?php foreach ($bahanList as $b): ?>
-                                        <option value="<?= $b->id ?>"
-                                                data-satuan="<?= $b->satuan ?>"
-                                                data-harga="<?= $b->harga_beli_satuan ?>">
-                                            <?= esc($b->nama_bahan) ?> (<?= $b->satuan ?>)
-                                        </option>
-                                    <?php endforeach ?>
                                 </select>
                             </div>
 
@@ -225,28 +218,73 @@
 
 <?= $this->section('script') ?>
 <script>
-// Hitung estimasi biaya saat pilih bahan
-document.getElementById('bahanSelect').addEventListener('change', function () {
-    const opt = this.options[this.selectedIndex];
-    document.getElementById('satuanLabel').textContent = opt.dataset.satuan || '-';
-    hitungEstimasi();
-});
+    let selectedHarga = 0;
+    let selectedSatuan = '-';
 
-document.getElementById('jumlahInput').addEventListener('input', hitungEstimasi);
+    $(function () {
 
-function hitungEstimasi() {
-    const harga  = parseFloat(document.getElementById('bahanSelect').options[document.getElementById('bahanSelect').selectedIndex].dataset.harga) || 0;
-    const jumlah = parseFloat(document.getElementById('jumlahInput').value) || 0;
-    const biaya  = Math.round(harga * jumlah);
-    document.getElementById('estimasiBiaya').textContent = biaya.toLocaleString('id-ID');
-}
+        $('#bahanSelect').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Cari bahan baku...',
+            minimumInputLength: 1,
+            ajax: {
+                url: "<?= site_url('admin/recipes/getBahanAjax') ?>",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
 
-// Buka modal edit
-function editResep(recipeId, jumlah, keterangan) {
-    document.getElementById('editForm').action = '<?= site_url("admin/recipes/update/{$product->id}/") ?>' + recipeId;
-    document.getElementById('editJumlah').value    = jumlah;
-    document.getElementById('editKeterangan').value = keterangan;
-    $('#editModal').modal('show');
-}
+        // Saat user memilih bahan
+        $('#bahanSelect').on('select2:select', function (e) {
+
+            const data = e.params.data;
+            selectedHarga  = parseFloat(data.harga) || 0;
+            selectedSatuan = data.satuan || '-';
+            $('#satuanLabel').text(selectedSatuan);
+            hitungEstimasi();
+        });
+
+        // Jika pilihan dihapus
+        $('#bahanSelect').on('select2:clear', function () {
+            selectedHarga = 0;
+            selectedSatuan = '-';
+            $('#satuanLabel').text('-');
+            hitungEstimasi();
+        });
+
+        // Saat jumlah berubah
+        $('#jumlahInput').on('input', hitungEstimasi);
+
+    });
+
+    function hitungEstimasi() {
+        const jumlah = parseFloat($('#jumlahInput').val()) || 0;
+        const biaya = Math.round(selectedHarga * jumlah);
+        $('#estimasiBiaya').text(
+            biaya.toLocaleString('id-ID')
+        );
+    }
+
+    // Modal Edit
+    function editResep(recipeId, jumlah, keterangan) {
+        $('#editForm').attr(
+            'action',
+            '<?= site_url("admin/recipes/update/{$product->id}/") ?>' + recipeId
+        );
+        $('#editJumlah').val(jumlah);
+        $('#editKeterangan').val(keterangan);
+        $('#editModal').modal('show');
+    }
 </script>
 <?= $this->endSection() ?>

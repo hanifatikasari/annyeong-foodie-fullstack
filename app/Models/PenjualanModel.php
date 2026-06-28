@@ -1,36 +1,6 @@
 <?php
-
 namespace App\Models;
-
 use CodeIgniter\Model;
-
-/**
- * PenjualanModel — disesuaikan dengan skema DB aktual.
- *
- * Skema DB aktual dari prompt:
- *   t_penjualan:
- *     - id
- *     - invoice_no        (bukan invoice)
- *     - customer_id    (bukan user_id)
- *     - total_harga
- *     - diskon
- *     - total_bayar
- *     - pembayaran
- *     - uang_diterima
- *     - kasir_id
- *     - tipe_order
- *     - order_status   (bukan status_order)
- *     - payment_status
- *     - nama_penerima
- *     - no_hp_penerima
- *     - shipping_address (bukan alamat_pengiriman)
- *     - catatan_order
- *     - payment_proof   (bukan bukti_bayar)
- *     - verified_at
- *     - verified_by
- *     - created_at
- *     - updated_at
- */
 class PenjualanModel extends Model
 {
     protected $table            = 't_penjualan';
@@ -69,7 +39,7 @@ class PenjualanModel extends Model
     // ----------------------------------------------------------------
     // Generate nomor invoice online — Format: AES-YYYYMMDD-001
     // ----------------------------------------------------------------
-    public function generateInvoiceNo(): string
+    public function generateOnlineInvoice(): string
     {
         $date   = date('Ymd');
         $prefix = 'AES-' . $date . '-';
@@ -87,13 +57,25 @@ class PenjualanModel extends Model
         return $prefix . str_pad($seq, 3, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Alias untuk kompatibilitas kode lama
-     * yang masih memanggil generateInvoice().
-     */
-    public function generateInvoice(): string
+    // ----------------------------------------------------------------
+    // Generate nomor invoice POS — Format: INV-YYYYMMDD-001
+    // ----------------------------------------------------------------
+    public function generatePosInvoice(): string
     {
-        return $this->generateInvoiceNo();
+        $date   = date('Ymd');
+        $prefix = 'INV-' . $date . '-';
+
+        $last = $this->like('invoice_no', $prefix, 'after')
+                    ->orderBy('id', 'DESC')
+                    ->first();
+
+        $seq = 1;
+        if ($last && !empty($last->invoice_no)) {
+            $parts = explode('-', $last->invoice_no);
+            $seq = ((int) end($parts)) + 1;
+        }
+
+        return $prefix . str_pad($seq, 3, '0', STR_PAD_LEFT);
     }
 
     // ----------------------------------------------------------------

@@ -152,7 +152,6 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('getBahanAjax', 'Admin\Recipes::getBahanAjax');
         $routes->get('create', 'Admin\Recipes::create');
         $routes->post('create', 'Admin\Recipes::create');
-        $routes->get('getProductAjax', 'Admin\Recipes::getProductAjax');
     });
 
     // --- STOK MASUK (Inventory) ---

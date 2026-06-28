@@ -45,7 +45,6 @@ class Penjualan extends BaseController
             ->select('products.id, products.name, products.sku, products.price, products.hpp_total, product_inventories.qty')
             ->join('product_inventories', 'product_inventories.product_id = products.id')
             ->where('products.type', 'simple')
-            ->where('products.parent_id IS NULL')
             ->where('products.deleted_at IS NULL')
             ->where('product_inventories.qty >', 0)
             ->orderBy('products.name')
@@ -157,7 +156,7 @@ class Penjualan extends BaseController
             $inventoryModel = model('ProductInventoryModel');
 
             // 1. Simpan header
-            $invoiceNo = $penjualanModel->generateInvoice();
+            $invoiceNo = $penjualanModel->generatePosInvoice();
             $penjualanModel->save([
                 'invoice_no'    => $invoiceNo,
                 'total_harga'   => $totalHarga,
@@ -166,6 +165,8 @@ class Penjualan extends BaseController
                 'pembayaran'    => $pembayaran,
                 'uang_diterima' => $uangDiterima,
                 'kasir_id'      => $kasirId,
+                'order_status'   => 'completed',
+                'payment_status' => 'paid',
             ]);
             $penjualanId = $db->insertID();
 

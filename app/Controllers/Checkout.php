@@ -164,7 +164,7 @@ class Checkout extends BaseController
         if ($pembayaran === 'Midtrans') {
             // Generate invoice_no dulu (tanpa menyimpan ke DB)
             $penjualanModelTemp = new PenjualanModel();
-            $invoiceNoTemp      = $penjualanModelTemp->generateInvoiceNo();
+            $invoiceNoTemp      = $penjualanModelTemp->generateOnlineInvoice();
 
             try {
                 $this->_initMidtrans();
@@ -186,7 +186,7 @@ class Checkout extends BaseController
 
             // Gunakan invoice yang sudah digenerate (jika Midtrans)
             // atau generate baru (jika manual)
-            $invoiceNo = isset($invoiceNoTemp) ? $invoiceNoTemp : $penjualanModel->generateInvoiceNo();
+            $invoiceNo = isset($invoiceNoTemp) ? $invoiceNoTemp : $penjualanModel->generateOnlineInvoice();
 
             // *** Simpan header order ***
             $orderId = $penjualanModel->insert([

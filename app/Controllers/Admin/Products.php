@@ -482,21 +482,39 @@ class Products extends BaseController
 
     public function restore($id)
     {
-        $product = model('ProductModel')->withDeleted()->find($id);
+        $product = model('ProductModel')
+            ->withDeleted()
+            ->find($id);
 
         if (!$product) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
+        //jika restore child, maka parent harus di-restore juga
+        if($product->type === 'simple' && !empty($product->parent_id)){
+            $parent = model('ProductModel')
+                ->withDeleted()
+                ->find($product->parent_id);
+
+            if ($parent && $parent->deleted_at) 
+            {
+                model('ProductModel')
+                    ->withDeleted()
+                    ->where('id', $parent->id)
+                    ->set(['deleted_at' => null])
+                    ->update();
+            }
+        }
+
+        //restore dirinya sendiri
         if ($product->deleted_at) {
             model('ProductModel')
                 ->withDeleted()
                 ->where('id', $id)
-                ->set([
-                    'deleted_at' => null
-                ])
+                ->set(['deleted_at' => null])
                 ->update();
 
+            // Jika product adalah configurable, restore semua child    
             if ($product->type === 'configurable') {
 
                 model('ProductModel')

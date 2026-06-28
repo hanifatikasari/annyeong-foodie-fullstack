@@ -9,13 +9,13 @@
 			<h1>Products</h1>
 		  </div>
 		  <div class="col-sm-6">
-			<ol class="breadcrumb float-sm-right">
-			  <li class="breadcrumb-item"><a href="<?php echo site_url('admin/dashboard') ?>">Dashboard</a></li>
-			  <li class="breadcrumb-item active">Products</li>
-			</ol>
+				<ol class="breadcrumb float-sm-right">
+				<li class="breadcrumb-item"><a href="<?php echo site_url('admin/dashboard') ?>">Dashboard</a></li>
+				<li class="breadcrumb-item active">Products</li>
+				</ol>
 		  </div>
 		</div>
-	  </div><!-- /.container-fluid -->
+	  </div>
 </section>
 
 <!-- Main content -->
@@ -50,89 +50,93 @@
 			  	<div class="card-body table-responsive p-0">
 				  	<?= view('admin/shared/flash_message') ?>
 					<table class="table table-hover text-nowrap">
-					<thead>
-						<tr>
-							<th>SKU</th>
-							<th>Image</th>
-							<th>Name</th>
-							<th>Price</th>
-							<th>Stock</th>
-							<th>Status</th>
-							<th>BOM</th>
-							<th style="width:25%">Action</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php if ($products): ?>
-							<?php $recipeModel = model('RecipeModel');?>
-							<?php foreach ($products as $product): ?>
-								<?php
-								$recipeCount = $recipeModel
-									->where('product_id', $product->id)
-									->countAllResults();
-								?>
-								<tr>
-									<td><?= $product->sku ?></td>
-									<td><?= !empty($product->featured_image) ? '<img src="' . base_url($product->featured_image->small) . '">' : null ?></td>
-									<td>
-										<?= $product->name ?><br/>
-										<span style="font-size:12px"><?= $product->type ?></span>
-									</td>
-									<td><?= $product->price ?></td>
-									<td><?= $product->qty ?></td>
-									<td><?= ($product->published_at) ? 'Display in Catalog' : 'Save as Draft' ?></td>
-									<td>
-										<?php if ($recipeCount > 0): ?>
-											<span class="badge badge-success">
-												<?= $recipeCount ?> Bahan
-											</span>
-										<?php else: ?>
-											<span class="badge badge-danger">
-												Belum Ada BOM
-											</span>
-										<?php endif; ?>
-									</td>
-									<td>
-
-										<?php if (empty($product->deleted_at)): ?>
-
-											<a href="<?= site_url('admin/products/edit/'. $product->id) ?>" class="badge bg-info">
-												edit
-											</a>
-
-											<a href="<?= site_url('admin/recipes/detail/' . $product->id) ?>" class="badge bg-success">
-												BOM
-											</a>
-
-											<form method="POST"
-												action="<?= site_url('admin/products/'. $product->id) ?>"
-												accept-charset="UTF-8"
-												class="delete"
-												style="display:inline-block">
-
-												<input name="_method" type="hidden" value="DELETE">
-
-												<button class="badge bg-danger" style="border:none !important">
-													delete
-												</button>
-
-											</form>
-										<?php else: ?>
-											<a href="<?= site_url('admin/products/restore/'. $product->id) ?>" class="badge bg-warning">restore</a>
-											<form method="POST" action="<?= site_url('admin/products/'. $product->id) ?>" accept-charset="UTF-8" class="delete" style="display:inline-block">
-												<input name="_method" type="hidden" value="DELETE">
-												<button class="badge bg-danger" style="border:none !important">delete permanently</button>
-											</form>
-										<?php endif; ?>
-									</td>
-								</tr>
-							<?php endforeach; ?>
-						<?php else: ?>
+						<thead>
 							<tr>
-								<td colspan="5">No record found</td>
+								<th>SKU</th>
+								<th>Image</th>
+								<th>Name</th>
+								<th>Price</th>
+								<th>Stock</th>
+								<th>Status</th>
+								<th>BOM</th>
+								<th style="width:25%">Action</th>
 							</tr>
-						<?php endif; ?>
-					</tbody>
+						</thead>
+						<tbody>
+							<?php if ($products): ?>
+								<?php $recipeModel = model('RecipeModel');?>
+								<?php foreach ($products as $product): ?>
+									<?php
+									$recipeCount = $recipeModel
+										->where('product_id', $product->id)
+										->countAllResults();
+									?>
+									<tr>
+										<td><?= $product->sku ?></td>
+										<td><?= !empty($product->featured_image) ? '<img src="' . base_url($product->featured_image->small) . '">' : null ?></td>
+										<td>
+											<?= $product->name ?><br/>
+											<span style="font-size:12px"><?= $product->type ?></span>
+										</td>
+										<td><?= $product->price ?></td>
+										<td><?= $product->qty ?></td>
+										<td><?= ($product->published_at) ? 'Display in Catalog' : 'Save as Draft' ?></td>
+										<td>
+											<?php if ($product->type == 'configurable'): ?>
+												<span class="badge badge-success">
+													-
+												</span>
+											<?php elseif ($recipeCount > 0): ?>
+												<span class="badge badge-success">
+													<?= $recipeCount ?> Bahan
+												</span>
+											<?php else: ?>
+												<span class="badge badge-danger">
+													Belum Ada BOM
+												</span>
+											<?php endif; ?>
+										</td>
+										<td>
+
+											<?php if (empty($product->deleted_at)): ?>
+
+												<a href="<?= site_url('admin/products/edit/'. $product->id) ?>" class="badge bg-info">
+													edit
+												</a>
+
+												<a href="<?= site_url('admin/recipes/detail/' . $product->id) ?>" class="badge bg-success">
+													BOM
+												</a>
+
+												<form method="POST"
+													action="<?= site_url('admin/products/'. $product->id) ?>"
+													accept-charset="UTF-8"
+													class="delete"
+													style="display:inline-block">
+
+													<input name="_method" type="hidden" value="DELETE">
+
+													<button class="badge bg-danger" style="border:none !important">
+														delete
+													</button>
+
+												</form>
+											<?php else: ?>
+												<a href="<?= site_url('admin/products/restore/'. $product->id) ?>" class="badge bg-warning">restore</a>
+												<form method="POST" action="<?= site_url('admin/products/'. $product->id) ?>" accept-charset="UTF-8" class="delete" style="display:inline-block">
+													<input name="_method" type="hidden" value="DELETE">
+													<button class="badge bg-danger" style="border:none !important">delete permanently</button>
+												</form>
+											<?php endif; ?>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							<?php else: ?>
+								<tr>
+									<td colspan="5">No record found</td>
+								</tr>
+							<?php endif; ?>
+						</tbody>
 					</table>
 			  	</div>
 				<!-- /.card-body -->

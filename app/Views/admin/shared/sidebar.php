@@ -85,13 +85,13 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                                 </li>
                             <?php endif; ?>
 
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a href="<?= site_url('admin/attributes') ?>"
                                    class="nav-link <?= ($currentAdminSubMenu == 'attribute') ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Attributes</p>
                                 </a>
-                            </li>
+                            </li> -->
                         </ul>
                     </li>
                 <?php endif; ?>
