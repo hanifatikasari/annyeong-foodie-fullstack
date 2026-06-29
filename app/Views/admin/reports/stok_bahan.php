@@ -21,6 +21,9 @@
 
         <div class="card">
             <div class="card-body table-responsive p-0">
+                <a href="<?= site_url('admin/reports/stok-bahan/pdf') ?>" class="btn btn-danger btn-sm mb-3">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </a>
                 <table class="table table-bordered table-hover">
                     <thead class="bg-light">
                         <tr>

@@ -306,7 +306,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             <a href="<?= site_url('admin/backup') ?>"
                             class="nav-link <?= ($currentAdminSubMenu == 'backup') ? 'active' : '' ?>">
                                 <i class="fas fa-save nav-icon"></i>
-                                <p>Backup & Restore</p>
+                                <p>Backup</p>
                             </a>
                         </li>
 

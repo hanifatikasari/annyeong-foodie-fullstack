@@ -25,7 +25,7 @@
                         <p>Omzet Hari Ini (<?= $penjualanHariIni->jumlah ?? 0 ?> transaksi)</p>
                     </div>
                     <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                    <a href="<?= site_url('admin/report') ?>" class="small-box-footer">
+                    <a href="<?= site_url('admin/reports/penjualan') ?>" class="small-box-footer">
                         Lihat Detail <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -37,7 +37,7 @@
                         <p>Diproduksi Hari Ini (<?= $produksiHariIni->jumlah ?? 0 ?> batch)</p>
                     </div>
                     <div class="icon"><i class="fas fa-industry"></i></div>
-                    <a href="<?= site_url('admin/produksi') ?>" class="small-box-footer">
+                    <a href="<?= site_url('admin/reports/produksi') ?>" class="small-box-footer">
                         Lihat Produksi <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -49,7 +49,7 @@
                         <p>Bahan Baku Menipis</p>
                     </div>
                     <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    <a href="<?= site_url('admin/bahanbaku') ?>" class="small-box-footer">
+                    <a href="<?= site_url('admin/reports/stok-bahan') ?>" class="small-box-footer">
                         Cek Stok <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -57,12 +57,12 @@
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
-                        <h3><?= number_format($totalPelanggan) ?></h3>
-                        <p>Total Pelanggan Terdaftar</p>
+                        <h3><?= esc($metodeBayar->pembayaran ?? '-') ?></h3>
+                        <p><?= number_format($metodeBayar->total ?? 0) ?> transaksi</p>
                     </div>
                     <div class="icon"><i class="fas fa-users"></i></div>
-                    <a href="<?= site_url('admin/users') ?>" class="small-box-footer">
-                        Kelola User <i class="fas fa-arrow-circle-right"></i>
+                    <a href="<?= site_url('admin/reports/metode') ?>" class="small-box-footer">
+                        Lihat Daftar<i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
             </div>

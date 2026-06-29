@@ -101,8 +101,15 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     $routes->group('reports', ['filter' => 'authAdmin:admin,pemilik'], function($routes) {
         $routes->get('/', 'Admin\Reports::index');
         $routes->get('penjualan', 'Admin\Reports::penjualan');
+        $routes->get('penjualan/pdf', 'Admin\Reports::penjualanPdf');
+
         $routes->get('produksi', 'Admin\Reports::produksi');
+        $routes->get('produksi/pdf', 'Admin\Reports::produksiPdf');
         $routes->get('stok-bahan', 'Admin\Reports::stokBahan');
+        $routes->get('stok-bahan/pdf', 'Admin\Reports::stokBahanPdf');
+        $routes->get('metode', 'Admin\Reports::metode');
+        $routes->get('metode/pdf', 'Admin\Reports::metodePdf');
+        $routes->get('pdf', 'Admin\Reports::penjualanPdf');
     });
     
     // --- BAHAN BAKU (Inventory) ---

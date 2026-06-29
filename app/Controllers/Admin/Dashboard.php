@@ -19,7 +19,7 @@ class Dashboard extends BaseController
             'penjualanHariIni' => $dashboard->getPenjualanHariIni(),
             'produksiHariIni'  => $dashboard->getProduksiHariIni(),
             'bahanMenipis'     => $dashboard->getBahanMenipis(),
-            'totalPelanggan'   => $dashboard->getTotalPelanggan(),
+            'metodeBayar' => $dashboard->getMetodePembayaranTerpopuler(),
             'grafikPenjualan'  => $dashboard->getGrafikPenjualan(),
             'stokMenipis'      => $dashboard->getStokMenipis(),
             'topProduk'        => $dashboard->getTopProduk(),

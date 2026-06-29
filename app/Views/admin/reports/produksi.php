@@ -27,6 +27,9 @@
                     <input type="date" name="sampai" class="form-control form-control-sm mr-3"
                            value="<?= esc($sampai) ?>">
                     <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                    <a href="<?= site_url('admin/reports/produksi/pdf?dari='.$dari.'&sampai='.$sampai) ?>" class="btn btn-danger btn-sm ml-2">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </a>
                 </form>
             </div>
         </div>

@@ -55,14 +55,26 @@ class DashboardModel extends Model
     }
 
     /**
-     * Total pelanggan
+     * Metode Pembayaran Terpopuler
      */
-    public function getTotalPelanggan()
+    public function getMetodePembayaranTerpopuler()
     {
-        return $this->db->table('users_groups')
-            ->join('groups', 'groups.id=users_groups.group_id')
-            ->where('groups.name', 'pelanggan')
-            ->countAllResults();
+        return $this->db->table('t_penjualan')
+            ->select('pembayaran, COUNT(*) AS total')
+            ->where("
+                (
+                    invoice_no LIKE 'INV-%'
+                    OR (
+                        invoice_no LIKE 'AES-%'
+                        AND order_status='completed'
+                    )
+                )
+            ", null, false)
+            ->groupBy('pembayaran')
+            ->orderBy('total', 'DESC')
+            ->limit(1)
+            ->get()
+            ->getRow();
     }
 
     /**
