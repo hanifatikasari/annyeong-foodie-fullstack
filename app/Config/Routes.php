@@ -27,9 +27,9 @@ $routes->group('auth', function($routes) {
 $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,penjualan'], function($routes) {
     
     $routes->get('dashboard', 'Admin\Dashboard::index');
-
-     // --- CATEGORIES ---
-    // Produksi & Penjualan butuh ini untuk manajemen katalog
+        $routes->get('backup', 'Admin\Backup::index');
+        $routes->get('backup/download', 'Admin\Backup::download');
+        $routes->post('backup/restore', 'Admin\Backup::restore');
     $routes->group('categories', ['filter' => 'authAdmin:admin,penjualan,gudang,pemilik,produksi'], function($routes) {
         $routes->get('/', 'Admin\Categories::index');
         

@@ -253,13 +253,13 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                 <?php if ($ionAuth->isAdmin()): ?>
                     <li class="nav-header">SETTINGS</li>
 
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a href="<?= site_url('admin/users') ?>"
                            class="nav-link <?= ($currentAdminSubMenu == 'user') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-users-cog"></i>
                             <p>User Management</p>
                         </a>
-                    </li>
+                    </li> -->
 
                     <li class="nav-item">
                         <a href="<?= site_url('admin/settings/payment') ?>"
@@ -306,7 +306,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             <a href="<?= site_url('admin/backup') ?>"
                             class="nav-link <?= ($currentAdminSubMenu == 'backup') ? 'active' : '' ?>">
                                 <i class="fas fa-save nav-icon"></i>
-                                <p>Backup</p>
+                                <p>Backup and Restore</p>
                             </a>
                         </li>
 
