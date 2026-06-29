@@ -18,11 +18,18 @@ class Orders extends BaseController
         $perPage = 15;
 
         $penjualanModel = model('PenjualanModel');
+        $deliveryType = $this->request->getGet('delivery_type') ?? '';
 
         // getOnlineOrdersForAdmin() mengembalikan Builder,
         // sehingga pagination harus dilakukan di sini.
-        $orders = $penjualanModel
-            ->getOnlineOrdersForAdmin($status)
+        $builder = $penjualanModel
+            ->getOnlineOrdersForAdmin($status);
+
+        if ($deliveryType !== '') {
+            $builder->where('t_penjualan.delivery_type', $deliveryType);
+        }
+
+        $orders = $builder
             ->paginate($perPage, 'orders');
 
         $data = [
@@ -32,6 +39,7 @@ class Orders extends BaseController
             'orders'              => $orders,
             'pager'               => $penjualanModel->pager,
             'status'              => $status,
+            'deliveryType'        => $deliveryType,
         ];
 
         return view('admin/orders/index', $data);
@@ -39,8 +47,6 @@ class Orders extends BaseController
 
     // ---------------------------------------------------------------
     // DETAIL — Detail satu pesanan
-    // FIX #3: akses sebagai object ($order->invoice, $order->customer_id)
-    // FIX #4: akses user dari DB langsung, bukan IonAuth model
     // ---------------------------------------------------------------
     public function detail(int $id)
     {
@@ -54,20 +60,51 @@ class Orders extends BaseController
         $details = model('PenjualanDetailModel')
             ->getDetailByPenjualan($id);
 
-        $data = [
+        $db = \Config\Database::connect();
+
+        $couriers = $db->table('users u')
+            ->select('u.id, u.first_name, u.last_name')
+            ->join('users_groups ug', 'ug.user_id = u.id')
+            ->join('groups g', 'g.id = ug.group_id')
+            ->where('g.name', 'Kurir')
+            ->orderBy('u.first_name', 'ASC')
+            ->get()
+            ->getResult();
+
+            $data = [
             'title'               => 'Detail Pesanan #' . $order->invoice_no,
             'currentAdminMenu'    => 'sales',
             'currentAdminSubMenu' => 'online_order',
             'order'               => $order,
             'details'             => $details,
+            'couriers'            => $couriers,
+            
         ];
 
         return view('admin/orders/detail', $data);
     }
 
     // ---------------------------------------------------------------
+    // SAVE KURIR
+    // ---------------------------------------------------------------
+    public function saveCourier($id)
+    {
+        $courierId = $this->request->getPost('delivery_courier_id');
+
+        model('PenjualanModel')->update(
+            $id,
+            [
+                'delivery_courier_id' => $courierId
+            ]
+        );
+
+        return redirect()
+            ->to('admin/orders/detail/' . $id)
+            ->with('success', 'Kurir berhasil disimpan.');
+    }
+
+    // ---------------------------------------------------------------
     // VERIFY — Verifikasi pembayaran
-    // FIX #3: update 'order_status' (bukan status_order)
     // ---------------------------------------------------------------
     public function verify(int $id)
     {
@@ -77,11 +114,13 @@ class Orders extends BaseController
             return redirect()->back()->with('error', 'Order tidak ditemukan.');
         }
 
-        model('PenjualanModel')
-            ->updateOrderStatus($id, 'verified');
+        model('PenjualanModel')->verifyPayment(
+            $id,
+            session()->get('user_id')
+        );
 
-        return redirect()->to('admin/orders/' . $id)
-            ->with('success', 'Pembayaran berhasil diverifikasi! Status diubah ke Verified.');
+        return redirect()->to('admin/orders/detail/' . $id)
+            ->with('success', 'Pembayaran berhasil diverifikasi! Pesanan sedang diproses.');
     }
 
     // ---------------------------------------------------------------
@@ -200,7 +239,6 @@ class Orders extends BaseController
 
     // ---------------------------------------------------------------
     // VIEW BUKTI — Tampilkan file bukti pembayaran
-    // FIX #3: field 'payment_proof'
     // ---------------------------------------------------------------
     public function viewBukti(string $filename)
     {

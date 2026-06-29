@@ -82,7 +82,7 @@
                             <p class="text-sm text-muted">Showing <?= $total > 0 ? $start : 0 ?> to <?= $end ?> of <?= $total ?> entries</p>
                         </div>
                         <div class="float-right">
-                            <?= $pager->links('bootstrap', 'bootstrap') ?>
+                            <?= $pager->links('attributes', 'bootstrap') ?>
                         </div>
                     </div>
                 </div>

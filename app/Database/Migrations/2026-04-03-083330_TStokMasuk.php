@@ -36,7 +36,7 @@ class TStokMasuk extends Migration
                 'constraint' => 8,
                 'unsigned'   => true,
             ],
-            'total_harga' => [ // qty * harga_satuan (Dihitung di controller)
+            'subtotal_produk' => [ // qty * harga_satuan (Dihitung di controller)
                 'type'       => 'int',
                 'constraint' => 11,
                 'unsigned'   => true,

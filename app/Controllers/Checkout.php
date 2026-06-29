@@ -41,6 +41,16 @@ class Checkout extends BaseController
         $this->data['title'] = 'Checkout';
 
         $settingModel = model('SettingModel');
+        $this->data['handlingFee'] = (int) $settingModel->getValue(
+            'handling_fee',
+            0
+        );
+
+        $this->data['shippingAreas'] = model('ShippingAreaModel')
+            ->where('is_active', 1)
+            ->orderBy('area_name', 'ASC')
+            ->findAll();
+        //settingan disable/enable metode pembayaran
         $this->data['enableMidtrans'] =
             (bool) $settingModel->getValue(
                 'payment_midtrans_enabled',
@@ -81,18 +91,38 @@ class Checkout extends BaseController
     public function process()
     {
         $cart = get_cart();
+
         if (empty($cart)) {
             return redirect()->to('cart');
         }
 
-        // *** Validasi input form ***
-        // Tambah 'Midtrans' ke in_list
+        // ========================================
+        // Ambil input terlebih dahulu
+        // ========================================
+        $deliveryType = $this->request->getPost('delivery_type');
+        $pembayaran   = $this->request->getPost('pembayaran');
+
+        // ========================================
+        // VALIDASI
+        // ========================================
         $rules = [
-            'nama_penerima'     => ['rules' => 'required|min_length[3]',  'label' => 'Nama Penerima'],
-            'no_hp_penerima'    => ['rules' => 'required|min_length[6]',  'label' => 'Nomor HP'],
-            'alamat_pengiriman' => ['rules' => 'required|min_length[5]',  'label' => 'Alamat Pengiriman'],
-            'pembayaran'        => ['rules' => 'required|in_list[QRIS,Transfer,Midtrans]', 'label' => 'Metode Pembayaran'],
+            'delivery_type' => ['rules' => 'required|in_list[pickup,delivery]','label' => 'Metode Pengiriman'],
+            'nama_penerima' => ['rules' => 'required|min_length[3]','label' => 'Nama Penerima'],
+            'no_hp_penerima' => ['rules' => 'required|min_length[6]','label' => 'Nomor HP'],
+            'pembayaran' => ['rules' => 'required|in_list[QRIS,Transfer,Midtrans]','label' => 'Metode Pembayaran']
         ];
+
+        // Tambahkan validasi khusus DELIVERY
+        if ($deliveryType === 'delivery') {
+            $rules['alamat_pengiriman'] = [
+                'rules' => 'required|min_length[5]',
+                'label' => 'Alamat Pengiriman'
+            ];
+            $rules['shipping_area_id'] = [
+                'rules' => 'required|integer',
+                'label' => 'Area Pengiriman'
+            ];
+        }
 
         if (!$this->validate($rules)) {
             return redirect()->back()
@@ -100,9 +130,33 @@ class Checkout extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
-        $pembayaran = $this->request->getPost('pembayaran');
-
+        // ========================================
+        // Setting
+        // ========================================
         $settingModel = model('SettingModel');
+
+        $handlingFee = (int) $settingModel->getValue(
+            'handling_fee',
+            0
+        );
+        $shippingAreaId = null;
+        $shippingCost = 0;
+        if ($deliveryType === 'delivery') {
+            $shippingAreaId = $this->request->getPost('shipping_area_id');
+            $shippingArea = model('ShippingAreaModel')->find($shippingAreaId);
+
+            if (!$shippingArea) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Area pengiriman tidak valid.'
+                    );
+            }
+
+            $shippingCost = (int)$shippingArea->ongkir;
+        }
+
         $enableMidtrans =
             (bool) $settingModel->getValue(
                 'payment_midtrans_enabled',
@@ -153,29 +207,49 @@ class Checkout extends BaseController
                         'Pembayaran QRIS sedang dinonaktifkan.'
                     );
             }
-        $totalHarga = cart_total();
 
-        // ============================================================
-        // MIDTRANS PRE-CHECK:
-        // Generate snap token SEBELUM membuat order.
-        // Jika Midtrans tidak available, tolak sebelum order dibuat.
-        // ============================================================
-        $snapToken = null;
-        if ($pembayaran === 'Midtrans') {
-            // Generate invoice_no dulu (tanpa menyimpan ke DB)
-            $penjualanModelTemp = new PenjualanModel();
-            $invoiceNoTemp      = $penjualanModelTemp->generateOnlineInvoice();
-
-            try {
-                $this->_initMidtrans();
-                $snapToken = $this->_generateSnapToken($invoiceNoTemp, $cart, $totalHarga);
-            } catch (\Exception $e) {
-                log_message('error', '[Checkout Midtrans] Gagal generate snap token: ' . $e->getMessage());
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Layanan pembayaran Midtrans sedang tidak tersedia. Silakan pilih Transfer atau QRIS, atau coba beberapa saat lagi.');
-            }
+            $db = \Config\Database::connect();
+            $user = $db->table('users')
+                ->where('id', $this->currentUser->id)
+                ->get()
+                ->getRow();
+       
+        if ($deliveryType === 'pickup') {
+            $shippingAddress = trim($user->address .', ' . $user->city .', ' . $user->province);
+        } else {
+            $shippingAddress = $this->request->getPost('alamat_pengiriman');
         }
+
+        $subtotal = cart_total();
+        $diskon = 0;
+
+        $totalHarga =
+            $subtotal
+            + $handlingFee
+            + $shippingCost
+            - $diskon;
+
+        // // ============================================================
+        // // MIDTRANS PRE-CHECK:
+        // // Generate snap token SEBELUM membuat order.
+        // // Jika Midtrans tidak available, tolak sebelum order dibuat.
+        // // ============================================================
+        // $snapToken = null;
+        // if ($pembayaran === 'Midtrans') {
+        //     // Generate invoice_no dulu (tanpa menyimpan ke DB)
+        //     $penjualanModelTemp = new PenjualanModel();
+        //     $invoiceNoTemp      = $penjualanModelTemp->generateOnlineInvoice();
+
+        //     try {
+        //         $this->_initMidtrans();
+        //         $snapToken = $this->_generateSnapToken($invoiceNoTemp, $cart, $totalHarga);
+        //     } catch (\Exception $e) {
+        //         log_message('error', '[Checkout Midtrans] Gagal generate snap token: ' . $e->getMessage());
+        //         return redirect()->back()
+        //             ->withInput()
+        //             ->with('error', 'Layanan pembayaran Midtrans sedang tidak tersedia. Silakan pilih Transfer atau QRIS, atau coba beberapa saat lagi.');
+        //     }
+        // }
 
         $db = \Config\Database::connect();
         $db->transStart();
@@ -186,27 +260,56 @@ class Checkout extends BaseController
 
             // Gunakan invoice yang sudah digenerate (jika Midtrans)
             // atau generate baru (jika manual)
-            $invoiceNo = isset($invoiceNoTemp) ? $invoiceNoTemp : $penjualanModel->generateOnlineInvoice();
+            $invoiceNo = $penjualanModel->generateOnlineInvoice();
+            $midtransOrderId = $invoiceNo . '-' . strtoupper(bin2hex(random_bytes(3)));
 
             // *** Simpan header order ***
             $orderId = $penjualanModel->insert([
                 'invoice_no'       => $invoiceNo,
+                'midtrans_order_id' => $midtransOrderId,
                 'customer_id'      => $this->currentUser->id,
                 'kasir_id'         => $this->currentUser->id,
-                'total_harga'      => $totalHarga,
-                'diskon'           => 0,
-                'total_bayar'      => $totalHarga,
+                'shipping_area_id' => $shippingAreaId,
+                'subtotal_produk'  => $subtotal,
+                'handling_fee'     => $handlingFee,
+                'shipping_cost'    => $shippingCost,
+                'diskon'           => $diskon,
+                'grand_total'      => $totalHarga,
                 'pembayaran'       => $pembayaran,
                 'uang_diterima'    => 0,
                 'order_status'     => 'pending',
                 'payment_status'   => 'unpaid',
-                'shipping_address' => $this->request->getPost('alamat_pengiriman'),
+                'shipping_address' => $shippingAddress,
                 'catatan_customer' => $this->request->getPost('catatan_customer') ?? '',
-                'snap_token'       => $snapToken, // null untuk manual payment
+                'snap_token'       => null, 
+                'delivery_type'    => $deliveryType,
             ], true);
+
 
             if (!$orderId) {
                 throw new \Exception('Gagal membuat order. Coba lagi.');
+            }
+            // =====================================================
+            // Generate Snap Token SETELAH order berhasil dibuat
+            // =====================================================
+            if ($pembayaran === 'Midtrans') {
+                try {
+                    $this->_initMidtrans();
+                    $snapToken = $this->_generateSnapToken(
+                        $midtransOrderId, $invoiceNo,$cart,$totalHarga
+                    );
+                    //dd($snapToken);
+
+                    $penjualanModel->update($orderId, [
+                        'snap_token' => $snapToken
+                    ]);
+
+                } catch (\Exception $e) {
+                    throw new \Exception(
+                        'Gagal membuat pembayaran Midtrans: '
+                        . $e->getMessage()
+                    );
+                }
             }
 
             // *** Simpan detail item + kurangi stok ***
@@ -261,7 +364,6 @@ class Checkout extends BaseController
             if ($pembayaran === 'Midtrans') {
                 return redirect()->to('checkout/pay/' . $invoiceNo);
             }
-
             // Manual payment (QRIS / Transfer)
             return redirect()->to('checkout/success/' . $invoiceNo);
 
@@ -297,7 +399,7 @@ class Checkout extends BaseController
         }
 
         // Jika sudah dibayar, langsung ke success
-        if (in_array($order->order_status, ['processing', 'verified', 'completed'])) {
+        if (in_array($order->order_status, ['processing', 'shipped', 'completed'])) {
             return redirect()->to('checkout/success/' . $invoice)
                 ->with('success', 'Pembayaran Anda sudah berhasil diproses!');
         }
@@ -319,7 +421,7 @@ class Checkout extends BaseController
                     ];
                 }
 
-                $snapToken = $this->_generateSnapToken($invoice, $cartForToken, $order->total_bayar);
+                $snapToken = $this->_generateSnapToken($order->midtrans_order_id,$order->invoice_no,$cartForToken,$order->grand_total);
                 model('PenjualanModel')->update($order->id, ['snap_token' => $snapToken]);
                 $order->snap_token = $snapToken;
 
@@ -359,7 +461,7 @@ class Checkout extends BaseController
         }
 
         // Arahkan berdasarkan status terkini
-        if (in_array($order->order_status, ['processing', 'verified', 'completed'])) {
+        if (in_array($order->order_status, ['processing', 'shipped', 'completed'])) {
             return redirect()->to('checkout/success/' . $invoice)
                 ->with('success', 'Pembayaran berhasil! Pesanan Anda sedang diproses.');
         }
@@ -490,13 +592,13 @@ class Checkout extends BaseController
     /**
      * Generate Snap Token dari Midtrans API
      *
-     * @param string $invoiceNo  Nomor invoice kita (jadi order_id di Midtrans)
+     * @param string $orderId  Nomor invoice kita (jadi order_id di Midtrans)
      * @param array  $cart       Data keranjang belanja
      * @param int    $totalAmount Total pembayaran dalam Rupiah
      * @return string Snap token
      * @throws \Exception Jika Midtrans API gagal
      */
-    private function _generateSnapToken(string $invoiceNo, array $cart, int $totalAmount): string
+    private function _generateSnapToken(string $midtransOrderId,string $invoiceNo, array $cart, int $totalAmount): string
     {
         // Build item details (Midtrans requires this match gross_amount)
         $itemDetails = [];
@@ -522,7 +624,7 @@ class Checkout extends BaseController
 
         $params = [
             'transaction_details' => [
-                'order_id'     => $invoiceNo,     // Harus unik & match dengan invoice kita
+                'order_id'     => $midtransOrderId,     // Harus unik & match dengan invoice kita
                 'gross_amount' => $totalAmount,   // Total dalam Rupiah (integer)
             ],
             'customer_details' => $customerDetails,
@@ -530,7 +632,7 @@ class Checkout extends BaseController
 
             // URL callbacks setelah pembayaran
             'callbacks' => [
-                'finish' => site_url('checkout/return/' . $invoiceNo),
+                'finish' => site_url('checkout/midtransReturn/' . $invoiceNo),
             ],
 
             // Expiry: order expired setelah 24 jam jika belum dibayar

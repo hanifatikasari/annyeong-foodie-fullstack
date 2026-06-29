@@ -14,9 +14,9 @@ class PenjualanModel extends Model
     protected $allowedFields = [
         'invoice_no',
         'customer_id',
-        'total_harga',
+        'subtotal_produk',
         'diskon',
-        'total_bayar',
+        'grand_total',
         'pembayaran',
         'uang_diterima',
         'kasir_id',
@@ -34,6 +34,13 @@ class PenjualanModel extends Model
         'midtrans_transaction_id',
         'midtrans_payment_type',
         'midtrans_status',
+        'midtrans_order_id',
+        // === Kolom Ongkir (ditambahkan) ===
+        'delivery_type',
+        'shipping_area_id',
+        'shipping_cost',
+        'handling_fee',
+        'delivery_courier_id',
     ];
 
     // ----------------------------------------------------------------
@@ -104,19 +111,6 @@ class PenjualanModel extends Model
         return $this->where('invoice_no', $invoice)->first();
     }
 
-     /**
-     * Ambil satu order + data customer berdasarkan invoice.
-     *
-     * Field tambahan:
-     * - first_name
-     * - last_name
-     * - phone
-     * - email
-     * - address
-     * - city
-     * - province
-     * - postal_code
-     */
      public function getOrderWithCustomerByInvoice(string $invoice): ?object
     {
         return $this->select('
@@ -128,9 +122,13 @@ class PenjualanModel extends Model
                         users.address,
                         users.city,
                         users.province,
-                        users.postal_code
+                        users.postal_code,
+                        m_shipping_area.area_name AS shipping_area_name,
+                        CONCAT(courier.first_name, " ", courier.last_name) AS courier_name
                     ')
                     ->join('users', 'users.id = t_penjualan.customer_id', 'left')
+                    ->join('m_shipping_area', 'm_shipping_area.id = t_penjualan.shipping_area_id', 'left')
+                    ->join('users courier', 'courier.id = t_penjualan.delivery_courier_id', 'left')    
                     ->where('t_penjualan.invoice_no', $invoice)
                     ->first();
     }
@@ -149,9 +147,15 @@ class PenjualanModel extends Model
                         users.address,
                         users.city,
                         users.province,
-                        users.postal_code
+                        users.postal_code,
+                        m_shipping_area.area_name AS shipping_area_name,
+                        CONCAT(courier.first_name, " ", courier.last_name) AS courier_name,
+                        CONCAT(kasir.first_name, " ", kasir.last_name) AS kasir_name,
                     ')
                     ->join('users', 'users.id = t_penjualan.customer_id', 'left')
+                    ->join('m_shipping_area', 'm_shipping_area.id = t_penjualan.shipping_area_id', 'left')
+                    ->join('users courier', 'courier.id = t_penjualan.delivery_courier_id', 'left')
+                    ->join('users kasir', 'kasir.id = t_penjualan.kasir_id', 'left')
                     ->where('t_penjualan.id', $id)
                     ->first();
     }
@@ -171,13 +175,17 @@ class PenjualanModel extends Model
                             users.last_name,
                             users.phone,
                             users.email,
-                            CONCAT(
+                             CONCAT(
                                 COALESCE(users.first_name, ""),
                                 " ",
                                 COALESCE(users.last_name, "")
-                            ) AS customer_name
+                            ) AS customer_name,
+                            m_shipping_area.area_name AS shipping_area_name,
+                            CONCAT(courier.first_name, " ", courier.last_name) AS courier_name
                         ')
                         ->join('users', 'users.id = t_penjualan.customer_id', 'left')
+                        ->join('m_shipping_area', 'm_shipping_area.id = t_penjualan.shipping_area_id', 'left')
+                        ->join('users courier', 'courier.id = t_penjualan.delivery_courier_id', 'left')
                         ->like('t_penjualan.invoice_no', 'AES-', 'after'); // Hanya invoice online (AES-)
 
         if (!empty($status)) {

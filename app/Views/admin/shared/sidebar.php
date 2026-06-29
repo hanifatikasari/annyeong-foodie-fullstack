@@ -172,6 +172,33 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                 <?php endif; ?>
 
                 <!-- ===================================================== -->
+                <!-- MASTER DATA -->
+                <!-- admin, penjualan -->
+                <!-- ===================================================== -->
+                <?php if ($ionAuth->inGroup(['admin','penjualan'])): ?>
+                <li class="nav-item has-treeview <?= ($currentAdminMenu == 'master') ? 'menu-open' : '' ?>">
+                    <a href="#"
+                    class="nav-link <?= ($currentAdminMenu == 'master') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-map-marked-alt"></i>
+                        <p>
+                            Master Data
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= site_url('admin/shipping_area') ?>"
+                            class="nav-link <?= ($currentAdminSubMenu == 'shipping_area') ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Shipping Area</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <?php endif; ?>
+
+                <!-- ===================================================== -->
                 <!-- SALES / TRANSACTIONS -->
                 <!-- admin, penjualan -->
                 <!-- ===================================================== -->
@@ -239,6 +266,14 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                         class="nav-link <?= ($currentAdminSubMenu == 'payment_setting') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-credit-card"></i>
                             <p>Payment Settings</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/settings/handling-fee') ?>"
+                        class="nav-link <?= ($currentAdminSubMenu == 'handling_fee') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-box-open"></i>
+                            <p>Handling Fee</p>
                         </a>
                     </li>
                 <?php endif; ?>

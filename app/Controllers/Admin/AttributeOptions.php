@@ -28,7 +28,7 @@ class AttributeOptions extends BaseController
         }
 
         // Ambil semua opsi untuk tabel di sebelah kanan
-        $attributeOptions = $this->attributeOptionModel->where('attribute_id', $attributeId)->paginate(10, 'bootstrap');
+        $attributeOptions = $this->attributeOptionModel->where('attribute_id', $attributeId)->paginate(10, 'attributeOptions');
 
         // LOGIKA EDIT: Jika ada $optionId di URL, cari datanya
         $attributeOption = null;

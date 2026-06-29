@@ -42,7 +42,61 @@
                             </div>
                             <div class="col-md-6">
                                 <strong>Tanggal:</strong> <?= date('d M Y H:i', strtotime($order->created_at)) ?><br>
+                                <strong>Metode Pengiriman:</strong>
+                                <?php if ($order->delivery_type === 'delivery'): ?>
+                                    <span class="badge badge-info">
+                                        <i class="fa fa-truck"></i>
+                                        Delivery
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge badge-success">
+                                        <i class="fa fa-store"></i>
+                                        Pickup
+                                    </span>
+                                <?php endif; ?>
+                                <br>
                                 <strong>Pembayaran:</strong> <?= esc($order->pembayaran) ?><br>
+                                <strong>Status Pembayaran:</strong>
+                                <?php if ($order->payment_status == 'paid'): ?>
+                                    <span class="badge badge-success">Paid</span>
+                                <?php elseif ($order->payment_status == 'pending_verification'): ?>
+                                    <span class="badge badge-warning">Pending Verification</span>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary">
+                                        <?= ucwords(str_replace('_',' ', $order->payment_status)) ?>
+                                    </span>
+                                <?php endif; ?>
+                                <br>
+                                <?php if ($order->delivery_type === 'delivery'): ?>
+                                    <div class="form-group">
+                                        <strong>Area Pengiriman:</strong>
+                                        <div><?= esc($order->shipping_area_name ?? '-') ?></div>
+                                    </div>
+                                    <form action="<?= site_url('admin/orders/save-courier/' . $order->id) ?>" method="post">
+                                        <?= csrf_field() ?>
+                                        <div class="form-row align-items-end">
+                                            <div class="col">
+                                                <div class="form-group mb-0">
+                                                    <label for="delivery_courier_id">Pilih Kurir</label>
+                                                    <select id="delivery_courier_id" class="form-control" name="delivery_courier_id" required>
+                                                        <option value="">-- Pilih Kurir --</option>
+                                                        <?php foreach ($couriers as $courier): ?>
+                                                            <option value="<?= $courier->id ?>" <?= $order->delivery_courier_id == $courier->id ? 'selected' : '' ?>>
+                                                                <?= esc(trim($courier->first_name . ' ' . $courier->last_name)) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fa fa-save mr-1"></i> Simpan Kurir
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                <?php endif; ?>
+
                                 <?php if (!empty($order->catatan_customer)): ?>
                                     <strong>Catatan:</strong> <?= esc($order->catatan_customer) ?>
                                 <?php endif; ?>
@@ -64,9 +118,55 @@
                                 <?php endforeach; ?>
                             </tbody>
                             <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-right">
+                                        Subtotal Produk
+                                    </th>
+                                    <th class="text-right">
+                                        Rp <?= number_format($order->subtotal_produk) ?>
+                                    </th>
+                                </tr>
+
+                                <?php if (($order->shipping_cost ?? 0) > 0): ?>
+                                <tr>
+                                    <th colspan="3" class="text-right">
+                                        Ongkir
+                                    </th>
+                                    <th class="text-right">
+                                        Rp <?= number_format($order->shipping_cost) ?>
+                                    </th>
+                                </tr>
+                                <?php endif; ?>
+
+                                <?php if (($order->handling_fee ?? 0) > 0): ?>
+                                <tr>
+                                    <th colspan="3" class="text-right">
+                                        Biaya Penanganan
+                                    </th>
+                                    <th class="text-right">
+                                        Rp <?= number_format($order->handling_fee) ?>
+                                    </th>
+                                </tr>
+                                <?php endif; ?>
+
+                                <?php if (($order->diskon ?? 0) > 0): ?>
+                                <tr>
+                                    <th colspan="3" class="text-right">
+                                        Diskon
+                                    </th>
+                                    <th class="text-right text-success">
+                                        - Rp <?= number_format($order->diskon) ?>
+                                    </th>
+                                </tr>
+                                <?php endif; ?>
+
                                 <tr class="table-primary">
-                                    <th colspan="3">TOTAL</th>
-                                    <th class="text-right">Rp <?= number_format($order->total_bayar) ?></th>
+                                    <th colspan="3">
+                                        GRAND TOTAL
+                                    </th>
+                                    <th class="text-right">
+                                        Rp <?= number_format($order->grand_total) ?>
+                                    </th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -134,6 +234,11 @@
                             <i class="fa fa-arrow-left mr-1"></i> Kembali
                         </a>
                     </div>
+                    <a href="<?= site_url('admin/penjualan/struk/'.$order->id) ?>"
+                        target="_blank" class="btn btn-dark">
+                        <i class="fa fa-print"></i>
+                        Cetak Struk
+                    </a>
                 </div>
             </div>
         </div>

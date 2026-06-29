@@ -112,7 +112,7 @@
                 <!-- Paginasi -->
                 <div class="row mt-3">
                     <div class="col-12">
-                        <?= $pager->links('bootstrap', 'bootstrap') ?>
+                        <?= $pager->links('products', 'bootstrap') ?>
                     </div>
                 </div>
 

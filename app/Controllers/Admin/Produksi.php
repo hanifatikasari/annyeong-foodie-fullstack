@@ -32,7 +32,7 @@ class Produksi extends BaseController
             'title'               => 'Proses Produksi',
             'currentAdminMenu'    => 'production',
             'currentAdminSubMenu' => 'process',
-            'produksi'            => $model->orderBy('t_produksi.id', 'DESC')->paginate($perPage, 'bootstrap'),
+            'produksi'            => $model->orderBy('t_produksi.id', 'DESC')->paginate($perPage, 'produksi'),
             'pager'               => $model->pager,
             'keyword'             => $keyword,
             'perPage'             => $perPage,

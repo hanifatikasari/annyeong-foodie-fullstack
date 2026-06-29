@@ -27,6 +27,13 @@ class AddMidtransToTPenjualan extends Migration
                 'after'      => 'snap_token',
             ],
 
+            'midtrans_order_id' => [
+            'type'       => 'VARCHAR',
+            'constraint' => 100,
+            'null'       => true,
+            'after'      => 'invoice_no',
+        ],
+
             'midtrans_payment_type' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 30,

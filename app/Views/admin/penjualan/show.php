@@ -32,14 +32,14 @@
                             <tr><td>Metode</td><td>
                                 <span class="badge badge-primary"><?= $penjualan->pembayaran ?></span>
                             </td></tr>
-                            <tr class="border-top"><td>Subtotal</td><td>Rp <?= number_format($penjualan->total_harga) ?></td></tr>
+                            <tr class="border-top"><td>Subtotal</td><td>Rp <?= number_format($penjualan->subtotal_produk) ?></td></tr>
                             <tr><td>Diskon</td><td class="text-danger">- Rp <?= number_format($penjualan->diskon) ?></td></tr>
                             <tr><td><strong>Total Bayar</strong></td>
-                                <td><strong>Rp <?= number_format($penjualan->total_bayar) ?></strong></td></tr>
+                                <td><strong>Rp <?= number_format($penjualan->grand_total) ?></strong></td></tr>
                             <tr><td>Uang Diterima</td><td>Rp <?= number_format($penjualan->uang_diterima) ?></td></tr>
                             <tr><td>Kembalian</td>
                                 <td class="text-success"><strong>
-                                    Rp <?= number_format(max(0, $penjualan->uang_diterima - $penjualan->total_bayar)) ?>
+                                    Rp <?= number_format(max(0, $penjualan->uang_diterima - $penjualan->grand_total)) ?>
                                 </strong></td></tr>
                         </table>
                     </div>
@@ -89,13 +89,18 @@
                             <tfoot class="bg-light">
                                 <tr>
                                     <th colspan="4" class="text-right">Total</th>
-                                    <th class="text-right">Rp <?= number_format($penjualan->total_harga) ?></th>
+                                    <th class="text-right">Rp <?= number_format($penjualan->subtotal_produk) ?></th>
                                     <th class="text-right text-success"><strong>Rp <?= number_format($totalLaba) ?></strong></th>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
+                <a href="<?= site_url('admin/penjualan/struk/'.$penjualan->id) ?>"
+                    target="_blank" class="btn btn-dark">
+                    <i class="fa fa-print"></i>
+                        Cetak Struk
+                </a>
             </div>
         </div>
     </div>

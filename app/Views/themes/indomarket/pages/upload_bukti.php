@@ -11,9 +11,38 @@
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info mb-3">
-                            <strong>Invoice:</strong> <?= esc($order->invoice_no) ?><br>
-                            <strong>Total Bayar:</strong> Rp <?= number_format($order->total_bayar) ?><br>
-                            <strong>Metode:</strong> <?= esc($order->pembayaran) ?>
+                            <strong>Invoice:</strong>
+                            <?= esc($order->invoice_no) ?>
+                            <br>
+
+                            <strong>Subtotal Produk:</strong>
+                            Rp <?= number_format($order->subtotal_produk) ?>
+                            <br>
+
+                            <?php if (($order->shipping_cost ?? 0) > 0): ?>
+                                <strong>Ongkir:</strong>
+                                Rp <?= number_format($order->shipping_cost) ?>
+                                <br>
+                            <?php endif; ?>
+
+                            <?php if (($order->handling_fee ?? 0) > 0): ?>
+                                <strong>Biaya Penanganan:</strong>
+                                Rp <?= number_format($order->handling_fee) ?>
+                                <br>
+                            <?php endif; ?>
+
+                            <?php if (($order->diskon ?? 0) > 0): ?>
+                                <strong>Diskon:</strong>
+                                - Rp <?= number_format($order->diskon) ?>
+                                <br>
+                            <?php endif; ?>
+
+                            <strong>Total Bayar:</strong>
+                            Rp <?= number_format($order->grand_total) ?>
+                            <br>
+
+                            <strong>Metode Pembayaran:</strong>
+                            <?= esc($order->pembayaran) ?>
                         </div>
 
                         <?php if ($order->pembayaran === 'QRIS'): ?>
@@ -26,7 +55,7 @@
                                 <strong>Info Transfer:</strong><br>
                                 Bank BCA: <strong>1234567890</strong><br>
                                 Atas Nama: <strong>Annyeong Foodie</strong><br>
-                                Jumlah: <strong>Rp <?= number_format($order->total_bayar) ?></strong>
+                                Jumlah: <strong>Rp <?= number_format($order->grand_total) ?></strong>
                             </div>
                         <?php endif; ?>
 

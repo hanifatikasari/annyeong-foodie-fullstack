@@ -44,7 +44,7 @@
 
         <?php if ($pager): ?>
             <div class="d-flex justify-content-center mt-3">
-                <?= $pager->links('bootstrap', 'bootstrap') ?>
+                <?= $pager->links('products', 'bootstrap') ?>
             </div>
         <?php endif; ?>
     </div>

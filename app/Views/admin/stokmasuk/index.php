@@ -69,7 +69,7 @@
                 <tbody>
                     <?php if (!empty($stok) && count($stok) > 0) : ?>
                         <?php 
-                        $currentPage = $pager->getCurrentPage('bootstrap');
+                        $currentPage = $pager->getCurrentPage('stokMasuk');
                         $no = ($currentPage - 1) * $perPage + 1;
                         foreach ($stok as $s) : 
                         ?>
@@ -84,7 +84,7 @@
                                     <?= number_format($s->qty * $s->isi_per_satuan); ?> <?= $s->satuan; ?>
                                 </span>
                             </td>
-                            <td>Rp <?= number_format($s->total_harga, 0, ',', '.'); ?></td>
+                            <td>Rp <?= number_format($s->subtotal_produk, 0, ',', '.'); ?></td>
                             <td><?= $s->nama_supplier ?? '-'; ?></td>
                         </tr>
                         <?php endforeach; ?>
@@ -100,7 +100,7 @@
         <div class="card-footer clearfix bg-white">
             <div class="float-left">
                 <?php 
-                    $total = $pager->getTotal('bootstrap');
+                    $total = $pager->getTotal('stokMasuk');
                     $start = $total > 0 ? ($currentPage - 1) * $perPage + 1 : 0;
                     $end = min($currentPage * $perPage, $total);
                 ?>
@@ -109,7 +109,7 @@
                 </p>
             </div>
             <div class="float-right">
-                <?= $pager->links('bootstrap', 'bootstrap') ?>
+                <?= $pager->links('stokMasuk', 'bootstrap') ?>
             </div>
         </div>
     </div>

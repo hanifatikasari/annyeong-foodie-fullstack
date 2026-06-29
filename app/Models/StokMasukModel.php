@@ -12,7 +12,7 @@ class StokMasukModel extends Model
     protected $returnType       = 'App\Entities\StokMasuk';
     protected $allowedFields    = [
         'bahan_baku_id', 'qty', 'isi_per_satuan', 
-        'harga_satuan', 'total_harga', 'nama_supplier', 
+        'harga_satuan', 'subtotal_produk', 'nama_supplier', 
         'tanggal_masuk', 'keterangan', 'created_at'
     ];
 

@@ -81,7 +81,7 @@
 
                                     <div class="col-md-6 mb-3">
                                         <small class="text-muted d-block">Total Pembayaran</small>
-                                        <strong>Rp <?= number_format($order->total_bayar ?? 0) ?></strong>
+                                        <strong>Rp <?= number_format($order->grand_total ?? 0) ?></strong>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -131,7 +131,7 @@
                                 <ol class="mb-0 pl-4">
                                     <li>
                                         Lakukan pembayaran sebesar
-                                        <strong>Rp <?= number_format($order->total_bayar ?? 0) ?></strong>
+                                        <strong>Rp <?= number_format($order->grand_total ?? 0) ?></strong>
                                     </li>
                                     <?php if (($order->pembayaran ?? '') === 'QRIS'): ?>
                                         <li>Scan QR Code di aplikasi dompet digital Anda.</li>

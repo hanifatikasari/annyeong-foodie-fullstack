@@ -26,7 +26,7 @@ class Attributes extends BaseController
 
         $data = [
             'title'             => 'Attributes',
-            'attributes'        => $this->attributeModel->paginate($perPage, 'bootstrap'),
+            'attributes'        => $this->attributeModel->paginate($perPage, 'attributes'),
             'pager'             => $this->attributeModel->pager,
             'keyword'           => $keyword,
             'perPage'           => $perPage,
@@ -57,7 +57,7 @@ class Attributes extends BaseController
 
         $data = [
             'title'             => 'Edit Attribute',
-            'attributes'        => $this->attributeModel->paginate($perPage, 'bootstrap'),
+            'attributes'        => $this->attributeModel->paginate($perPage, 'attributes'),
             'pager'             => $this->attributeModel->pager,
             'attribute'         => $attribute, // Data tunggal untuk form
             'keyword'           => $keyword,

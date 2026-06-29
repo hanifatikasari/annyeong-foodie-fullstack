@@ -38,6 +38,10 @@ class GroupsSeeder extends Seeder
                 'name'        => 'pemilik',
                 'description' => 'Owner / Monitoring Bisnis',
             ],
+            [
+                'name'        => 'kurir',
+                'description' => 'Pengiriman Barang',
+            ],
         ];
 
         // Masukkan data ke tabel groups

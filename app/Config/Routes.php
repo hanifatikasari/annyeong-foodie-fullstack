@@ -85,6 +85,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('create', 'Admin\Penjualan::create');
         $routes->post('simpan', 'Admin\Penjualan::simpan');
         $routes->get('show/(:num)', 'Admin\Penjualan::show/$1');
+        $routes->get('struk/(:num)','Admin\Penjualan::struk/$1');
         });
 
         // Orders
@@ -93,6 +94,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     $routes->post('orders/verify/(:num)', 'Admin\Orders::verify/$1');
     $routes->post('orders/update-status/(:num)', 'Admin\Orders::updateStatus/$1');
     $routes->post('orders/updateStatus/(:num)', 'Admin\Orders::updateStatus/$1');
+    $routes->post('orders/save-courier/(:num)','Admin\Orders::saveCourier/$1');
     
 
     // --- REPORTS ---
@@ -164,20 +166,25 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
              $routes->get('getBahanbakuAjax', 'Admin\StokMasuk::getBahanbakuAjax');
         });  
     });
+
+    // --- SHIPPING AREA ---
+    $routes->group('shipping_area', ['filter' => 'authAdmin:admin, penjualan'], function ($routes) {
+        $routes->get('/', 'Admin\ShippingArea::index');
+        $routes->get('create', 'Admin\ShippingArea::create');
+        $routes->post('store', 'Admin\ShippingArea::store');
+        $routes->get('edit/(:num)', 'Admin\ShippingArea::edit/$1');
+        $routes->post('update/(:num)', 'Admin\ShippingArea::update/$1');
+        $routes->get('delete/(:num)', 'Admin\ShippingArea::delete/$1');
+
+    });
     
     // --- SETTINGS ---
     $routes->group('settings', ['filter' => 'authAdmin:admin'], function($routes) {
+        $routes->get('payment','Admin\SettingsController::payment');
+        $routes->post('payment/save', 'Admin\SettingsController::savePayment');
 
-        $routes->get(
-            'payment',
-            'Admin\SettingsController::payment'
-        );
-
-        $routes->post(
-            'payment/save',
-            'Admin\SettingsController::savePayment'
-        );
-
+        $routes->get('handling-fee', 'Admin\SettingsController::handlingFee');
+$routes->post('handling-fee/save', 'Admin\SettingsController::saveHandlingFee');
     });
     
 });
@@ -219,7 +226,7 @@ $routes->get('hello', function() {
         $routes->post('upload/(:segment)', 'Checkout::uploadBukti/$1');
             // === Baris baru untuk Midtrans ===
         $routes->get('pay/(:segment)',     'Checkout::pay/$1');
-        $routes->get('return/(:segment)',  'Checkout::midtransReturn/$1');
+        $routes->get('midtransReturn/(:segment)',  'Checkout::midtransReturn/$1');
     });
 
     // =========================

@@ -20,7 +20,7 @@ class TPenjualan extends Migration
                 'constraint' => 16,
                 'unique'     => true,
             ],
-            'total_harga' => [
+            'subtotal_produk' => [
                 'type'       => 'int',
                 'constraint' => '11',
                 'unsigned'   => true,
@@ -31,7 +31,7 @@ class TPenjualan extends Migration
                 'constraint' => '8',
                 'default'    => 0,
             ],
-            'total_bayar' => [ // Harga akhir (total_harga - diskon)
+            'grand_total' => [ // Harga akhir (subtotal_produk - diskon)
                 'type'       => 'int',
                 'constraint' => '11',
                 'unsigned'   => true,

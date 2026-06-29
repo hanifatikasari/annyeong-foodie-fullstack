@@ -93,7 +93,7 @@
             </div>
             <div class="card-footer clearfix">
                 <div class="float-right">
-                    <?= $pager->links('bootstrap', 'bootstrap') ?>
+                    <?= $pager->links('recipes', 'bootstrap') ?>
                 </div>
             </div>
         </div>

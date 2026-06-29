@@ -33,7 +33,7 @@ class Reports extends BaseController
 
         $rows = $db->table('t_penjualan')
             ->select('DATE(created_at) as tanggal, COUNT(id) as jumlah_transaksi,
-                      SUM(total_harga) as gross, SUM(diskon) as diskon, SUM(total_bayar) as nett')
+                      SUM(subtotal_produk) as gross, SUM(diskon) as diskon, SUM(grand_total) as nett')
             ->where('DATE(created_at) >=', $dari)
             ->where('DATE(created_at) <=', $sampai)
             ->groupBy('DATE(created_at)')

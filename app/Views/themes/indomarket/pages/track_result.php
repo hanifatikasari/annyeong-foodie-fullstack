@@ -72,7 +72,7 @@
                                 <tfoot>
                                     <tr class="table-primary">
                                         <th colspan="2">TOTAL</th>
-                                        <th class="text-right">Rp <?= number_format($order->total_bayar) ?></th>
+                                        <th class="text-right">Rp <?= number_format($order->grand_total) ?></th>
                                     </tr>
                                 </tfoot>
                             </table>

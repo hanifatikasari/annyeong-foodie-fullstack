@@ -26,7 +26,7 @@ class BahanBaku extends BaseController {
             'title'               => 'Daftar Bahan Baku',
             'currentAdminMenu'    => 'inventory', 
             'currentAdminSubMenu' => 'bahan_baku', 
-            'bahan'               => $bahanModel->orderBy('id','DESC')->paginate(10, 'bootstrap'),
+            'bahan'               => $bahanModel->orderBy('id','DESC')->paginate(10, 'bahanBaku'),
             'categories'          => model('CategoryModel')->findAll(),
             'pager'               => $bahanModel->pager,
             'keyword'             => $keyword

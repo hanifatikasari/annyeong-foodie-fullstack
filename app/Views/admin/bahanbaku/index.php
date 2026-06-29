@@ -76,7 +76,7 @@
         
         <div class="card-footer clearfix bg-white">
             <div class="float-right">
-                <?= $pager->links('bootstrap', 'bootstrap') ?>
+                <?= $pager->links('bahanBaku', 'bootstrap') ?>
             </div>
         </div>
     </div>

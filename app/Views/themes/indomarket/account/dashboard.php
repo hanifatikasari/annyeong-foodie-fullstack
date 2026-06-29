@@ -70,7 +70,7 @@
                                     </span>
                                 </div>
                                 <div>
-                                    <strong>Rp <?= number_format($recentOrder->total_bayar) ?></strong>
+                                    <strong>Rp <?= number_format($recentOrder->grand_total) ?></strong>
                                 </div>
                              <a href="<?= site_url('account/orders/detail/' . $recentOrder->id) ?>" class="btn btn-sm btn-outline-primary">
                                 Detail

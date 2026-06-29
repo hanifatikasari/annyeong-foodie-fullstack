@@ -88,37 +88,107 @@ $user = $user ?? null;
 
                             <!-- Alamat Pengiriman
                                  FIX ISSUE #4: field name HARUS "alamat_pengiriman" -->
-                            <div class="form-group">
-                                <label for="alamat_pengiriman">
-                                    Alamat Lengkap <span class="text-danger">*</span>
-                                </label>
-                                <textarea id="alamat_pengiriman"
-                                          name="alamat_pengiriman"
-                                          class="form-control <?= session('errors.alamat_pengiriman') ? 'is-invalid' : '' ?>"
-                                          rows="3"
-                                          placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan, Kota, Provinsi, Kode Pos"
-                                          required><?= old('alamat_pengiriman', $user->alamat ?? '') ?></textarea>
-                                <?php if (session('errors.alamat_pengiriman')): ?>
-                                    <div class="invalid-feedback"><?= session('errors.alamat_pengiriman') ?></div>
-                                <?php endif; ?>
-                                <small class="text-muted">
-                                    <i class="fa fa-info-circle mr-1"></i>
-                                    Isi alamat lengkap agar pengiriman tepat sasaran.
-                                    <a href="<?= site_url('account/profile') ?>" target="_blank">Update profil</a>
-                                    untuk mengisi otomatis.
-                                </small>
+                            <div id="deliveryFields">
+                                <div class="form-group">
+                                    <label for="alamat_pengiriman">
+                                        Alamat Lengkap <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea id="alamat_pengiriman"
+                                            name="alamat_pengiriman"
+                                            class="form-control <?= session('errors.alamat_pengiriman') ? 'is-invalid' : '' ?>"
+                                            rows="3"
+                                            placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan, Kota, Provinsi, Kode Pos"
+                                            required><?= old('alamat_pengiriman', $user->address ?? '') ?></textarea>
+                                    <?php if (session('errors.alamat_pengiriman')): ?>
+                                        <div class="invalid-feedback"><?= session('errors.alamat_pengiriman') ?></div>
+                                    <?php endif; ?>
+                                    <small class="text-muted">
+                                        <i class="fa fa-info-circle mr-1"></i>
+                                        Isi alamat lengkap agar pengiriman tepat sasaran.
+                                        <a href="<?= site_url('account/profile') ?>" target="_blank">Update profil</a>
+                                        untuk mengisi otomatis.
+                                    </small>
+                                </div>
                             </div>
 
                             <!-- Catatan Order -->
                             <div class="form-group mb-0">
-                                <label for="catatan_order">Catatan Order (opsional)</label>
+                                <label for="catatan_customer">Catatan Order (opsional)</label>
                                 <input type="text"
-                                       id="catatan_order"
-                                       name="catatan_order"
+                                       id="catatan_customer"
+                                       name="catatan_customer"
                                        class="form-control"
                                        placeholder="Catatan khusus untuk penjual..."
-                                       value="<?= old('catatan_order') ?>">
+                                       value="<?= old('catatan_customer') ?>">
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Pilihan Pengiriman -->
+                    <div class="form-group">
+                        <label class="font-weight-bold">
+                            Metode Pengambilan <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="custom-control custom-radio mb-2">
+                            <input
+                                type="radio"
+                                id="pickup"
+                                name="delivery_type"
+                                value="pickup"
+                                class="custom-control-input"
+                                <?= old('delivery_type', 'pickup') == 'pickup' ? 'checked' : '' ?>
+                            >
+
+                            <label class="custom-control-label" for="pickup">
+                                <strong>Pickup di Toko</strong>
+                                <small class="d-block text-muted">
+                                    Ambil sendiri ke toko.
+                                </small>
+                            </label>
+                        </div>
+
+                        <div class="custom-control custom-radio">
+                            <input
+                                type="radio"
+                                id="delivery"
+                                name="delivery_type"
+                                value="delivery"
+                                class="custom-control-input"
+                                <?= old('delivery_type') == 'delivery' ? 'checked' : '' ?>
+                            >
+
+                            <label class="custom-control-label" for="delivery">
+                                <strong>Delivery</strong>
+                                <small class="d-block text-muted">
+                                    Pesanan diantar ke alamat Anda.
+                                </small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Drppdown Shipping Area -->
+                    <div id="shippingAreaWrapper" style="display:block;">
+                        <div class="form-group mt-3">
+                            <label>
+                                Area Pengiriman
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select
+                                name="shipping_area_id"
+                                id="shipping_area_id"
+                                class="form-control">
+                                <option value="">
+                                    -- Pilih Area --
+                                </option>
+                                <?php foreach($shippingAreas as $area): ?>
+                                    <option
+                                        value="<?= $area->id ?>"
+                                        data-cost="<?= $area->ongkir ?>">
+                                        <?= esc($area->area_name) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
 
@@ -229,8 +299,8 @@ $user = $user ?? null;
                      ============================ -->
                 <div class="col-lg-5">
                     <div class="card shadow-sm border-0 sticky-top" style="top:20px;">
-                        <div class="card-header bg-dark text-white border-0">
-                            <h6 class="mb-0 font-weight-bold">
+                        <div class="card-header bg-primary border-0">
+                            <h6 class="mb-0 font-weight-bold ">
                                 <i class="fa fa-list-alt mr-2"></i>Ringkasan Pesanan
                             </h6>
                         </div>
@@ -257,13 +327,52 @@ $user = $user ?? null;
                                         <?php endforeach; ?>
                                     </tbody>
                                     <tfoot>
-                                        <tr class="table-primary">
-                                            <th class="text-uppercase">Total</th>
-                                            <th class="text-right h6 mb-0">
+                                        <tr>
+                                            <td>Total Belanja</td>
+                                            <td class="text-right">
                                                 Rp <?= number_format($total) ?>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Handling Fee</td>
+                                            <td class="text-right">
+                                                <span id="handlingFee">
+                                                    Rp 0
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        <tr id="shippingRow" style="display:none;">
+                                            <td>Ongkos Kirim</td>
+                                            <td class="text-right">
+                                                <span id="shippingCost">
+                                                    Rp 0
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        <tr id="discountRow" style="display:none;">
+                                            <td class="text-success">
+                                                Diskon
+                                            </td>
+                                            <td class="text-right text-success">
+                                                - <span id="discountAmount">Rp 0</span>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="table-primary">
+                                            <th>Grand Total</th>
+                                            <th class="text-right">
+
+                                                <span id="grandTotal">
+                                                    Rp <?= number_format($total) ?>
+                                                </span>
+
                                             </th>
                                         </tr>
-                                    </tfoot>
+
+                                        </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -295,6 +404,53 @@ document.getElementById('checkoutForm').addEventListener('submit', function() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Memproses...';
 });
+
+
+const pickupRadio = document.getElementById('pickup');
+const deliveryRadio = document.getElementById('delivery');
+
+const deliveryFields = document.getElementById('deliveryFields');
+const shippingRow = document.getElementById('shippingRow');
+const alamatField = document.getElementById("alamat_pengiriman");
+
+const subtotal = <?= $total ?>;
+const handlingFee = <?= $handlingFee ?>;
+const shippingSelect = document.getElementById('shipping_area_id');
+function updateDeliveryUI(){
+    let shipping = 0;
+    if(deliveryRadio.checked){
+        deliveryFields.style.display = '';
+        shippingRow.style.display = '';
+        alamatField.required = true;
+        shipping =
+            Number(
+                shippingSelect.options[
+                    shippingSelect.selectedIndex
+                ].dataset.cost || 0
+            );
+
+    }else{
+        deliveryFields.style.display = 'none';
+        shippingRow.style.display = 'none';
+        alamatField.required = false;
+    }
+        document.getElementById("handlingFee").innerHTML =
+        "Rp " + handlingFee.toLocaleString('id-ID');
+
+        document.getElementById("shippingCost").innerHTML =
+            "Rp " + shipping.toLocaleString('id-ID');
+
+        const grandTotal = subtotal + handlingFee + shipping;
+
+        document.getElementById("grandTotal").innerHTML =
+            "Rp " + grandTotal.toLocaleString('id-ID');
+}
+
+pickupRadio.addEventListener('change', updateDeliveryUI);
+deliveryRadio.addEventListener('change', updateDeliveryUI);
+shippingSelect.addEventListener('change', updateDeliveryUI);
+
+updateDeliveryUI();
 </script>
 
 <?= $this->endSection() ?>

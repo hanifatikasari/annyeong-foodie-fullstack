@@ -85,10 +85,10 @@
 				<div class="card-footer clearfix">
 					<div class="float-left">
 						<?php 
-							$currentPage = $pager->getCurrentPage('bootstrap');
-							$perPage = $pager->getPerPage('bootstrap');
-							$total = $pager->getTotal('bootstrap');
-							
+							$currentPage = $pager->getCurrentPage('categories');
+							$perPage = $pager->getPerPage('categories');
+							$total = $pager->getTotal('categories');
+
 							$start = ($currentPage - 1) * $perPage + 1;
 							$end = min($currentPage * $perPage, $total);
 						?>
@@ -97,7 +97,7 @@
 						</p>
 					</div>
 					<div class="float-right">
-						<?= $pager->links('bootstrap', 'bootstrap') ?>
+						<?= $pager->links('categories', 'bootstrap') ?>
 					</div>
 				</div>
 			</div>

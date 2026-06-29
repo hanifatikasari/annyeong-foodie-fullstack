@@ -15,7 +15,7 @@ class DashboardModel extends Model
     {
         return $this->db->query("
             SELECT
-                SUM(total_bayar) AS total,
+                SUM(grand_total) AS total,
                 COUNT(*) AS jumlah
             FROM t_penjualan
             WHERE DATE(created_at)=?
@@ -77,7 +77,7 @@ class DashboardModel extends Model
             $tgl=date('Y-m-d',strtotime("-$i days"));
 
             $row=$this->db->query("
-                SELECT SUM(total_bayar) total
+                SELECT SUM(grand_total) total
                 FROM t_penjualan
                 WHERE DATE(created_at)=?
                 AND (

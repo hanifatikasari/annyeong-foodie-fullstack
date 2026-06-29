@@ -77,4 +77,28 @@ class SettingsController extends BaseController
                 'Pengaturan pembayaran berhasil disimpan.'
             );
     }
+
+    public function handlingFee()
+    {
+        $settingModel=model('SettingModel');
+
+        return view('admin/settings/handling_fee',[
+            'title'=>'Handling Fee',
+            'currentAdminSubMenu'=>'handling_fee',
+            'fee'=>$settingModel->getValue('handling_fee',5000)
+        ]);
+    }
+
+    public function saveHandlingFee()
+    {
+        model('SettingModel')->setValue(
+            'handling_fee',
+            $this->request->getPost('fee')
+        );
+
+        return redirect()->back()->with(
+            'success',
+            'Handling fee berhasil disimpan.'
+        );
+    }
 }

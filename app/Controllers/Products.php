@@ -103,7 +103,7 @@ class Products extends BaseController
 
         $builder->orderBy($orderField, $orderDir);
 
-        $products = $builder->paginate($this->perPage, 'bootstrap');
+        $products = $builder->paginate($this->perPage, 'products');
 
         // Lampirkan gambar utama ke setiap produk
         foreach ($products as &$p) {

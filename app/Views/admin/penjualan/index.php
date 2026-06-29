@@ -58,11 +58,11 @@
                         <?php foreach ($penjualan as $p): ?>
                         <tr>
                             <td><strong><?= esc($p->invoice_no) ?></strong></td>
-                            <td class="text-right">Rp <?= number_format($p->total_harga) ?></td>
+                            <td class="text-right">Rp <?= number_format($p->subtotal_produk) ?></td>
                             <td class="text-right text-danger">
                                 <?= $p->diskon > 0 ? 'Rp ' . number_format($p->diskon) : '-' ?>
                             </td>
-                            <td class="text-right"><strong>Rp <?= number_format($p->total_bayar) ?></strong></td>
+                            <td class="text-right"><strong>Rp <?= number_format($p->grand_total) ?></strong></td>
                             <td>
                                 <span class="badge badge-<?= $p->pembayaran === 'Cash' ? 'success' : ($p->pembayaran === 'QRIS' ? 'info' : 'primary') ?>">
                                     <?= $p->pembayaran ?>
@@ -84,7 +84,7 @@
             </div>
             <div class="card-footer clearfix">
                 <div class="float-right">
-                    <?= $pager->links('bootstrap', 'bootstrap') ?>
+                    <?= $pager->links('penjualan', 'bootstrap') ?>
                 </div>
             </div>
         </div>

@@ -24,7 +24,7 @@ class Categories extends BaseController {
         $data = [
             'title'            => 'Categories',
             'currentAdminMenu' => 'catalogue',
-            'categories'       => $categoryModel->paginate($perPage, 'bootstrap'),
+            'categories'       => $categoryModel->paginate($perPage, 'categories'),
             'pager'            => $categoryModel->pager,
             'parentOptions'    => model('CategoryModel')->where('parent_id', null)->findAll(),
             'keyword'          => $keyword,
@@ -45,7 +45,7 @@ class Categories extends BaseController {
         $data = [
             'title'            => 'Edit Category',
             'currentAdminMenu' => 'catalogue',
-            'categories'       => model('CategoryModel')->paginate($perPage, 'bootstrap', $page),
+            'categories'       => model('CategoryModel')->paginate($perPage, 'categories', $page),
             'pager'            => model('CategoryModel')->pager,
             'category'         => $category, 
             'parentOptions'    => model('CategoryModel')->where('parent_id', null)->findAll(),

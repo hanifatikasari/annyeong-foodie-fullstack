@@ -44,7 +44,7 @@ class Shop extends BaseController
                     ->groupEnd();
         }
 
-        $results = $builder->paginate($perPage, 'bootstrap');
+        $results = $builder->paginate($perPage, 'shop');
 
         // Attach images
         foreach ($results as &$p) {

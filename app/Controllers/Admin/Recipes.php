@@ -37,7 +37,7 @@ class Recipes extends BaseController
             'title'               => 'Manajemen Resep (BOM)',
             'currentAdminMenu'    => 'production',
             'currentAdminSubMenu' => 'recipes',
-            'products'            => $productModel->orderBy('products.name', 'ASC')->paginate($perPage, 'bootstrap'),
+            'products'            => $productModel->orderBy('products.name', 'ASC')->paginate($perPage, 'recipes'),
             'pager'               => $productModel->pager,
             'keyword'             => $keyword,
             'perPage'             => $perPage,

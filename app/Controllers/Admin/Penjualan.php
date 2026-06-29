@@ -23,7 +23,7 @@ class Penjualan extends BaseController
             $query->like('t_penjualan.invoice_no', $keyword);
         }
 
-        $penjualan = $query->paginate($perPage, 'bootstrap');
+        $penjualan = $query->paginate($perPage, 'penjualan');
 
         $data = [
             'title'               => 'Data Penjualan',
@@ -158,15 +158,15 @@ class Penjualan extends BaseController
             // 1. Simpan header
             $invoiceNo = $penjualanModel->generatePosInvoice();
             $penjualanModel->save([
-                'invoice_no'    => $invoiceNo,
-                'total_harga'   => $totalHarga,
-                'diskon'        => $diskon,
-                'total_bayar'   => $totalBayar,
-                'pembayaran'    => $pembayaran,
-                'uang_diterima' => $uangDiterima,
-                'kasir_id'      => $kasirId,
-                'order_status'   => 'completed',
-                'payment_status' => 'paid',
+                'invoice_no'        => $invoiceNo,
+                'subtotal_produk'   => $totalHarga,
+                'diskon'            => $diskon,
+                'grand_total'       => $totalBayar,
+                'pembayaran'        => $pembayaran,
+                'uang_diterima'     => $uangDiterima,
+                'kasir_id'          => $kasirId,
+                'order_status'      => 'completed',
+                'payment_status'    => 'paid',
             ]);
             $penjualanId = $db->insertID();
 
@@ -232,5 +232,21 @@ class Penjualan extends BaseController
         ];
 
         return view('admin/penjualan/show', $data);
+    }
+
+    public function struk($id)
+    {
+        $penjualanModel = model('PenjualanModel');
+        $detailModel    = model('PenjualanDetailModel');
+
+        $penjualan = $penjualanModel->getOrderWithCustomerById($id);
+        if (!$penjualan) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+        $detail = $detailModel->getDetailByPenjualan($id);
+        return view('admin/penjualan/struk', [
+            'penjualan' => $penjualan,
+            'detail'    => $detail,
+        ]);
     }
 }

@@ -63,7 +63,7 @@
                         </table>
                     </div>
                     <div class="card-footer clearfix">
-                        <?= $pager->links('bootstrap', 'bootstrap') ?> 
+                        <?= $pager->links('attributeOptions', 'bootstrap') ?> 
                     </div>
                 </div>
             </div>

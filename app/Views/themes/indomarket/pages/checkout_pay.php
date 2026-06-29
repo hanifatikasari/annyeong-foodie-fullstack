@@ -24,7 +24,7 @@
                             <tr>
                                 <td class="text-muted">Total Pembayaran</td>
                                 <td class="font-weight-bold text-right text-primary h5 mb-0">
-                                    Rp <?= number_format($order->total_bayar) ?>
+                                    Rp <?= number_format($order->grand_total) ?>
                                 </td>
                             </tr>
                         </table>

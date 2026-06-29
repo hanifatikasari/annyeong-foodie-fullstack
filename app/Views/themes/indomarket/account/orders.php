@@ -31,7 +31,7 @@ TEST ORDERS.PHP
                                             <tr>
                                                 <td class="font-weight-bold"><?= esc($order->invoice_no) ?></td>
                                                 <td><?= date('d M Y', strtotime($order->created_at)) ?></td>
-                                                <td>Rp <?= number_format($order->total_bayar) ?></td>
+                                                <td>Rp <?= number_format($order->grand_total) ?></td>
                                                 <td>
                                                     <span class="badge status-badge status-<?= $order->order_status ?>">
                                                         <?= ucwords(str_replace('_', ' ', $order->order_status)) ?>

@@ -1,6 +1,14 @@
 <?= $this->extend('admin/layout') ?>
 <?= $this->section('content') ?>
-
+<?php
+$statusLabels = [
+    'pending'    => 'Menunggu Bayar',
+    'processing' => 'Diproses',
+    'shipped'    => 'Dikirim',
+    'completed'  => 'Selesai',
+    'cancelled'  => 'Dibatalkan',
+];
+?>
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -24,11 +32,22 @@
                     <label class="mr-2">Filter Status:</label>
                     <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
-                        <?php foreach (['pending','processing','shipped','completed','cancelled'] as $s): ?>
-                            <option value="<?= $s ?>" <?= $status === $s ? 'selected' : '' ?>>
-                                <?= ucwords(str_replace('_', ' ', $s)) ?>
+                        <?php foreach ($statusLabels as $value => $label): ?>
+                            <option value="<?= $value ?>" <?= $status === $value ? 'selected' : '' ?>>
+                                <?= $label ?>
                             </option>
                         <?php endforeach; ?>
+                    </select>
+
+                    <label class="mr-2 ml-3">Pengiriman:</label>
+                    <select name="delivery_type" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                        <option value="">Semua</option>
+                        <option value="delivery" <?= service('request')->getGet('delivery_type') === 'delivery' ? 'selected' : '' ?>>
+                            Delivery
+                        </option>
+                        <option value="pickup" <?= service('request')->getGet('delivery_type') === 'pickup' ? 'selected' : '' ?>>
+                            Pickup
+                        </option>
                     </select>
                 </form>
             </div>
@@ -43,6 +62,7 @@
                         <tr>
                             <th>Invoice</th>
                             <th>Pelanggan</th>
+                            <th>Pengiriman</th>
                             <th>Total</th>
                             <th>Pembayaran</th>
                             <th>Status</th>
@@ -62,7 +82,20 @@
                                 <td>
                                     <?= esc($order->customer_name ?? '-') ?>
                                 </td>
-                                <td>Rp <?= number_format($order->total_bayar) ?></td>
+                                <td>
+                                    <?php if ($order->delivery_type === 'delivery'): ?>
+                                        <span class="badge badge-info">
+                                            <i class="fa fa-truck"></i>
+                                            Delivery
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge badge-success">
+                                            <i class="fa fa-store"></i>
+                                            Pickup
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>Rp <?= number_format($order->grand_total) ?></td>
                                 <td><?= esc($order->pembayaran) ?></td>
                                 <td>
                                     <?php
@@ -72,14 +105,6 @@
                                         'shipped'    => 'info',
                                         'completed'  => 'success',
                                         'cancelled'  => 'danger',
-                                    ];
-
-                                    $statusLabels = [
-                                        'pending'    => 'Menunggu Bayar',
-                                        'processing' => 'Diproses',
-                                        'shipped'    => 'Dikirim',
-                                        'completed'  => 'Selesai',
-                                        'cancelled'  => 'Dibatalkan',
                                     ];
                                     $sc = $statusColors[$order->order_status] ?? 'secondary';
                                     $sl = $statusLabels[$order->order_status] ?? $order->order_status;
