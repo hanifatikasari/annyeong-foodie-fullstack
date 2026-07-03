@@ -259,7 +259,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                 <!-- ===================================================== -->
                 <!-- data manajemen -->
                 <!--==================================================== -->
-                <?php if ($ionAuth->inGroup(['admin','produksi','pemilik'])): ?>
+                <?php if ($ionAuth->inGroup(['admin','gudang','penjualan','kurir','produksi','pemilik'])): ?>
                 <li class="nav-item has-treeview <?= ($currentAdminMenu == 'data_management') ? 'menu-open' : '' ?>">
                     <a href="#"
                     class="nav-link <?= ($currentAdminMenu == 'data_management') ? 'active' : '' ?>">
@@ -277,6 +277,14 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             class="nav-link <?= ($currentAdminSubMenu == 'trash_bin') ? 'active' : '' ?>">
                                 <i class="far fa-trash-alt nav-icon"></i>
                                 <p>Trash Bin</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="<?= site_url('admin/users') ?>"
+                            class="nav-link <?= ($currentAdminSubMenu == 'user_management') ? 'active' : '' ?>">
+                                <i class="fas fa-users nav-icon"></i>
+                                <p>Kelola User</p>
                             </a>
                         </li>
 

@@ -61,7 +61,7 @@ class Auth extends \CodeIgniter\Controller
 	 *
 	 * @var string
 	 */
-	protected $viewsFolder = 'App\Views\auth';
+	protected $viewsFolder = 'auth';
 
 	/**
 	 * Constructor
@@ -923,6 +923,9 @@ class Auth extends \CodeIgniter\Controller
 	protected function renderPage(string $view, $data = null, bool $returnHtml = true): string
 	{
 		$viewdata = $data ?: $this->data;
+
+		$view = str_replace(['\\', DIRECTORY_SEPARATOR], '/', $view);
+		$view = ltrim($view, '/');
 
 		$viewHtml = view($view, $viewdata);
 

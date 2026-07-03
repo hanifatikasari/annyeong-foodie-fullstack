@@ -904,10 +904,22 @@ class IonAuthModel
 		}
 
 		$this->triggerEvents('extra_where');
-		$query = $this->db->table($this->tables['users'])
-						  ->select($this->identityColumn . ', email, id, password, active, last_login')
-						  ->where($this->identityColumn, $identity)
-						  ->limit(1)
+		$builder = $this->db->table($this->tables['users'])
+				  ->select($this->identityColumn . ', email, username, id, password, active, last_login');
+
+		if ($this->config->identity === 'email')
+		{
+			$builder->groupStart()
+			        ->where('email', $identity)
+			        ->orWhere('username', $identity)
+			        ->groupEnd();
+		}
+		else
+		{
+			$builder->where($this->identityColumn, $identity);
+		}
+
+		$query = $builder
 						  ->orderBy('id', 'desc')
 						  ->get();
 

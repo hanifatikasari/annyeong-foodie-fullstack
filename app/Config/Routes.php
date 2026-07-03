@@ -24,6 +24,8 @@ $routes->group('auth', function($routes) {
     $routes->get('forgot_password', 'Auth::forgot_password');
     $routes->get('create_user', 'Auth::create_user');
     $routes->post('create_user', 'Auth::create_user');
+    $routes->get('change_password', 'Auth::change_password');
+    $routes->post('change_password', 'Auth::change_password');
 });
 
 // 3. ADMIN AREA (ERP/Dashboard) - PAKAI FILTER
@@ -103,7 +105,20 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('updateStatus/(:num)', 'Admin\Orders::updateStatus/$1');
         $routes->post('save-courier/(:num)', 'Admin\Orders::saveCourier/$1');
     });
-    
+
+    $routes->group('users', ['filter' => 'authAdmin:admin,gudang,penjualan,kurir,produksi,pemilik'], function($routes) {
+        $routes->get('/', 'Admin\Users::index');
+        $routes->get('create', 'Admin\Users::create');
+        $routes->post('store', 'Admin\Users::store');
+        $routes->get('edit/(:num)', 'Admin\Users::edit/$1');
+        $routes->post('update/(:num)', 'Admin\Users::update/$1');
+        $routes->get('delete/(:num)', 'Admin\Users::delete/$1');
+        $routes->get('activate/(:num)', 'Admin\Users::activate/$1');
+        $routes->get('deactivate/(:num)', 'Admin\Users::deactivate/$1');
+        $routes->get('reset-password/(:num)', 'Admin\Users::resetPassword/$1');
+        $routes->post('reset-password-all', 'Admin\Users::resetAllPasswords');
+        $routes->get('activity', 'Admin\Users::activity');
+    });
 
     // --- REPORTS ---
     $routes->group('reports', ['filter' => 'authAdmin:admin,pemilik,penjualan,gudang,produksi'], function($routes) {
