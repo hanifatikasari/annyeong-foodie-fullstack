@@ -17,23 +17,29 @@ $routes->get('test-midtrans', 'TestMidtrans::index');
 
 // 2. AUTHENTICATION
 $routes->group('auth', function($routes) {
+    $routes->get('/', 'Auth::index');
     $routes->get('login', 'Auth::login');
     $routes->post('login', 'Auth::login');
     $routes->get('logout', 'Auth::logout');
     $routes->get('forgot_password', 'Auth::forgot_password');
+    $routes->get('create_user', 'Auth::create_user');
+    $routes->post('create_user', 'Auth::create_user');
 });
 
 // 3. ADMIN AREA (ERP/Dashboard) - PAKAI FILTER
 $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,penjualan'], function($routes) {
     
     $routes->get('dashboard', 'Admin\Dashboard::index');
-        $routes->get('backup', 'Admin\Backup::index');
-        $routes->get('backup/download', 'Admin\Backup::download');
-        $routes->post('backup/restore', 'Admin\Backup::restore');
-    $routes->group('categories', ['filter' => 'authAdmin:admin,penjualan,gudang,pemilik,produksi'], function($routes) {
+    $routes->group('backup', ['filter' => 'authAdmin:admin,produksi,pemilik'], function($routes) {
+        $routes->get('/', 'Admin\Backup::index');
+        $routes->get('download', 'Admin\Backup::download');
+        $routes->post('restore', 'Admin\Backup::restore');
+    });
+    
+    $routes->group('categories', ['filter' => 'authAdmin:admin,gudang'], function($routes) {
         $routes->get('/', 'Admin\Categories::index');
         
-        $routes->group('', ['filter' => 'authAdmin:admin,penjualan,gudang'], function($routes) {
+        $routes->group('', ['filter' => 'authAdmin:admin,gudang'], function($routes) {
             $routes->post('simpan', 'Admin\Categories::simpan');
             $routes->get('edit/(:num)', 'Admin\Categories::edit/$1');
             $routes->get('hapus/(:num)', 'Admin\Categories::hapus/$1');
@@ -41,7 +47,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- PRODUCTS ---
-    $routes->group('products', ['filter' => 'authAdmin:admin,produksi,pemilik'], function($routes) {
+    $routes->group('products', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
     // Tampilan List & Sampah
     $routes->get('/', 'Admin\Products::index');
     $routes->get('trashed', 'Admin\Products::trashed');
@@ -89,16 +95,18 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         });
 
         // Orders
-    $routes->get('orders', 'Admin\Orders::index');
-    $routes->get('orders/detail/(:num)', 'Admin\Orders::detail/$1');
-    $routes->post('orders/verify/(:num)', 'Admin\Orders::verify/$1');
-    $routes->post('orders/update-status/(:num)', 'Admin\Orders::updateStatus/$1');
-    $routes->post('orders/updateStatus/(:num)', 'Admin\Orders::updateStatus/$1');
-    $routes->post('orders/save-courier/(:num)','Admin\Orders::saveCourier/$1');
+    $routes->group('orders', ['filter' => 'authAdmin:admin,penjualan'], function($routes) {
+        $routes->get('/', 'Admin\Orders::index');
+        $routes->get('detail/(:num)', 'Admin\Orders::detail/$1');
+        $routes->post('verify/(:num)', 'Admin\Orders::verify/$1');
+        $routes->post('update-status/(:num)', 'Admin\Orders::updateStatus/$1');
+        $routes->post('updateStatus/(:num)', 'Admin\Orders::updateStatus/$1');
+        $routes->post('save-courier/(:num)', 'Admin\Orders::saveCourier/$1');
+    });
     
 
     // --- REPORTS ---
-    $routes->group('reports', ['filter' => 'authAdmin:admin,pemilik'], function($routes) {
+    $routes->group('reports', ['filter' => 'authAdmin:admin,pemilik,penjualan,gudang,produksi'], function($routes) {
         $routes->get('/', 'Admin\Reports::index');
         $routes->get('penjualan', 'Admin\Reports::penjualan');
         $routes->get('penjualan/pdf', 'Admin\Reports::penjualanPdf');
@@ -114,8 +122,8 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     
     // --- BAHAN BAKU (Inventory) ---
     // Pemilik bisa LIHAT, tapi cuma Admin & Gudang yang bisa eksekusi CRUD
-    $routes->group('bahanbaku', ['filter' => 'authAdmin:admin,gudang,pemilik'], function($routes) {
-        $routes->get('/', 'Admin\BahanBaku::index'); // Read-only untuk pemilik
+    $routes->group('bahanbaku', ['filter' => 'authAdmin:admin,gudang,produksi,pemilik'], function($routes) {
+        $routes->get('/', 'Admin\BahanBaku::index'); // Read-only untuk produksi/pemilik
         
         $routes->group('', ['filter' => 'authAdmin:admin,gudang'], function($routes) {
             $routes->get('tambah', 'Admin\BahanBaku::tambah');
@@ -164,7 +172,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- STOK MASUK (Inventory) ---
-    $routes->group('stokmasuk', ['filter' => 'authAdmin:admin,gudang,pemilik'], function($routes) {
+    $routes->group('stokmasuk', ['filter' => 'authAdmin:admin,gudang,produksi,pemilik'], function($routes) {
         $routes->get('/', 'Admin\StokMasuk::index');
 
         $routes->group('', ['filter' => 'authAdmin:admin,gudang'], function($routes) {
@@ -175,7 +183,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- SHIPPING AREA ---
-    $routes->group('shipping_area', ['filter' => 'authAdmin:admin, penjualan'], function ($routes) {
+    $routes->group('shipping_area', ['filter' => 'authAdmin:admin,penjualan'], function ($routes) {
         $routes->get('/', 'Admin\ShippingArea::index');
         $routes->get('create', 'Admin\ShippingArea::create');
         $routes->post('store', 'Admin\ShippingArea::store');
@@ -268,7 +276,7 @@ $routes->get('hello', function() {
     // ============================================================
     // ADMIN EXTENSION - Payment & Order Management
     // ============================================================
-    $routes->group('admin', ['filter' => 'authAdmin:admin,penjualan,pemilik'], function($routes) {
+    $routes->group('admin', ['filter' => 'authAdmin:admin,penjualan'], function($routes) {
         $routes->get('orders',                          'Admin\Orders::index');
         $routes->get('orders/(:num)',                   'Admin\Orders::detail/$1');
         $routes->post('orders/verify/(:num)',           'Admin\Orders::verify/$1');

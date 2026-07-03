@@ -18,6 +18,7 @@
     <div class="container-fluid">
         <!-- KARTU STATISTIK -->
         <div class="row">
+            <?php if ($canViewSales): ?>
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-success">
                     <div class="inner">
@@ -30,6 +31,9 @@
                     </a>
                 </div>
             </div>
+            <?php endif; ?>
+
+            <?php if ($canViewProduction): ?>
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-info">
                     <div class="inner">
@@ -42,6 +46,9 @@
                     </a>
                 </div>
             </div>
+            <?php endif; ?>
+
+            <?php if ($canViewInventory): ?>
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-<?= $bahanMenipis > 0 ? 'danger' : 'success' ?>">
                     <div class="inner">
@@ -54,6 +61,9 @@
                     </a>
                 </div>
             </div>
+            <?php endif; ?>
+
+            <?php if ($canViewSales): ?>
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
@@ -66,8 +76,10 @@
                     </a>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
 
+        <?php if ($canViewSales): ?>
         <div class="row">
             <!-- GRAFIK PENJUALAN 7 HARI -->
             <div class="col-md-8">
@@ -107,9 +119,10 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- STOK MENIPIS -->
-        <?php if (!empty($stokMenipis)): ?>
+        <?php if ($canViewInventory && !empty($stokMenipis)): ?>
         <div class="row">
             <div class="col-12">
                 <div class="card card-warning">

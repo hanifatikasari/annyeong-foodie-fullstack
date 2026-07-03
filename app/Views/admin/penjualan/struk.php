@@ -4,113 +4,105 @@
     <meta charset="UTF-8">
     <title>Struk <?= esc($penjualan->invoice_no) ?></title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
 
-        body {
-            font-family: Consolas, "Courier New", monospace;
-            font-size: 12px;
-            width: 80mm;
-            margin: auto;
-            color: #000;
+        @page{
+            size:58mm auto;
+            margin:2mm;
         }
 
-        .wrapper {
-            width: 80mm;
-            padding: 15px;
+        html,
+        body{
+            width:58mm;
+            font-family:Consolas,"Courier New",monospace;
+            font-size:10px;
+            color:#000;
         }
 
-        .center {
-            text-align: center;
+        .wrapper{
+            width:54mm;
+            margin:0 auto;
         }
 
-        .logo img {
-            width: 200px;
-            margin: auto;
-            display: block;
+        .center{
+            text-align:center;
         }
 
-        h2 {
-            font-size: 15px;
-            margin-top: 5px;
+        .logo img{
+            width:90px;
+            display:block;
+            margin:auto;
         }
 
-        .small {
-            font-size: 11px;
+        h2{
+            font-size:15px;
+            margin-top:3px;
         }
 
-        .line {
-            border-top: 1px dashed #000;
-            margin: 8px 0;
+        .small{
+            font-size:12px;
         }
 
-        .info table {
-            width: 100%;
-            font-size: 12px;
+        .line{
+            border-top:1px dashed #000;
+            margin:5px 0;
         }
 
-        .info td {
-            vertical-align: top;
-            padding: 1px 0;
+        .info{
+            width:100%;
         }
 
-        .items {
-            width: 100%;
-            border-collapse: collapse;
+        .info td{
+            padding:1px 0;
+            vertical-align:top;
         }
 
-        .items td {
-            padding: 2px 0;
+        .items{
+            width:100%;
+            border-collapse:collapse;
         }
 
-        .items .nama {
-            width: 100%;
+        .items td{
+            padding:1px 0;
         }
 
-        .items .qty {
-            width: 30%;
+        .nama{
+            font-weight:bold;
         }
 
-        .items .harga {
-            text-align: right;
-            white-space: nowrap;
+        .qty{
+            width:60%;
         }
 
-        .total {
-            width: 100%;
+        .harga{
+            text-align:right;
         }
 
-        .total td {
-            padding: 2px 0;
+        .total{
+            width:100%;
         }
 
-        .total td:last-child {
-            text-align: right;
+        .total td{
+            padding:2px 0;
         }
 
-        .big {
-            font-size: 15px;
-            font-weight: bold;
+        .total td:last-child{
+            text-align:right;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 11px;
+        .big{
+            font-size:12px;
+            font-weight:bold;
         }
 
-        @media print {
-            body {
-                width: 80mm;
-            }
-
-            @page {
-                margin: 0;
-                size: 80mm auto;
-            }
+        .footer{
+            text-align:center;
+            margin-top:8px;
+            font-size:12px;
         }
     </style>
 </head>

@@ -50,11 +50,95 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </a>
                 </li>
 
+                 <!-- ===================================================== -->
+                <!-- SETTINGS -->
+                <!-- admin only -->
+                <!-- ===================================================== -->
+                <?php if ($ionAuth->isAdmin()): ?>
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/settings/payment') ?>"
+                        class="nav-link <?= ($currentAdminSubMenu == 'payment_setting') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            <p>Payment Settings</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/settings/handling-fee') ?>"
+                        class="nav-link <?= ($currentAdminSubMenu == 'handling_fee') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-box-open"></i>
+                            <p>Handling Fee</p>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <!-- ===================================================== -->
+                <!-- SHIPPING AREA -->
+                <!-- admin, penjualan -->
+                <!-- ===================================================== -->
+                <?php if ($ionAuth->inGroup(['admin','penjualan'])): ?>
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/shipping_area') ?>"
+                           class="nav-link <?= ($currentAdminSubMenu == 'shipping_area') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-map-marked-alt"></i>
+                            <p>Shipping Area</p>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <!-- ===================================================== -->
+                <!-- REPORTS -->
+                <!-- admin, pemilik, penjualan,gudang, produksi -->
+                <!-- ===================================================== -->
+                <?php if ($ionAuth->inGroup(['admin', 'pemilik', 'penjualan', 'gudang', 'produksi'])): ?>
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/reports') ?>"
+                           class="nav-link <?= ($currentAdminMenu == 'report') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>Reports</p>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <!-- ===================================================== -->
+                <!-- SALES / TRANSACTIONS -->
+                <!-- admin, penjualan -->
+                <!-- ===================================================== -->
+                <?php if ($ionAuth->inGroup(['admin', 'penjualan'])): ?>
+                    <li class="nav-item has-treeview <?= ($currentAdminMenu == 'sales') ? 'menu-open' : '' ?>">
+                        <a href="#"
+                           class="nav-link <?= ($currentAdminMenu == 'sales') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>
+                                Transactions
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= site_url('admin/penjualan') ?>"
+                                   class="nav-link <?= ($currentAdminSubMenu == 'order') ? 'active' : '' ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>POS Sales</p>
+                                </a>
+                            </li>
+
+                             <!-- Tambahkan menu ini di dalam grup penjualan -->
+                            <li class="nav-item">
+                                <a href="<?= site_url('admin/orders') ?>" class="nav-link <?= ($currentAdminSubMenu == 'online_order') ? 'active' : '' ?>">
+                                    <i class="far fa-circle nav-icon"></i><p>Online Orders</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
+
                 <!-- ===================================================== -->
                 <!-- CATALOGUE -->
-                <!-- admin, produksi -->
+                <!-- admin, produksi, gudang -->
                 <!-- ===================================================== -->
-                <?php if ($ionAuth->inGroup(['admin', 'produksi'])): ?>
+                <?php if ($ionAuth->inGroup(['admin', 'produksi', 'gudang'])): ?>
                     <li class="nav-item has-treeview <?= ($currentAdminMenu == 'catalogue') ? 'menu-open' : '' ?>">
                         <a href="#"
                            class="nav-link <?= ($currentAdminMenu == 'catalogue') ? 'active' : '' ?>">
@@ -66,16 +150,17 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                         </a>
 
                         <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="<?= site_url('admin/products') ?>"
-                                   class="nav-link <?= ($currentAdminSubMenu == 'product') ? 'active' : '' ?>">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Products</p>
-                                </a>
-                            </li>
+                            <?php if ($ionAuth->inGroup(['admin', 'produksi'])): ?>
+                                <li class="nav-item">
+                                    <a href="<?= site_url('admin/products') ?>"
+                                       class="nav-link <?= ($currentAdminSubMenu == 'product') ? 'active' : '' ?>">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Products</p>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
 
-                             <!-- Categories khusus gudang/admin -->
-                            <?php if ($ionAuth->inGroup(['admin', 'gudang'])): ?>
+                            <?php if ($ionAuth->inGroup(['admin', 'produksi', 'gudang'])): ?>
                                 <li class="nav-item">
                                     <a href="<?= site_url('admin/categories') ?>"
                                        class="nav-link <?= ($currentAdminSubMenu == 'category') ? 'active' : '' ?>">
@@ -168,113 +253,6 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                                 </a>
                             </li>
                         </ul>
-                    </li>
-                <?php endif; ?>
-
-                <!-- ===================================================== -->
-                <!-- MASTER DATA -->
-                <!-- admin, penjualan -->
-                <!-- ===================================================== -->
-                <?php if ($ionAuth->inGroup(['admin','penjualan'])): ?>
-                <li class="nav-item has-treeview <?= ($currentAdminMenu == 'master') ? 'menu-open' : '' ?>">
-                    <a href="#"
-                    class="nav-link <?= ($currentAdminMenu == 'master') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-map-marked-alt"></i>
-                        <p>
-                            Master Data
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="<?= site_url('admin/shipping_area') ?>"
-                            class="nav-link <?= ($currentAdminSubMenu == 'shipping_area') ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Shipping Area</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-
-                <!-- ===================================================== -->
-                <!-- SALES / TRANSACTIONS -->
-                <!-- admin, penjualan -->
-                <!-- ===================================================== -->
-                <?php if ($ionAuth->inGroup(['admin', 'penjualan'])): ?>
-                    <li class="nav-item has-treeview <?= ($currentAdminMenu == 'sales') ? 'menu-open' : '' ?>">
-                        <a href="#"
-                           class="nav-link <?= ($currentAdminMenu == 'sales') ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-shopping-cart"></i>
-                            <p>
-                                Transactions
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="<?= site_url('admin/penjualan') ?>"
-                                   class="nav-link <?= ($currentAdminSubMenu == 'order') ? 'active' : '' ?>">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>POS Sales</p>
-                                </a>
-                            </li>
-
-                             <!-- Tambahkan menu ini di dalam grup penjualan -->
-                            <li class="nav-item">
-                                <a href="<?= site_url('admin/orders') ?>" class="nav-link <?= ($currentAdminSubMenu == 'online_order') ? 'active' : '' ?>">
-                                    <i class="far fa-circle nav-icon"></i><p>Online Orders</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                <?php endif; ?>
-
-                <!-- ===================================================== -->
-                <!-- REPORTS -->
-                <!-- admin, pemilik -->
-                <!-- ===================================================== -->
-                <?php if ($ionAuth->inGroup(['admin', 'pemilik'])): ?>
-                    <li class="nav-item">
-                        <a href="<?= site_url('admin/reports') ?>"
-                           class="nav-link <?= ($currentAdminMenu == 'report') ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-chart-line"></i>
-                            <p>Reports</p>
-                        </a>
-                    </li>
-                <?php endif; ?>
-
-                <!-- ===================================================== -->
-                <!-- SETTINGS -->
-                <!-- admin only -->
-                <!-- ===================================================== -->
-                <?php if ($ionAuth->isAdmin()): ?>
-                    <li class="nav-header">SETTINGS</li>
-
-                    <!-- <li class="nav-item">
-                        <a href="<?= site_url('admin/users') ?>"
-                           class="nav-link <?= ($currentAdminSubMenu == 'user') ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-users-cog"></i>
-                            <p>User Management</p>
-                        </a>
-                    </li> -->
-
-                    <li class="nav-item">
-                        <a href="<?= site_url('admin/settings/payment') ?>"
-                        class="nav-link <?= ($currentAdminSubMenu == 'payment_setting') ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-credit-card"></i>
-                            <p>Payment Settings</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="<?= site_url('admin/settings/handling-fee') ?>"
-                        class="nav-link <?= ($currentAdminSubMenu == 'handling_fee') ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-box-open"></i>
-                            <p>Handling Fee</p>
-                        </a>
                     </li>
                 <?php endif; ?>
 
