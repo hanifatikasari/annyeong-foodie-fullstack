@@ -45,9 +45,14 @@
     // FIX: Selector cart badge diperbaiki (#cartCountBadge)
     // NEW: Handle response needs_variant untuk configurable product
     // ================================================================
+    $(document).on('click', '.form-add-cart button[type=submit]', function () {
+        $(this).closest('.form-add-cart').data('buy-now', $(this).data('buy-now') == 1);
+    });
+
     $(document).on('submit', '.form-add-cart', function (e) {
         e.preventDefault();
         var form = $(this);
+        var buyNow = form.data('buy-now') === true || form.data('buy-now') === 1 || form.data('buy-now') === '1';
 
         $.ajax({
             url:  '<?= site_url("cart/add") ?>',
@@ -63,6 +68,12 @@
                 if (res.success) {
                     // Update SEMUA elemen yang menampilkan jumlah cart
                     $('#cartCountBadge, .cart-count').text(res.count);
+
+                    if (buyNow) {
+                        window.location.href = '<?= site_url("checkout") ?>';
+                        return;
+                    }
+
                     toastMsg(res.message, 'success');
                 } else {
                     toastMsg(res.message, 'danger');

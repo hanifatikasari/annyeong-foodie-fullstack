@@ -192,19 +192,18 @@
                                 </div>
                             </div>
                             <button type="submit"
-                                    class="btn btn-primary btn-lg"
-                                    id="btnAddVariant">
+                                    class="btn btn-primary btn-lg mr-2"
+                                    id="btnAddVariant"
+                                    data-buy-now="0">
                                 <i class="fa fa-cart-plus mr-1"></i> Tambah ke Keranjang
                             </button>
+                            <button type="submit"
+                                    class="btn btn-success btn-lg"
+                                    id="btnBuyNowVariant"
+                                    data-buy-now="1">
+                                <i class="fa fa-shopping-bag mr-1"></i> Beli Sekarang
+                            </button>
                         </form>
-
-                        <!-- Tombol Checkout (muncul setelah varian dipilih & stok ada) -->
-                        <div id="checkoutBtnWrapper" class="d-none">
-                            <a href="<?= site_url('checkout') ?>"
-                               class="btn btn-success btn-block btn-lg shadow-sm">
-                                <i class="fa fa-lock mr-1"></i> Checkout Sekarang
-                            </a>
-                        </div>
                     <?php endif; ?>
 
                 <?php elseif ($product->stok > 0): ?>
@@ -229,14 +228,13 @@
                                         data-action="plus">+</button>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg mr-2">
+                        <button type="submit" class="btn btn-primary btn-lg mr-2" data-buy-now="0">
                             <i class="fa fa-cart-plus mr-1"></i> Tambah ke Keranjang
                         </button>
+                        <button type="submit" class="btn btn-success btn-lg" data-buy-now="1">
+                            <i class="fa fa-shopping-bag mr-1"></i> Beli Sekarang
+                        </button>
                     </form>
-                    <a href="<?= site_url('checkout') ?>"
-                       class="btn btn-success btn-block btn-lg shadow-sm">
-                        <i class="fa fa-lock mr-1"></i> Checkout Sekarang
-                    </a>
 
                 <?php else: ?>
                     <!-- Simple product: stok habis -->
@@ -428,9 +426,9 @@ document.querySelectorAll('.btn-qty').forEach(function (btn) {
     var elSelectedId   = document.getElementById('selectedVariantId');
     var elQtyInput     = document.getElementById('variantQtyInput');
     var elBtnAdd       = document.getElementById('btnAddVariant');
+    var elBtnBuyNow    = document.getElementById('btnBuyNowVariant');
     var elPricePrefix  = document.getElementById('pricePrefixLabel');
     var elVarName      = document.getElementById('displayVariantName');
-    var elCheckoutBtn  = document.getElementById('checkoutBtnWrapper');
 
     /* -------------------------------------------------------
        HELPER: escape HTML untuk innerHTML
@@ -550,17 +548,9 @@ document.querySelectorAll('.btn-qty').forEach(function (btn) {
                 elVariantForm.classList.add('d-flex');
             }
 
-            // ── Enable / disable tombol tambah ke keranjang ──
+            // ── Enable / disable tombol aksi ──
             if (elBtnAdd) elBtnAdd.disabled = (selectedVar.stok <= 0);
-
-            // ── Tampilkan / sembunyikan tombol Checkout ──
-            if (elCheckoutBtn) {
-                if (selectedVar.stok > 0) {
-                    elCheckoutBtn.classList.remove('d-none');
-                } else {
-                    elCheckoutBtn.classList.add('d-none');
-                }
-            }
+            if (elBtnBuyNow) elBtnBuyNow.disabled = (selectedVar.stok <= 0);
 
             // ── Update gambar ──
             updateImages(selectedVar.images);

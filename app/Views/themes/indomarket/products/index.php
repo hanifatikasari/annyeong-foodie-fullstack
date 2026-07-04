@@ -73,13 +73,13 @@
 
                                         <!-- Tombol Aksi -->
                                         <?php if ($product->type === 'configurable'): ?>
-                                            <!-- Configurable: arahkan ke halaman detail untuk pilih varian -->
+                                            <!-- Configurable: arahkan ke halaman detail untuk pilih varian dulu -->
                                             <a href="<?= site_url('products/' . $product->sku . '/' . $product->slug) ?>"
-                                               class="btn btn-info btn-block btn-sm mt-2">
-                                                <i class="fa fa-eye mr-1"></i> Lihat Varian
+                                               class="btn btn-success btn-block btn-sm mt-2">
+                                                <i class="fa fa-shopping-bag mr-1"></i> Beli Sekarang
                                             </a>
                                         <?php else: ?>
-                                            <!-- Simple: langsung bisa tambah ke keranjang -->
+                                            <!-- Simple: langsung bisa tambah ke keranjang atau beli sekarang -->
                                             <form class="form-add-cart mt-2">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden"
@@ -87,12 +87,19 @@
                                                        value="<?= $product->id ?>">
                                                 <input type="hidden" name="qty" value="1">
                                                 <button type="submit"
-                                                        class="btn btn-primary btn-block btn-sm"
+                                                        class="btn btn-primary btn-block btn-sm mb-2"
+                                                        data-buy-now="0"
                                                         <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
                                                     <i class="fa fa-cart-plus mr-1"></i>
                                                     <?= ($product->stok ?? 0) > 0
                                                         ? 'Tambah ke Keranjang'
                                                         : 'Stok Habis' ?>
+                                                </button>
+                                                <button type="submit"
+                                                        class="btn btn-success btn-block btn-sm"
+                                                        data-buy-now="1"
+                                                        <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
+                                                    <i class="fa fa-shopping-bag mr-1"></i> Beli Sekarang
                                                 </button>
                                             </form>
                                         <?php endif; ?>

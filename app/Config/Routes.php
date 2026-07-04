@@ -49,7 +49,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- PRODUCTS ---
-    $routes->group('products', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
+    $routes->group('products', ['filter' => 'authAdmin:admin,produksi,pemilik'], function($routes) {
     // Tampilan List & Sampah
     $routes->get('/', 'Admin\Products::index');
     $routes->get('trashed', 'Admin\Products::trashed');
