@@ -80,7 +80,19 @@ class Home extends BaseController
             }
         }
 
+        $carouselPath = WRITEPATH . 'uploads/carousel_slides.json';
+        $slides = [];
+        if (is_file($carouselPath)) {
+            $rawSlides = json_decode(file_get_contents($carouselPath), true);
+            if (is_array($rawSlides)) {
+                $slides = array_values(array_filter($rawSlides, function ($slide) {
+                    return !empty($slide['is_active']);
+                }));
+            }
+        }
+
         $this->data['trendingProducts'] = $trendingProducts;
+        $this->data['slides']           = $slides;
         $this->data['title']            = 'Annyeong Foodie - Korean Food';
 
         return view('themes/' . $this->data['currentTheme'] . '/pages/home', $this->data);

@@ -1,6 +1,10 @@
 <?= $this->extend('themes/indomarket/layout') ?>
 <?= $this->section('content') ?>
 
+<?php
+$isCarouselEditor = isset($auth) && $auth->loggedIn() && $auth->inGroup(['admin', 'pemilik']);
+?>
+
 <!-- SLIDER -->
 <section class="slider-section pt-4 pb-4">
     <div class="container">
@@ -17,35 +21,91 @@
                     </nav>
                 </div>
                 <div class="col-md-9">
-                    <div id="mainCarousel" class="carousel slide carousel-fade" data-ride="carousel">
-                        <ol class="carousel-indicators">
-                            <li data-target="#mainCarousel" data-slide-to="0" class="active"></li>
-                            <li data-target="#mainCarousel" data-slide-to="1"></li>
-                            <li data-target="#mainCarousel" data-slide-to="2"></li>
-                        </ol>
-                        <div class="carousel-inner shadow-sm rounded">
-                            <div class="carousel-item active">
-                                <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide1.jpg') ?>" alt="Kimbab">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Kimbab Terlaris!</h5>
-                                    <a href="<?= site_url('products') ?>" class="btn btn-primary btn-sm">Lihat Semua</a>
+                    <div class="position-relative">
+                        <?php if ($isCarouselEditor): ?>
+                            <a href="<?= site_url('admin/sliders') ?>"
+                               class="btn btn-sm btn-outline-primary position-absolute"
+                               style="right:10px;top:10px;z-index:10;">
+                                <i class="fa fa-edit mr-1"></i> Edit Carousel
+                            </a>
+                        <?php endif; ?>
+                        <div id="mainCarousel"
+                             class="carousel slide carousel-fade"
+                             data-ride="carousel"
+                             data-interval="5000">
+                            <?php if (!empty($slides)): ?>
+                                <ol class="carousel-indicators">
+                                    <?php foreach ($slides as $i => $slide): ?>
+                                        <li data-target="#mainCarousel"
+                                            data-slide-to="<?= $i ?>"
+                                            class="<?= $i == 0 ? 'active' : '' ?>"></li>
+                                    <?php endforeach; ?>
+                                </ol>
+                                <div class="carousel-inner shadow-sm rounded">
+                                    <?php foreach ($slides as $i => $slide): ?>
+                                        <div class="carousel-item <?= $i == 0 ? 'active' : '' ?>">
+                                            <img class="d-block w-100"
+                                                 src="<?= base_url($slide['image']) ?>"
+                                                 alt="<?= esc($slide['title'] ?? '') ?>">
+                                            <div class="carousel-caption d-none d-md-block">
+                                                <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">
+                                                    <?= esc($slide['title'] ?? '') ?>
+                                                </h5>
+                                                <?php if (!empty($slide['subtitle'])): ?>
+                                                    <p style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">
+                                                        <?= esc($slide['subtitle']) ?>
+                                                    </p>
+                                                <?php endif; ?>
+                                                <?php if (!empty($slide['link'])): ?>
+                                                    <a href="<?= site_url($slide['link']) ?>" class="btn btn-primary btn-sm">Lihat</a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
-                            </div>
-                            <div class="carousel-item">
-                                <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide2.jpg') ?>" alt="Dessert">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Mochi Dessert</h5>
+                            <?php else: ?>
+                                <ol class="carousel-indicators">
+                                    <li data-target="#mainCarousel" data-slide-to="0" class="active"></li>
+                                    <li data-target="#mainCarousel" data-slide-to="1"></li>
+                                    <li data-target="#mainCarousel" data-slide-to="2"></li>
+                                </ol>
+                                <div class="carousel-inner shadow-sm rounded">
+                                    <div class="carousel-item active">
+                                        <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide1.jpg') ?>" alt="Kimbab">
+                                        <div class="carousel-caption d-none d-md-block">
+                                            <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Kimbab Terlaris!</h5>
+                                            <a href="<?= site_url('products') ?>" class="btn btn-primary btn-sm">Lihat Semua</a>
+                                        </div>
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide2.jpg') ?>" alt="Dessert">
+                                        <div class="carousel-caption d-none d-md-block">
+                                            <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Mochi Dessert</h5>
+                                        </div>
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide3.jpg') ?>" alt="Dimsum">
+                                        <div class="carousel-caption d-none d-md-block">
+                                            <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Dimsum Mentai Sauce</h5>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="carousel-item">
-                                <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide3.jpg') ?>" alt="Dimsum">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Dimsum Mentai Sauce</h5>
-                                </div>
-                            </div>
+                            <?php endif; ?>
+                            <a class="carousel-control-prev"
+                               href="#mainCarousel"
+                               role="button"
+                               data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next"
+                               href="#mainCarousel"
+                               role="button"
+                               data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
                         </div>
-                        <a class="carousel-control-prev" href="#mainCarousel" data-slide="prev"><span class="carousel-control-prev-icon"></span></a>
-                        <a class="carousel-control-next" href="#mainCarousel" data-slide="next"><span class="carousel-control-next-icon"></span></a>
                     </div>
                 </div>
             </div>

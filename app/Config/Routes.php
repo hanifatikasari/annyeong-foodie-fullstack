@@ -187,7 +187,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- STOK MASUK (Inventory) ---
-    $routes->group('stokmasuk', ['filter' => 'authAdmin:admin,gudang,produksi,pemilik'], function($routes) {
+    $routes->group('stokmasuk', ['filter' => 'authAdmin:admin,gudang,produksi'], function($routes) {
         $routes->get('/', 'Admin\StokMasuk::index');
 
         $routes->group('', ['filter' => 'authAdmin:admin,gudang'], function($routes) {
@@ -208,13 +208,22 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
 
     });
     
+    // --- CAROUSEL ---
+    $routes->group('sliders', ['filter' => 'authAdmin:admin,pemilik, penjualan'], function($routes) {
+        $routes->get('/', 'Admin\Sliders::index');
+        $routes->post('store', 'Admin\Sliders::store');
+        $routes->get('edit/(:num)', 'Admin\Sliders::edit/$1');
+        $routes->put('update/(:num)', 'Admin\Sliders::update/$1');
+        $routes->get('delete/(:num)', 'Admin\Sliders::delete/$1');
+    });
+
     // --- SETTINGS ---
-    $routes->group('settings', ['filter' => 'authAdmin:admin'], function($routes) {
+    $routes->group('settings', ['filter' => 'authAdmin:admin,pemilik,penjualan'], function($routes) {
         $routes->get('payment','Admin\SettingsController::payment');
         $routes->post('payment/save', 'Admin\SettingsController::savePayment');
 
         $routes->get('handling-fee', 'Admin\SettingsController::handlingFee');
-$routes->post('handling-fee/save', 'Admin\SettingsController::saveHandlingFee');
+        $routes->post('handling-fee/save', 'Admin\SettingsController::saveHandlingFee');
     });
     
 });

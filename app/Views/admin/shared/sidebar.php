@@ -50,16 +50,24 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </a>
                 </li>
 
-                 <!-- ===================================================== -->
-                <!-- SETTINGS -->
-                <!-- admin only -->
                 <!-- ===================================================== -->
-                <?php if ($ionAuth->isAdmin()): ?>
+                <!-- SETTINGS -->
+                <!-- admin, pemilik  -->
+                <!-- ===================================================== -->
+                <?php if ($ionAuth->inGroup(['admin','pemilik', 'penjualan'])): ?>
                     <li class="nav-item">
                         <a href="<?= site_url('admin/settings/payment') ?>"
                         class="nav-link <?= ($currentAdminSubMenu == 'payment_setting') ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-credit-card"></i>
                             <p>Payment Settings</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/sliders') ?>"
+                           class="nav-link <?= ($currentAdminSubMenu == 'carousel') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-images"></i>
+                            <p>Carousel</p>
                         </a>
                     </li>
 
@@ -220,9 +228,9 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
 
                 <!-- ===================================================== -->
                 <!-- INVENTORY -->
-                <!-- admin, gudang, produksi, pemilik -->
+                <!-- admin, gudang, produksi -->
                 <!-- ===================================================== -->
-                <?php if ($ionAuth->inGroup(['admin', 'gudang', 'produksi', 'pemilik'])): ?>
+                <?php if ($ionAuth->inGroup(['admin', 'gudang', 'produksi'])): ?>
                     <li class="nav-item has-treeview <?= ($currentAdminMenu == 'inventory') ? 'menu-open' : '' ?>">
                         <a href="#"
                            class="nav-link <?= ($currentAdminMenu == 'inventory') ? 'active' : '' ?>">

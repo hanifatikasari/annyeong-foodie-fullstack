@@ -80,7 +80,22 @@
                                             <?php endif ?>
                                             <a href="<?= site_url('admin/users/reset-password/' . $user->id) ?>" class="btn btn-secondary btn-sm">Reset Password</a>
                                         <?php elseif ($ionAuth->inGroup('admin')): ?>
-                                            <a href="<?= site_url('admin/users/reset-password/' . $user->id) ?>" class="btn btn-secondary btn-sm">Reset Password</a>
+                                            <?php 
+                                                $userIsPemilik = false;
+                                                if (!empty($user->groups)) {
+                                                    foreach ($user->groups as $group) {
+                                                        if ($group->name === 'pemilik') {
+                                                            $userIsPemilik = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            ?>
+                                            <?php if ($userIsPemilik): ?>
+                                                <button class="btn btn-secondary btn-sm" disabled title="Hanya pemilik yang boleh mereset password user pemilik">Reset Password</button>
+                                            <?php else: ?>
+                                                <a href="<?= site_url('admin/users/reset-password/' . $user->id) ?>" class="btn btn-secondary btn-sm">Reset Password</a>
+                                            <?php endif ?>
                                         <?php endif ?>
                                     </td>
                                 </tr>

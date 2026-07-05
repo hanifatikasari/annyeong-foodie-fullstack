@@ -11,7 +11,6 @@
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/jquery-ui.css') ?>" rel="stylesheet">
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/argon-design-system.min.css') ?>" rel="stylesheet">
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/style.css') ?>" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
         .cart-badge { position:relative; }
@@ -36,8 +35,6 @@
     <script src="<?= base_url('/themes/indomarket/assets/js/core/popper.min.js') ?>"></script>
     <script src="<?= base_url('/themes/indomarket/assets/js/core/bootstrap.min.js') ?>"></script>
     <script src="<?= base_url('/themes/indomarket/assets/js/core/jquery-ui.min.js') ?>"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="<?= base_url('/themes/indomarket/assets/js/argon-design-system.js') ?>"></script>
 
     <script>
     // ================================================================

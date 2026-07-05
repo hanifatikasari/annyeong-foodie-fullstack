@@ -142,8 +142,17 @@
                                     <td><span class="badge badge-danger"><?= $s->qty ?></span></td>
                                     <td><?= $s->low_stock_threshold ?></td>
                                     <td>
-                                        <a href="<?= site_url('admin/produksi/tambah') ?>"
-                                           class="btn btn-warning btn-xs">Produksi Sekarang</a>
+                                        <?php if (!$canManageProduction): ?>
+                                            <button class="btn btn-secondary btn-xs" disabled
+                                                    title="Pemilik hanya dapat melihat informasi stok">
+                                                Read Only
+                                            </button>
+                                        <?php else: ?>
+                                            <a href="<?= site_url('admin/produksi/tambah') ?>"
+                                            class="btn btn-warning btn-xs">
+                                                Produksi Sekarang
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach ?>

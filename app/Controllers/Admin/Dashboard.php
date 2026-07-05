@@ -14,6 +14,7 @@ class Dashboard extends BaseController
         $canViewSales = $this->auth->inGroup(['admin', 'penjualan', 'pemilik']);
         $canViewProduction = $this->auth->inGroup(['admin', 'produksi', 'pemilik']);
         $canViewInventory = $this->auth->inGroup(['admin', 'gudang', 'produksi', 'pemilik']);
+        $canManageProduction = $this->auth->inGroup(['admin', 'produksi','gudang']);
         $canViewReports = $this->auth->inGroup(['admin', 'pemilik']);
 
         $data = [
@@ -24,6 +25,7 @@ class Dashboard extends BaseController
             'canViewSales'       => $canViewSales,
             'canViewProduction'  => $canViewProduction,
             'canViewInventory'   => $canViewInventory,
+            'canManageProduction' => $canManageProduction,
             'canViewReports'     => $canViewReports,
 
             'penjualanHariIni' => $dashboard->getPenjualanHariIni(),
