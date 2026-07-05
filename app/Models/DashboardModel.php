@@ -165,4 +165,46 @@ class DashboardModel extends Model
             ->get()
             ->getResult();
     }
+
+    public function getAbsensiHariIni()
+    {
+        return $this->db->table('t_absensi')
+            ->where('DATE(jam_masuk)', date('Y-m-d'))
+            ->countAllResults();
+    }
+
+    public function getTotalPegawai()
+    {
+        return $this->db->table('users u')
+            ->join('users_groups ug', 'ug.user_id = u.id')
+            ->join('groups g', 'g.id = ug.group_id')
+            ->where('u.deleted_at', null)
+            ->whereIn('g.name', [
+                'admin',
+                'pemilik',
+                'penjualan',
+                'produksi',
+                'gudang'
+            ])
+            ->countAllResults();
+    }
+
+    public function getTerlambatHariIni()
+    {
+        return $this->db->table('t_absensi')
+            ->where('DATE(jam_masuk)', date('Y-m-d'))
+            ->where('status_masuk', 'Terlambat')
+            ->countAllResults();
+    }
+    public function getSedangBekerja()
+    {
+        return $this->db->table('t_absensi')
+            ->where('DATE(jam_masuk)', date('Y-m-d'))
+            ->where('jam_keluar', null)
+            ->countAllResults();
+    }
+    public function getBelumHadir()
+    {
+        return $this->getTotalPegawai() - $this->getAbsensiHariIni();
+    }
 }

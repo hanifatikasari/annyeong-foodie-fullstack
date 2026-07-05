@@ -35,6 +35,11 @@ class Dashboard extends BaseController
             'grafikPenjualan'  => $dashboard->getGrafikPenjualan(),
             'stokMenipis'      => $dashboard->getStokMenipis(),
             'topProduk'        => $dashboard->getTopProduk(),
+            'absenHariIni'     => $dashboard->getAbsensiHariIni(),
+            'totalPegawai'     => $dashboard->getTotalPegawai(),
+            'terlambatHari'    => $dashboard->getTerlambatHariIni(),
+            'sedangKerja'      => $dashboard->getSedangBekerja(),
+            'belumHadir'       => $dashboard->getBelumHadir(),
         ];
 
         return view('admin/dashboard/index', $data);

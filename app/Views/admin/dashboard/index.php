@@ -77,6 +77,34 @@
                 </div>
             </div>
             <?php endif; ?>
+
+            <?php if ($canViewReports): ?>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3><?= $absenHariIni ?> / <?= $totalPegawai ?></h3>
+
+                        <p>Absensi Hari Ini</p>
+
+                        <small>
+                            Terlambat : <?= $terlambatHari ?><br>
+                            Sedang Bekerja : <?= $sedangKerja ?><br>
+                            Belum Hadir : <?= $belumHadir ?>
+                        </small>
+                    </div>
+
+                    <div class="icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+
+                    <a href="<?= site_url('admin/absensi/riwayat/') ?>"
+                    class="small-box-footer">
+                        Lihat Absensi
+                        <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
 
         <?php if ($canViewSales): ?>

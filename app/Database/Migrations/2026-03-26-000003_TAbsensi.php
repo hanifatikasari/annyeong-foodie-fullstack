@@ -38,6 +38,17 @@ class TAbsensi extends Migration
             'constraint' => 20,
             'null'       => true,
         ],
+        'status_masuk' => [
+            'type' => 'ENUM',
+            'constraint' => ['Tepat Waktu', 'Terlambat'],
+            'null' => true,
+        ],
+
+        'status_keluar' => [
+            'type' => 'ENUM',
+            'constraint' => ['Normal', 'Pulang Cepat'],
+            'null' => true,
+        ],
         
         'created_at' => ['type' => 'DATETIME', 'null' => true],
         'updated_at' => ['type' => 'DATETIME', 'null' => true],

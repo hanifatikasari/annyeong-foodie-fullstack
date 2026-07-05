@@ -51,9 +51,18 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                 </li>
 
                 <!-- ===================================================== -->
-                <!-- SETTINGS -->
-                <!-- admin, pemilik  -->
+                <!-- SINGLE MENU -- SETTINGS  -->
                 <!-- ===================================================== -->
+                <?php if ($ionAuth->inGroup(['admin','pemilik', 'penjualan', 'produksi','gudang'])): ?>
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/absensi') ?>"
+                        class="nav-link <?= $currentAdminMenu == 'absensi' ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-user-check"></i>
+                            <p>Absensi</p>
+                        </a>
+                    </li> 
+                <?php endif; ?>
+
                 <?php if ($ionAuth->inGroup(['admin','pemilik', 'penjualan'])): ?>
                     <li class="nav-item">
                         <a href="<?= site_url('admin/settings/payment') ?>"
@@ -80,10 +89,6 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </li>
                 <?php endif; ?>
 
-                <!-- ===================================================== -->
-                <!-- SHIPPING AREA -->
-                <!-- admin, penjualan -->
-                <!-- ===================================================== -->
                 <?php if ($ionAuth->inGroup(['admin','penjualan'])): ?>
                     <li class="nav-item">
                         <a href="<?= site_url('admin/shipping_area') ?>"
@@ -94,10 +99,6 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </li>
                 <?php endif; ?>
 
-                <!-- ===================================================== -->
-                <!-- REPORTS -->
-                <!-- admin, pemilik, penjualan,gudang, produksi -->
-                <!-- ===================================================== -->
                 <?php if ($ionAuth->inGroup(['admin', 'pemilik', 'penjualan', 'gudang', 'produksi'])): ?>
                     <li class="nav-item">
                         <a href="<?= site_url('admin/reports') ?>"
@@ -108,6 +109,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </li>
                 <?php endif; ?>
 
+                <!-- MENU WITH SUBMENU -->
                 <!-- ===================================================== -->
                 <!-- SALES / TRANSACTIONS -->
                 <!-- admin, penjualan -->
@@ -279,20 +281,19 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </a>
 
                     <ul class="nav nav-treeview">
+                         <li class="nav-item">
+                            <a href="<?= site_url('admin/users') ?>"
+                            class="nav-link <?= ($currentAdminSubMenu == 'user_management') ? 'active' : '' ?>">
+                                <i class="fas fa-users nav-icon"></i>
+                                <p>Kelola User</p>
+                            </a>
+                        </li>
 
                         <li class="nav-item">
                             <a href="<?= site_url('admin/products/trashed') ?>"
                             class="nav-link <?= ($currentAdminSubMenu == 'trash_bin') ? 'active' : '' ?>">
                                 <i class="far fa-trash-alt nav-icon"></i>
                                 <p>Trash Bin</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="<?= site_url('admin/users') ?>"
-                            class="nav-link <?= ($currentAdminSubMenu == 'user_management') ? 'active' : '' ?>">
-                                <i class="fas fa-users nav-icon"></i>
-                                <p>Kelola User</p>
                             </a>
                         </li>
 

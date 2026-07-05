@@ -106,6 +106,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('save-courier/(:num)', 'Admin\Orders::saveCourier/$1');
     });
 
+    // --- USERS ---
     $routes->group('users', ['filter' => 'authAdmin:admin,gudang,penjualan,kurir,produksi,pemilik'], function($routes) {
         $routes->get('/', 'Admin\Users::index');
         $routes->get('create', 'Admin\Users::create');
@@ -118,6 +119,15 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('reset-password/(:num)', 'Admin\Users::resetPassword/$1');
         $routes->post('reset-password-all', 'Admin\Users::resetAllPasswords');
         $routes->get('activity', 'Admin\Users::activity');
+    });
+
+    //ABSENSI
+    $routes->group('absensi', ['filter' => 'authAdmin:admin,gudang,penjualan,produksi,pemilik'], function($routes){
+        $routes->get('/', 'Admin\Absensi::index');
+        $routes->post('masuk', 'Admin\Absensi::masuk');
+        $routes->post('keluar', 'Admin\Absensi::keluar');
+        $routes->get('riwayat', 'Admin\Absensi::riwayat');
+        $routes->get('pdf', 'Admin\Absensi::pdf');
     });
 
     // --- REPORTS ---
