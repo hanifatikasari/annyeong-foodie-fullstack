@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-4">
-                <div class="card card-primary text-center">
+                <div class="card card-warning text-center">
                     <div class="card-body">
                         <i class="fas fa-chart-bar fa-3x mb-3"></i>
                         <h5>Laporan Penjualan</h5>
@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card card-info text-center">
+                <div class="card card-warning text-center">
                     <div class="card-body">
                         <i class="fas fa-industry fa-3x mb-3"></i>
                         <h5>Laporan Produksi</h5>
@@ -44,7 +44,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card card-success text-center">
+                <div class="card card-warning text-center">
                     <div class="card-body">
                         <i class="fas fa-credit-card fa-3x mb-3"></i>
                         <h5>Metode Pembayaran</h5>

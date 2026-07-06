@@ -22,11 +22,28 @@ class Checkout extends BaseController
             return redirect()->to('auth/login');
         }
 
-        $cart = get_cart();
-        if (empty($cart)) {
-            return redirect()->to('cart')
-                ->with('error', 'Keranjang Anda kosong. Silakan pilih produk terlebih dahulu.');
+        $buyNow = session()->get('buy_now');
+        if ($buyNow) {
+             $product = model('ProductModel')->find($buyNow['product_id']);
+            if (!$product) {
+                session()->remove('buy_now');
+                return redirect()->to('products');
+            }
+           $cart = [
+                $buyNow['product_id'] => [
+                    'product_id' => $buyNow['product_id'],
+                    'name'       => $buyNow['name'],
+                    'price'      => $buyNow['price'],
+                    'qty'        => $buyNow['qty'],
+                    'sku'        => $buyNow['sku'],
+                    'image'      => $buyNow['image'],
+                ]
+            ];
+        } else {
+            $cart = get_cart();
         }
+        if (empty($cart)) return redirect()->to('cart')->with('error','Keranjang Anda kosong.');
+
 
         // Ambil data user terbaru dari DB (bukan session)
         $user = \Config\Database::connect()
@@ -35,8 +52,12 @@ class Checkout extends BaseController
             ->get()
             ->getRow();
 
-        $this->data['cart']  = get_cart();
-        $this->data['total'] = cart_total();
+        $this->data['cart'] = $cart;
+        $total = 0;
+        foreach($cart as $item){
+            $total += $item['price'] * $item['qty'];
+        }
+        $this->data['total'] = $total;
         $this->data['user']  = $user ?? $this->currentUser;
         $this->data['title'] = 'Checkout';
 
@@ -90,11 +111,28 @@ class Checkout extends BaseController
     // ---------------------------------------------------------------
     public function process()
     {
-        $cart = get_cart();
+        $buyNow = session()->get('buy_now');
 
-        if (empty($cart)) {
-            return redirect()->to('cart');
+        if ($buyNow) {
+            $product = model('ProductModel')->find($buyNow['product_id']);
+            if (!$product) {
+                session()->remove('buy_now');
+                return redirect()->to('products');
+            }
+            $cart = [
+                $product->id => [
+                    'product_id' => $product->id,
+                    'name'       => $product->name,
+                    'price'      => $product->price,
+                    'qty'        => $buyNow['qty']
+                ]
+            ];
+        } else {
+            $cart = get_cart();
         }
+
+        if (empty($cart)) return redirect()->to('cart');
+
 
         // ========================================
         // Ambil input terlebih dahulu
@@ -220,7 +258,10 @@ class Checkout extends BaseController
             $shippingAddress = $this->request->getPost('alamat_pengiriman');
         }
 
-        $subtotal = cart_total();
+        $subtotal = 0;
+        foreach($cart as $item){
+            $subtotal += $item['price'] * $item['qty'];
+        }
         $diskon = 0;
 
         $totalHarga =
@@ -354,7 +395,11 @@ class Checkout extends BaseController
             }
 
             // Kosongkan keranjang
-            clear_cart();
+            if(session()->has('buy_now')){
+                session()->remove('buy_now');
+            }else{
+                clear_cart();
+            }
 
             // ============================================================
             // ROUTING BERDASARKAN METODE PEMBAYARAN:

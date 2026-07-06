@@ -9,13 +9,14 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="<?= site_url('admin/dashboard') ?>" class="brand-link navbar-primary">
-        <img src="<?= base_url('admin/img/AdminLTELogo.png') ?>"
-             alt="AdminLTE Logo"
-             class="brand-image img-circle elevation-3"
-             style="opacity: .8">
-        <span class="brand-text font-weight-light">Annyeong Foodie</span>
-    </a>
+<a href="<?= site_url('admin/dashboard') ?>" class="brand-link navbar-primary d-flex align-items-center text-decoration-none">
+    <img src="<?= base_url('uploads/settings/logo.png') ?>" 
+         alt="Annyeong Foodie" 
+         class="logo-img">
+    <span class="logo-text">Annyeong Foodie</span>
+</a>
+
+
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -199,7 +200,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     <li class="nav-item has-treeview <?= ($currentAdminMenu == 'production') ? 'menu-open' : '' ?>">
                         <a href="#"
                            class="nav-link <?= ($currentAdminMenu == 'production') ? 'active' : '' ?>">
-                            <i class="nav-icon fas fa-tools"></i>
+                            <i class="nav-icon fas fa-utensils"></i>
                             <p>
                                 Production
                                 <i class="fas fa-angle-left right"></i>

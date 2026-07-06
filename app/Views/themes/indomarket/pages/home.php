@@ -117,27 +117,43 @@ $isCarouselEditor = isset($auth) && $auth->loggedIn() && $auth->inGroup(['admin'
 <section class="pt-4 pb-4 bg-light">
     <div class="container">
         <div class="row text-center">
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="media align-items-center justify-content-center">
-                    <div class="iconbox rounded-circle text-white bg-primary mr-3 p-3"><i class="fa fa-truck fa-lg"></i></div>
-                    <div class="text-left"><h6 class="mb-0">Pengiriman Cepat</h6><small class="text-muted">Area Pemalang & sekitarnya</small></div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="iconbox rounded-circle text-white bg-primary mr-3 p-3">
+                        <i class="fa fa-truck fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Pengiriman Cepat</h6>
+                        <small class="text-muted">Area Pemalang & sekitarnya</small>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="media align-items-center justify-content-center">
-                    <div class="iconbox rounded-circle text-white bg-success mr-3 p-3"><i class="fa fa-credit-card fa-lg"></i></div>
-                    <div class="text-left"><h6 class="mb-0">Bayar Online</h6><small class="text-muted">QRIS & Transfer Bank</small></div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="iconbox rounded-circle text-white bg-success mr-3 p-3">
+                        <i class="fa fa-credit-card fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Bayar Online</h6>
+                        <small class="text-muted">QRIS & Transfer Bank</small>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="media align-items-center justify-content-center">
-                    <div class="iconbox rounded-circle text-white bg-warning mr-3 p-3"><i class="fa fa-shield fa-lg"></i></div>
-                    <div class="text-left"><h6 class="mb-0">100% Halal</h6><small class="text-muted">Bahan pilihan berkualitas</small></div>
+            <div class="col-sm-6 col-md-4 mb-3">
+                <div class="d-flex align-items-center justify-content-center">
+                    <div class="iconbox rounded-circle text-white bg-warning mr-3 p-3">
+                        <i class="fa fa-shield fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">100% Halal</h6>
+                        <small class="text-muted">Bahan pilihan berkualitas</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 
 <!-- TRENDING MENU -->
 <section class="products-grids trending pb-5 pt-5">
@@ -175,16 +191,29 @@ $isCarouselEditor = isset($auth) && $auth->loggedIn() && $auth->inGroup(['admin'
                             </div>
 
                             <?php if ($product->type === 'configurable'): ?>
-                                <a href="<?= site_url('products/' . $product->sku . '/' . $product->slug) ?>" class="btn btn-info btn-block btn-sm mt-2">
-                                    <i class="fa fa-eye mr-1"></i> Lihat Varian
+                                <a href="<?= site_url('products/' . $product->sku . '/' . $product->slug) ?>" class="btn btn-success btn-block btn-sm mt-2">
+                                    <i class="fa fa-shopping-bag mr-1"></i> Beli Sekarang
                                 </a>
                             <?php else: ?>
                                 <form class="form-add-cart mt-2">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="product_id" value="<?= $product->id ?>">
+
                                     <input type="hidden" name="qty" value="1">
-                                    <button type="submit" class="btn btn-primary btn-block btn-sm" <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
-                                        <i class="fa fa-cart-plus mr-1"></i> <?= ($product->stok ?? 0) > 0 ? 'Tambah ke Keranjang' : 'Stok Habis' ?>
+
+                                    <button type="submit"
+                                            class="btn btn-primary btn-block btn-sm mb-2" data-buy-now="0"
+                                            <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
+                                            <i class="fa fa-cart-plus mr-1"></i>
+                                            <?= ($product->stok ?? 0) > 0  ? 'Tambah ke Keranjang' : 'Stok Habis' ?>
+                                    </button>
+
+                                    <button type="submit"
+                                            class="btn btn-success btn-block btn-sm"
+                                            data-buy-now="1"
+                                            <?= ($product->stok ?? 0) <= 0 ? 'disabled' : '' ?>>
+                                            <i class="fa fa-shopping-bag mr-1"></i>
+                                        Beli Sekarang
                                     </button>
                                 </form>
                             <?php endif; ?>

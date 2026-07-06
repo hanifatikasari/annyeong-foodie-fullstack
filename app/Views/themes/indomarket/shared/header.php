@@ -26,7 +26,7 @@ $currentUser = $currentUser ?? null;
                         </li>
                         <li>
                             <i class="fa fa-whatsapp mr-1"></i>
-                            <a href="https://wa.me/6281234567890" target="_blank">+62 812-3456-7890</a>
+                            <a href="https://wa.me/6281234567890" target="_blank">+62 858-7950-5277</a>
                         </li>
                     </ul>
                 </div>
@@ -74,24 +74,25 @@ $currentUser = $currentUser ?? null;
         <div class="container">
             <div class="row align-items-center py-3">
                 <!-- Logo -->
-                <div class="col-lg-3 col-6">
-                    <a href="<?= site_url() ?>" class="navbar-brand text-decoration-none">
-                        <span style="font-size:1.5rem;font-weight:800;color:#5e72e4;">
-                            <i class="fa fa-shopping-bag mr-1"></i>Annyeong Foodie
-                        </span>
+                <div class="col-lg-3 col-md-4 col-12 order-1 order-md-1">
+                    <a href="<?= site_url() ?>" class="navbar-brand d-flex align-items-center text-decoration-none">
+                        <img src="<?= base_url('uploads/settings/logo.png') ?>" 
+                            alt="Annyeong Foodie" 
+                            class="logo-img">
+                        <span class="logo-text">Annyeong Foodie</span>
                     </a>
                 </div>
 
-                <!-- Search Bar -->
-                <div class="col-lg-6 col-12 col-sm-12 order-lg-0 order-2 mt-2 mt-lg-0">
-                    <form action="<?= site_url('search') ?>" method="get">
+               <!-- Search Bar -->
+                <div class="col-lg-8 col-md-5 col-12 order-3 order-md-3 d-flex justify-content-center">
+                    <form action="<?= site_url('search') ?>" method="get" class="w-100" style="max-width:800px;">
                         <div class="input-group">
                             <input type="text"
-                                   name="q"
-                                   class="form-control"
-                                   placeholder="Cari produk Korea favorit Anda..."
-                                   value="<?= esc(service('request')->getGet('q') ?? '') ?>"
-                                   autocomplete="off">
+                                name="q"
+                                class="form-control"
+                                placeholder="Cari produk Korea favorit Anda..."
+                                value="<?= esc(service('request')->getGet('q') ?? '') ?>"
+                                autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit">
                                     <i class="fa fa-search"></i>
@@ -102,9 +103,9 @@ $currentUser = $currentUser ?? null;
                 </div>
 
                 <!-- Cart & Account Icons -->
-                <div class="col-lg-3 col-6 text-right">
+                <div class="col-lg-1 col-12 order-2 order-md-3 text-right">
                     <div class="d-inline-flex align-items-center">
-                        <div class="mr-3">
+                        <div class="mr-3" style="position:relative;">
                             <a href="<?= site_url('account') ?>" title="Akun Saya" class="text-dark">
                                 <i class="fa fa-user-circle fa-lg"></i>
                             </a>

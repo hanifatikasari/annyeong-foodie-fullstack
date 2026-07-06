@@ -728,7 +728,7 @@ class Products extends BaseController
         $prefix = ($category && !empty($category->prefix)) ? strtoupper($category->prefix) : 'PRO';
 
         $lastProduct = model('ProductModel')->withDeleted()
-                            ->like("sku LIKE '$prefix-%'")
+                            ->like('sku', "{$prefix}-", 'after')
                             ->orderBy('id', 'DESC')
                             ->first();
 

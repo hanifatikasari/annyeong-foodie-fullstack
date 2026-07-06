@@ -265,6 +265,7 @@ $routes->get('hello', function() {
     $routes->post('cart/update',           'Cart::update');
     $routes->post('cart/remove',           'Cart::remove');
     $routes->get('cart/clear',             'Cart::clear');
+    $routes->post('cart/buyNow',           'Cart::buyNow');
 
     // Checkout & Orders (wajib login)
     $routes->group('checkout', ['filter' => 'authFrontend'], function($routes) {

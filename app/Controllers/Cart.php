@@ -137,4 +137,44 @@ class Cart extends BaseController
         clear_cart();
         return redirect()->to('cart');
     }
+
+    public function buyNow()
+    {
+        $productId = (int) $this->request->getPost('product_id');
+        $qty       = max(1, (int) ($this->request->getPost('qty') ?? 1));
+
+        if ($productId <= 0) return $this->response->setJSON(['success'=>false,'message'=>'Produk tidak valid.']);
+
+        $product = model('ProductModel')
+            ->select('products.*, product_inventories.qty as stok')
+            ->join(
+                'product_inventories',
+                'products.id = product_inventories.product_id',
+                'left'
+            )
+            ->find($productId);
+        if (!$product) return $this->response->setJSON(['success'=>false,'message'=>'Produk tidak ditemukan.']);
+
+        if ($product->type === 'configurable') 
+            return $this->response->setJSON([
+                'success'=>false,
+                'needs_variant'=>true,
+                'redirect'=>site_url("products/{$product->sku}/{$product->slug}")
+            ]);
+
+        if ($product->stok < $qty) 
+            return $this->response->setJSON(['success'=>false,'message'=>'Stok tidak mencukupi.']);
+
+        session()->set('buy_now', [
+            'product_id' => $product->id,
+            'qty'        => $qty,
+            'name'       => $product->name,
+            'price'      => $product->price,
+            'sku'        => $product->sku,
+            'image'      => $product->image ?? null,
+        ]);
+
+        return $this->response->setJSON(['success'=>true,'redirect'=>site_url('checkout')]);
+    }
+
 }
