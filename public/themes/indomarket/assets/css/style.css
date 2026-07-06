@@ -556,11 +556,15 @@ a:hover {
     color: var(--af-orange);
 }
 
-h1, h2, h4, h5, h6 {
+h1, h2, h4, h6 {
     color:#ffffff ;
     font-family: 'Poppins', sans-serif;
     letter-spacing: -0.01em;
 }
+.h5 {
+  color: #1a2a6c !important; 
+}
+
 
 ::selection {
     background: var(--af-orange-tint);

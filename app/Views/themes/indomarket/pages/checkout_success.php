@@ -142,6 +142,61 @@
                                     <li>Tunggu verifikasi dari tim kami (1-3 jam kerja).</li>
                                 </ol>
                             </div>
+                            <!-- manual tf -->
+                            <?php if (($order->pembayaran ?? '') === 'QRIS'): ?>
+                                <div class="card shadow-sm mt-4 border-0">
+                                    <div class="card-body text-center">
+                                        <h5 class="font-weight-bold mb-3">
+                                            Scan QRIS Berikut
+                                        </h5>
+                                        <img src="<?= base_url('themes/indomarket/assets/img/qris.png') ?>"
+                                            alt="QRIS"
+                                            class="img-fluid"
+                                            style="max-width:280px;">
+                                        <p class="text-muted mt-3 mb-0">
+                                            Scan QR menggunakan aplikasi
+                                            <strong>GoPay, OVO, DANA, ShopeePay, Mobile Banking</strong>
+                                            atau aplikasi lain yang mendukung QRIS.
+                                        </p>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (($order->pembayaran ?? '') === 'Transfer'): ?>
+
+<div class="card shadow-sm mt-4 border-0">
+    <div class="card-body text-center">
+
+        <h5 class="font-weight-bold mb-3">
+            Transfer ke Rekening Berikut
+        </h5>
+
+        <h3 class="text-primary">
+            BCA
+        </h3>
+
+        <h2 class="font-weight-bold">
+            1234567890
+        </h2>
+
+        <p class="mb-1">
+            a.n.
+            <strong>Annyeong Foodie</strong>
+        </p>
+
+        <h5 class="mt-3">
+            Total Transfer
+        </h5>
+
+        <h3 class="text-success font-weight-bold">
+            Rp <?= number_format($order->grand_total ?? 0) ?>
+        </h3>
+
+    </div>
+</div>
+
+<?php endif; ?>
+
                         <?php elseif ($isMidtrans && !$isLunas && !$isCancelled): ?>
                             <!-- MIDTRANS PENDING -->
                             <div class="alert alert-info text-left mt-3">
