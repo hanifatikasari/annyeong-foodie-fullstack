@@ -270,28 +270,6 @@ class Checkout extends BaseController
             + $shippingCost
             - $diskon;
 
-        // // ============================================================
-        // // MIDTRANS PRE-CHECK:
-        // // Generate snap token SEBELUM membuat order.
-        // // Jika Midtrans tidak available, tolak sebelum order dibuat.
-        // // ============================================================
-        // $snapToken = null;
-        // if ($pembayaran === 'Midtrans') {
-        //     // Generate invoice_no dulu (tanpa menyimpan ke DB)
-        //     $penjualanModelTemp = new PenjualanModel();
-        //     $invoiceNoTemp      = $penjualanModelTemp->generateOnlineInvoice();
-
-        //     try {
-        //         $this->_initMidtrans();
-        //         $snapToken = $this->_generateSnapToken($invoiceNoTemp, $cart, $totalHarga);
-        //     } catch (\Exception $e) {
-        //         log_message('error', '[Checkout Midtrans] Gagal generate snap token: ' . $e->getMessage());
-        //         return redirect()->back()
-        //             ->withInput()
-        //             ->with('error', 'Layanan pembayaran Midtrans sedang tidak tersedia. Silakan pilih Transfer atau QRIS, atau coba beberapa saat lagi.');
-        //     }
-        // }
-
         $db = \Config\Database::connect();
         $db->transStart();
 
@@ -337,7 +315,14 @@ class Checkout extends BaseController
                 try {
                     $this->_initMidtrans();
                     $snapToken = $this->_generateSnapToken(
-                        $midtransOrderId, $invoiceNo,$cart,$totalHarga
+                        $midtransOrderId,
+                         $invoiceNo,
+                         $cart,
+                         //$totalHarga,
+                         $subtotal,
+                         $shippingCost,
+                         $handlingFee,
+                         $diskon
                     );
                     //dd($snapToken);
 
@@ -466,7 +451,16 @@ class Checkout extends BaseController
                     ];
                 }
 
-                $snapToken = $this->_generateSnapToken($order->midtrans_order_id,$order->invoice_no,$cartForToken,$order->grand_total);
+                $snapToken = $this->_generateSnapToken(
+                    $order->midtrans_order_id,
+                    $order->invoice_no,
+                    $cartForToken,
+                    (int)$order->subtotal_produk,
+                    (int)$order->shipping_cost,
+                    (int)$order->handling_fee,
+                    (int)$order->diskon,
+                    //(int)$order->grand_total,
+                    );
                 model('PenjualanModel')->update($order->id, ['snap_token' => $snapToken]);
                 $order->snap_token = $snapToken;
 
@@ -643,8 +637,17 @@ class Checkout extends BaseController
      * @return string Snap token
      * @throws \Exception Jika Midtrans API gagal
      */
-    private function _generateSnapToken(string $midtransOrderId,string $invoiceNo, array $cart, int $totalAmount): string
+    private function _generateSnapToken(
+        string $midtransOrderId,
+        string $invoiceNo,
+        array $cart,
+        int $subtotal,
+        int $shippingCost,
+        int $handlingFee,
+        int $diskon
+        ): string
     {
+        $totalAmount = $subtotal + $shippingCost + $handlingFee - $diskon;
         // Build item details (Midtrans requires this match gross_amount)
         $itemDetails = [];
         foreach ($cart as $item) {
@@ -654,6 +657,33 @@ class Checkout extends BaseController
                 'quantity' => (int) $item['qty'],
                 // Midtrans max 50 karakter untuk nama item
                 'name'     => mb_substr($item['name'] ?? 'Produk', 0, 50),
+            ];
+        }
+
+        if ($handlingFee > 0) {
+            $itemDetails[] = [
+                'id'       => 'HANDLING',
+                'price'    => $handlingFee,
+                'quantity' => 1,
+                'name'     => 'Biaya Penanganan'
+            ];
+        }
+
+        if ($shippingCost > 0) {
+            $itemDetails[] = [
+                'id'       => 'SHIPPING',
+                'price'    => $shippingCost,
+                'quantity' => 1,
+                'name'     => 'Biaya Pengiriman'
+            ];
+        }
+
+        if ($diskon > 0) {
+            $itemDetails[] = [
+                'id'       => 'DISCOUNT',
+                'price'    => -$diskon,
+                'quantity' => 1,
+                'name'     => 'Diskon'
             ];
         }
 

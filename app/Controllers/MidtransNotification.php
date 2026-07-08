@@ -8,9 +8,14 @@ class MidtransNotification extends Controller
 {
     public function handle()
     {
-        log_message('error', '=== WEBHOOK MASUK ===');
-    die('OK');
-    
+        log_message('critical','===== WEBHOOK TERBARU MASUK =====');
+
+    $raw = file_get_contents('php://input');
+
+    log_message('critical',$raw);
+
+        log_message('info', '===== WEBHOOK MASUK =====');
+
         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         \Midtrans\Config::$isProduction = (bool) env('MIDTRANS_IS_PRODUCTION', false);
 
