@@ -103,7 +103,7 @@ $snapJsUrl = $isProduction
 <script>
 (function() {
     var snapToken    = '<?= esc($order->snap_token) ?>';
-    var returnUrl    = '<?= site_url('checkout/return/' . $order->invoice_no) ?>';
+    var returnUrl    = '<?= site_url('checkout/midtransReturn/' . $order->invoice_no) ?>';
     var ordersUrl    = '<?= site_url('account/orders') ?>';
     var isPopupOpen  = false;
 

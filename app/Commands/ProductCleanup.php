@@ -60,7 +60,7 @@ class ProductCleanup extends BaseCommand
             ->onlyDeleted()
             ->where(
                 'deleted_at <=',
-                date('Y-m-d H:i:s', strtotime('-30 days'))
+                date('Y-m-d H:i:s', strtotime('-5 seconds'))
             )
             ->findAll();
 

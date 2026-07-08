@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jun 29, 2026 at 10:35 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: Jul 06, 2026 at 09:12 PM
+-- Server version: 8.4.3
+-- PHP Version: 8.3.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,15 +28,15 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `attributes` (
-  `id` smallint(5) UNSIGNED NOT NULL,
-  `code` varchar(60) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `type` varchar(20) DEFAULT NULL,
-  `validation` varchar(255) DEFAULT NULL,
-  `is_required` tinyint(1) NOT NULL DEFAULT 0,
-  `is_unique` tinyint(1) NOT NULL DEFAULT 0,
-  `is_filterable` tinyint(1) NOT NULL DEFAULT 0,
-  `is_configurable` tinyint(1) NOT NULL DEFAULT 0,
+  `id` smallint UNSIGNED NOT NULL,
+  `code` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `type` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `validation` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `is_required` tinyint(1) NOT NULL DEFAULT '0',
+  `is_unique` tinyint(1) NOT NULL DEFAULT '0',
+  `is_filterable` tinyint(1) NOT NULL DEFAULT '0',
+  `is_configurable` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -55,9 +55,9 @@ INSERT INTO `attributes` (`id`, `code`, `name`, `type`, `validation`, `is_requir
 --
 
 CREATE TABLE `attribute_categories` (
-  `id` mediumint(8) UNSIGNED NOT NULL,
-  `attribute_id` smallint(5) UNSIGNED NOT NULL,
-  `category_id` mediumint(8) UNSIGNED NOT NULL,
+  `id` mediumint UNSIGNED NOT NULL,
+  `attribute_id` smallint UNSIGNED NOT NULL,
+  `category_id` mediumint UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -69,10 +69,10 @@ CREATE TABLE `attribute_categories` (
 --
 
 CREATE TABLE `attribute_options` (
-  `id` smallint(5) UNSIGNED NOT NULL,
-  `attribute_id` smallint(5) UNSIGNED NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `slug` varchar(60) NOT NULL,
+  `id` smallint UNSIGNED NOT NULL,
+  `attribute_id` smallint UNSIGNED NOT NULL,
+  `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `slug` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -84,11 +84,11 @@ CREATE TABLE `attribute_options` (
 --
 
 CREATE TABLE `categories` (
-  `id` mediumint(8) UNSIGNED NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `slug` varchar(60) NOT NULL,
-  `parent_id` mediumint(8) UNSIGNED DEFAULT NULL,
-  `prefix` char(3) NOT NULL,
+  `id` mediumint UNSIGNED NOT NULL,
+  `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `slug` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  `parent_id` mediumint UNSIGNED DEFAULT NULL,
+  `prefix` char(3) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -120,9 +120,9 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `parent_id`, `prefix`, `created_
 --
 
 CREATE TABLE `groups` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `name` varchar(20) NOT NULL,
-  `description` varchar(100) NOT NULL
+  `id` int UNSIGNED NOT NULL,
+  `name` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -145,10 +145,10 @@ INSERT INTO `groups` (`id`, `name`, `description`) VALUES
 --
 
 CREATE TABLE `login_attempts` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `ip_address` varchar(45) NOT NULL,
-  `login` varchar(50) DEFAULT NULL,
-  `time` int(11) UNSIGNED DEFAULT NULL
+  `id` int UNSIGNED NOT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_general_ci NOT NULL,
+  `login` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `time` int UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -158,13 +158,13 @@ CREATE TABLE `login_attempts` (
 --
 
 CREATE TABLE `migrations` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `version` varchar(255) NOT NULL,
-  `class` varchar(255) NOT NULL,
-  `group` varchar(255) NOT NULL,
-  `namespace` varchar(255) NOT NULL,
-  `time` int(11) NOT NULL,
-  `batch` int(11) UNSIGNED NOT NULL
+  `id` bigint UNSIGNED NOT NULL,
+  `version` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `class` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `group` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `namespace` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `time` int NOT NULL,
+  `batch` int UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -205,14 +205,14 @@ INSERT INTO `migrations` (`id`, `version`, `class`, `group`, `namespace`, `time`
 --
 
 CREATE TABLE `m_bahan_baku` (
-  `id` mediumint(8) UNSIGNED NOT NULL,
-  `kode_bahan` char(7) NOT NULL,
-  `category_id` mediumint(8) UNSIGNED DEFAULT NULL,
-  `nama_bahan` varchar(50) NOT NULL,
-  `satuan` varchar(5) NOT NULL,
-  `harga_beli_satuan` mediumint(8) NOT NULL DEFAULT 0,
-  `stok_sekarang` decimal(8,2) NOT NULL DEFAULT 0.00,
-  `stok_minimal` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `id` mediumint UNSIGNED NOT NULL,
+  `kode_bahan` char(7) COLLATE utf8mb4_general_ci NOT NULL,
+  `category_id` mediumint UNSIGNED DEFAULT NULL,
+  `nama_bahan` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `satuan` varchar(5) COLLATE utf8mb4_general_ci NOT NULL,
+  `harga_beli_satuan` mediumint NOT NULL DEFAULT '0',
+  `stok_sekarang` decimal(8,2) NOT NULL DEFAULT '0.00',
+  `stok_minimal` decimal(6,2) NOT NULL DEFAULT '0.00',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -238,7 +238,8 @@ INSERT INTO `m_bahan_baku` (`id`, `kode_bahan`, `category_id`, `nama_bahan`, `sa
 (13, 'BTP-002', 13, 'gula pasir', 'gr', 15, 2000.00, 1000.00, '2026-06-28 09:23:33', '2026-06-28 09:48:15', NULL),
 (14, 'BBS-002', 4, 'susu uht full cream', 'ml', 1, 6480.00, 2700.00, '2026-06-28 09:26:05', '2026-06-28 09:48:00', NULL),
 (15, 'BBS-003', 4, 'buah stroberi', 'pcs', 2500, 30.00, 10.00, '2026-06-28 09:27:07', '2026-06-28 09:46:53', NULL),
-(16, 'MNS-004', 14, 'whip cream bubuk', 'gr', 120, 1800.00, 750.00, '2026-06-28 09:29:51', '2026-06-28 09:45:53', NULL);
+(16, 'MNS-004', 14, 'whip cream bubuk', 'gr', 120, 1800.00, 750.00, '2026-06-28 09:29:51', '2026-06-28 09:45:53', NULL),
+(17, 'BBS-004', 4, 'Daging Ayam', 'gr', 43, 2000.00, 500.00, '2026-07-05 16:50:56', '2026-07-05 16:50:56', NULL);
 
 -- --------------------------------------------------------
 
@@ -247,11 +248,11 @@ INSERT INTO `m_bahan_baku` (`id`, `kode_bahan`, `category_id`, `nama_bahan`, `sa
 --
 
 CREATE TABLE `m_recipes` (
-  `id` mediumint(8) UNSIGNED NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `bahan_baku_id` mediumint(8) UNSIGNED NOT NULL,
+  `id` mediumint UNSIGNED NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `bahan_baku_id` mediumint UNSIGNED NOT NULL,
   `jumlah_kebutuhan` decimal(6,3) NOT NULL,
-  `keterangan` varchar(150) DEFAULT NULL,
+  `keterangan` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -280,7 +281,11 @@ INSERT INTO `m_recipes` (`id`, `product_id`, `bahan_baku_id`, `jumlah_kebutuhan`
 (18, 66, 14, 50.000, '', '2026-06-28 09:49:38', '2026-06-28 09:50:50', NULL),
 (19, 66, 12, 10.000, '', '2026-06-28 09:51:22', '2026-06-28 09:51:22', NULL),
 (20, 66, 13, 20.000, '', '2026-06-28 09:52:20', '2026-06-28 09:52:20', NULL),
-(21, 66, 11, 50.000, '', '2026-06-28 09:52:36', '2026-06-28 09:52:36', NULL);
+(21, 66, 11, 50.000, '', '2026-06-28 09:52:36', '2026-06-28 09:52:36', NULL),
+(22, 62, 1, 12.500, '', '2026-07-05 16:46:10', '2026-07-05 16:46:10', NULL),
+(23, 62, 5, 12.000, '', '2026-07-05 16:46:34', '2026-07-05 16:46:34', NULL),
+(24, 62, 6, 0.250, '', '2026-07-05 16:47:09', '2026-07-05 16:47:09', NULL),
+(25, 62, 17, 40.000, '', '2026-07-05 16:55:22', '2026-07-05 16:55:22', NULL);
 
 -- --------------------------------------------------------
 
@@ -289,11 +294,11 @@ INSERT INTO `m_recipes` (`id`, `product_id`, `bahan_baku_id`, `jumlah_kebutuhan`
 --
 
 CREATE TABLE `m_shipping_area` (
-  `id` smallint(5) UNSIGNED NOT NULL,
-  `area_name` varchar(30) NOT NULL,
-  `ongkir` smallint(5) UNSIGNED NOT NULL DEFAULT 0,
-  `estimasi` varchar(30) DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `id` smallint UNSIGNED NOT NULL,
+  `area_name` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
+  `ongkir` smallint UNSIGNED NOT NULL DEFAULT '0',
+  `estimasi` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -316,22 +321,22 @@ INSERT INTO `m_shipping_area` (`id`, `area_name`, `ongkir`, `estimasi`, `is_acti
 --
 
 CREATE TABLE `products` (
-  `id` mediumint(8) UNSIGNED NOT NULL,
-  `parent_id` mediumint(8) UNSIGNED DEFAULT NULL,
-  `user_id` int(11) UNSIGNED DEFAULT NULL,
+  `id` mediumint UNSIGNED NOT NULL,
+  `parent_id` mediumint UNSIGNED DEFAULT NULL,
+  `user_id` int UNSIGNED DEFAULT NULL,
   `published_at` datetime DEFAULT NULL,
-  `sku` char(8) NOT NULL,
-  `type` enum('simple','configurable') DEFAULT NULL,
-  `name` varchar(100) NOT NULL,
-  `slug` varchar(120) NOT NULL,
-  `price` mediumint(8) UNSIGNED NOT NULL,
-  `hpp_total` mediumint(8) NOT NULL DEFAULT 0,
+  `sku` char(8) COLLATE utf8mb4_general_ci NOT NULL,
+  `type` enum('simple','configurable') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `slug` varchar(120) COLLATE utf8mb4_general_ci NOT NULL,
+  `price` mediumint UNSIGNED NOT NULL,
+  `hpp_total` mediumint NOT NULL DEFAULT '0',
   `weight` decimal(5,2) DEFAULT NULL,
   `length` decimal(5,2) DEFAULT NULL,
   `width` decimal(5,2) DEFAULT NULL,
   `height` decimal(5,2) DEFAULT NULL,
-  `short_description` varchar(100) DEFAULT NULL,
-  `description` text DEFAULT NULL,
+  `short_description` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_general_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -353,9 +358,10 @@ INSERT INTO `products` (`id`, `parent_id`, `user_id`, `published_at`, `sku`, `ty
 (59, 52, 2, '2026-06-24 20:45:58', 'RSL-0013', 'simple', 'Risoles Rogout', 'risoles-rogout', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:33:01', '2026-06-24 20:45:58', NULL),
 (60, 52, 2, '2026-06-24 20:45:58', 'RSL-0014', 'simple', 'Risoles Bolognese', 'risoles-bolognese', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:33:27', '2026-06-24 20:45:58', NULL),
 (61, 52, 2, '2026-06-27 08:06:17', 'RSL-0015', 'simple', 'Risoles Mentai', 'risoles-mentai', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'o', '2026-06-23 13:34:00', '2026-06-27 08:06:17', NULL),
-(62, 52, 2, '2026-06-24 20:45:58', 'RSL-0016', 'simple', 'Risoles Ayam Suwir', 'risoles-ayam-suwir', 4000, 0, 0.00, 0.00, 0.00, 0.00, 'ok', 'll', '2026-06-23 13:43:24', '2026-06-24 20:45:58', NULL),
+(62, 52, 2, '2026-06-24 20:45:58', 'RSL-0016', 'simple', 'Risoles Ayam Suwir', 'risoles-ayam-suwir', 4000, 2689, 0.00, 0.00, 0.00, 0.00, 'ok', 'll', '2026-06-23 13:43:24', '2026-07-05 16:55:22', NULL),
 (65, NULL, 2, '2026-06-28 09:53:21', 'MCH-0017', 'configurable', 'Mochi', 'mochi', 0, 0, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:55:33', '2026-06-28 09:53:21', NULL),
-(66, 65, 2, '2026-06-28 09:53:21', 'MCH-0018', 'simple', 'mochi strawberry cream', 'mochi-strawberry-cream', 6000, 5150, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:56:10', '2026-06-28 09:53:21', NULL);
+(66, 65, 2, '2026-06-28 09:53:21', 'MCH-0018', 'simple', 'mochi strawberry cream', 'mochi-strawberry-cream', 6000, 5150, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:56:10', '2026-06-28 09:53:21', NULL),
+(67, 65, 2, NULL, 'MCH-0019', 'simple', 'Mochi Anggur Cream', 'mochi-anggur-cream', 6000, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-07-06 19:22:47', '2026-07-06 19:22:47', NULL);
 
 -- --------------------------------------------------------
 
@@ -364,18 +370,18 @@ INSERT INTO `products` (`id`, `parent_id`, `user_id`, `published_at`, `sku`, `ty
 --
 
 CREATE TABLE `product_attribute_values` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `parent_product_id` mediumint(8) UNSIGNED DEFAULT NULL,
-  `product_id` mediumint(8) UNSIGNED DEFAULT NULL,
-  `attribute_id` smallint(5) UNSIGNED DEFAULT NULL,
-  `attribute_option_id` smallint(5) UNSIGNED DEFAULT NULL,
-  `text_value` text DEFAULT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `parent_product_id` mediumint UNSIGNED DEFAULT NULL,
+  `product_id` mediumint UNSIGNED DEFAULT NULL,
+  `attribute_id` smallint UNSIGNED DEFAULT NULL,
+  `attribute_option_id` smallint UNSIGNED DEFAULT NULL,
+  `text_value` text COLLATE utf8mb4_general_ci,
   `boolean_value` tinyint(1) DEFAULT NULL,
-  `integer_value` mediumint(8) UNSIGNED DEFAULT NULL,
+  `integer_value` mediumint UNSIGNED DEFAULT NULL,
   `float_value` decimal(6,3) DEFAULT NULL,
   `datetime_value` datetime DEFAULT NULL,
   `date_value` date DEFAULT NULL,
-  `json_value` text DEFAULT NULL,
+  `json_value` text COLLATE utf8mb4_general_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -387,9 +393,9 @@ CREATE TABLE `product_attribute_values` (
 --
 
 CREATE TABLE `product_categories` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `category_id` mediumint(8) UNSIGNED NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `category_id` mediumint UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -413,7 +419,8 @@ INSERT INTO `product_categories` (`id`, `product_id`, `category_id`, `created_at
 (121, 61, 9, NULL, NULL, NULL),
 (124, 65, 5, NULL, NULL, NULL),
 (126, 66, 5, NULL, NULL, NULL),
-(127, 9, 6, NULL, NULL, NULL);
+(127, 9, 6, NULL, NULL, NULL),
+(128, 67, 5, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -422,12 +429,12 @@ INSERT INTO `product_categories` (`id`, `product_id`, `category_id`, `created_at
 --
 
 CREATE TABLE `product_images` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `original` varchar(255) NOT NULL,
-  `large` varchar(255) NOT NULL,
-  `medium` varchar(255) NOT NULL,
-  `small` varchar(255) NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `original` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `large` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `medium` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `small` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -448,10 +455,10 @@ INSERT INTO `product_images` (`id`, `product_id`, `original`, `large`, `medium`,
 --
 
 CREATE TABLE `product_inventories` (
-  `id` mediumint(8) UNSIGNED NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `qty` mediumint(8) UNSIGNED NOT NULL,
-  `low_stock_threshold` smallint(5) UNSIGNED NOT NULL DEFAULT 10,
+  `id` mediumint UNSIGNED NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `qty` mediumint UNSIGNED NOT NULL,
+  `low_stock_threshold` smallint UNSIGNED NOT NULL DEFAULT '10',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -462,8 +469,8 @@ CREATE TABLE `product_inventories` (
 
 INSERT INTO `product_inventories` (`id`, `product_id`, `qty`, `low_stock_threshold`, `created_at`, `updated_at`) VALUES
 (103, 55, 5, 10, NULL, '2026-06-24 20:45:58'),
-(104, 56, 5, 10, NULL, '2026-06-28 23:15:23'),
-(106, 58, 4, 10, NULL, '2026-06-24 20:45:58'),
+(104, 56, 4, 10, NULL, '2026-07-06 19:12:42'),
+(106, 58, 3, 10, NULL, '2026-07-06 19:47:44'),
 (107, 59, 5, 10, NULL, '2026-06-24 20:45:58'),
 (108, 60, 5, 10, NULL, '2026-06-24 20:45:58'),
 (110, 57, 8, 10, NULL, '2026-06-24 20:45:58'),
@@ -472,7 +479,8 @@ INSERT INTO `product_inventories` (`id`, `product_id`, `qty`, `low_stock_thresho
 (116, 53, 6, 10, NULL, '2026-06-24 20:45:58'),
 (123, 61, 5, 10, NULL, NULL),
 (127, 66, 9, 10, NULL, '2026-06-29 00:29:31'),
-(128, 9, 11, 10, NULL, '2026-06-29 03:49:29');
+(128, 9, 10, 10, NULL, '2026-07-06 19:56:40'),
+(129, 67, 7, 10, '2026-07-06 19:22:47', '2026-07-06 20:27:30');
 
 -- --------------------------------------------------------
 
@@ -481,14 +489,21 @@ INSERT INTO `product_inventories` (`id`, `product_id`, `qty`, `low_stock_thresho
 --
 
 CREATE TABLE `product_reviews` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `user_id` int(11) UNSIGNED NOT NULL,
-  `rating` tinyint(1) UNSIGNED NOT NULL DEFAULT 5,
-  `ulasan` text DEFAULT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `user_id` int UNSIGNED NOT NULL,
+  `rating` tinyint UNSIGNED NOT NULL DEFAULT '5',
+  `ulasan` text COLLATE utf8mb4_general_ci,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_reviews`
+--
+
+INSERT INTO `product_reviews` (`id`, `product_id`, `user_id`, `rating`, `ulasan`, `created_at`, `updated_at`) VALUES
+(1, 65, 2, 5, 'yummy', '2026-07-04 18:14:34', '2026-07-04 18:14:34');
 
 -- --------------------------------------------------------
 
@@ -497,11 +512,11 @@ CREATE TABLE `product_reviews` (
 --
 
 CREATE TABLE `settings` (
-  `id` smallint(5) UNSIGNED NOT NULL,
-  `setting_key` varchar(50) NOT NULL,
-  `setting_value` text DEFAULT NULL,
-  `setting_group` varchar(50) NOT NULL DEFAULT 'general',
-  `label` varchar(150) DEFAULT NULL,
+  `id` smallint UNSIGNED NOT NULL,
+  `setting_key` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `setting_value` text COLLATE utf8mb4_general_ci,
+  `setting_group` varchar(50) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'general',
+  `label` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -511,14 +526,14 @@ CREATE TABLE `settings` (
 --
 
 INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `setting_group`, `label`, `created_at`, `updated_at`) VALUES
-(1, 'payment_midtrans_enabled', '1', 'payment', 'Aktifkan Pembayaran Midtrans', NULL, '2026-06-26 02:28:11'),
-(2, 'payment_transfer_enabled', '1', 'payment', 'Aktifkan Transfer Bank Manual', NULL, '2026-06-26 02:28:11'),
-(3, 'payment_qris_enabled', '0', 'payment', 'Aktifkan QRIS Manual (Upload Bukti)', NULL, '2026-06-26 02:28:11'),
+(1, 'payment_midtrans_enabled', '1', 'payment', 'Aktifkan Pembayaran Midtrans', NULL, '2026-07-04 17:57:14'),
+(2, 'payment_transfer_enabled', '1', 'payment', 'Aktifkan Transfer Bank Manual', NULL, '2026-07-04 17:57:14'),
+(3, 'payment_qris_enabled', '1', 'payment', 'Aktifkan QRIS Manual (Upload Bukti)', NULL, '2026-07-04 17:57:14'),
 (4, 'manual_bank_name', 'BCA', 'payment', 'Nama Bank Transfer', NULL, NULL),
 (5, 'manual_account_number', '1234567890', 'payment', 'Nomor Rekening', NULL, NULL),
 (6, 'manual_account_name', 'Annyeong Foodie', 'payment', 'Nama Pemilik Rekening', NULL, NULL),
-(7, 'payment_cash_enabled', '1', 'general', NULL, '2026-06-26 02:28:11', '2026-06-26 02:28:11'),
-(8, 'handling_fee', '5000', 'general', NULL, '2026-06-28 10:52:16', '2026-06-28 20:41:24');
+(7, 'payment_cash_enabled', '1', 'general', NULL, '2026-06-26 02:28:11', '2026-07-04 17:57:14'),
+(8, 'handling_fee', '2000', 'general', NULL, '2026-06-28 10:52:16', '2026-07-06 20:27:13');
 
 -- --------------------------------------------------------
 
@@ -527,15 +542,24 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `setting_group`, `
 --
 
 CREATE TABLE `t_absensi` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `user_id` int(11) UNSIGNED NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `user_id` int UNSIGNED NOT NULL,
   `jam_masuk` datetime DEFAULT NULL,
+  `status_masuk` enum('Tepat Waktu','Terlambat') COLLATE utf8mb4_general_ci DEFAULT NULL,
   `jam_keluar` datetime DEFAULT NULL,
+  `status_keluar` enum('Normal','Pulang Cepat') COLLATE utf8mb4_general_ci DEFAULT NULL,
   `total_jam` decimal(4,2) DEFAULT NULL,
-  `keterangan` varchar(20) DEFAULT NULL,
+  `keterangan` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `t_absensi`
+--
+
+INSERT INTO `t_absensi` (`id`, `user_id`, `jam_masuk`, `status_masuk`, `jam_keluar`, `status_keluar`, `total_jam`, `keterangan`, `created_at`, `updated_at`) VALUES
+(3, 2, '2026-07-05 09:22:19', 'Terlambat', '2026-07-05 09:22:34', 'Pulang Cepat', 0.00, 'Hadir', '2026-07-05 09:22:19', '2026-07-05 09:22:34');
 
 -- --------------------------------------------------------
 
@@ -544,34 +568,34 @@ CREATE TABLE `t_absensi` (
 --
 
 CREATE TABLE `t_penjualan` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `invoice_no` char(16) NOT NULL,
-  `midtrans_order_id` varchar(100) DEFAULT NULL,
-  `subtotal_produk` int(11) DEFAULT NULL,
-  `diskon` mediumint(8) NOT NULL DEFAULT 0,
-  `grand_total` int(11) DEFAULT NULL,
-  `pembayaran` enum('Cash','QRIS','Transfer','Midtrans') NOT NULL DEFAULT 'Cash',
-  `uang_diterima` int(11) UNSIGNED NOT NULL DEFAULT 0,
-  `kasir_id` int(11) UNSIGNED NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `invoice_no` char(16) COLLATE utf8mb4_general_ci NOT NULL,
+  `midtrans_order_id` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `subtotal_produk` int DEFAULT NULL,
+  `diskon` mediumint NOT NULL DEFAULT '0',
+  `grand_total` int DEFAULT NULL,
+  `pembayaran` enum('Cash','QRIS','Transfer','Midtrans') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Cash',
+  `uang_diterima` int UNSIGNED NOT NULL DEFAULT '0',
+  `kasir_id` int UNSIGNED NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `customer_id` int(11) UNSIGNED DEFAULT NULL,
-  `order_status` enum('pending','processing','shipped','completed','cancelled') DEFAULT 'pending',
-  `payment_status` enum('unpaid','pending_verification','paid','rejected','expired','cancelled') DEFAULT 'unpaid',
-  `payment_proof` varchar(255) DEFAULT NULL,
-  `snap_token` varchar(255) DEFAULT NULL,
-  `midtrans_transaction_id` varchar(50) DEFAULT NULL,
-  `midtrans_payment_type` varchar(30) DEFAULT NULL,
-  `midtrans_status` varchar(20) DEFAULT NULL,
-  `shipping_address` text DEFAULT NULL,
-  `delivery_type` enum('pickup','delivery') DEFAULT 'pickup',
-  `shipping_area_id` smallint(5) UNSIGNED DEFAULT NULL,
-  `shipping_cost` mediumint(8) UNSIGNED DEFAULT 0,
-  `handling_fee` mediumint(8) UNSIGNED DEFAULT 0,
-  `delivery_courier_id` int(11) UNSIGNED DEFAULT NULL,
-  `catatan_customer` text DEFAULT NULL,
+  `customer_id` int UNSIGNED DEFAULT NULL,
+  `order_status` enum('pending','processing','shipped','completed','cancelled') COLLATE utf8mb4_general_ci DEFAULT 'pending',
+  `payment_status` enum('unpaid','pending_verification','paid','rejected','expired','cancelled') COLLATE utf8mb4_general_ci DEFAULT 'unpaid',
+  `payment_proof` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `snap_token` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `midtrans_transaction_id` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `midtrans_payment_type` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `midtrans_status` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `shipping_address` text COLLATE utf8mb4_general_ci,
+  `delivery_type` enum('pickup','delivery') COLLATE utf8mb4_general_ci DEFAULT 'pickup',
+  `shipping_area_id` smallint UNSIGNED DEFAULT NULL,
+  `shipping_cost` mediumint UNSIGNED DEFAULT '0',
+  `handling_fee` mediumint UNSIGNED DEFAULT '0',
+  `delivery_courier_id` int UNSIGNED DEFAULT NULL,
+  `catatan_customer` text COLLATE utf8mb4_general_ci,
   `verified_at` datetime DEFAULT NULL,
-  `verified_by` int(11) UNSIGNED DEFAULT NULL
+  `verified_by` int UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -581,17 +605,16 @@ CREATE TABLE `t_penjualan` (
 INSERT INTO `t_penjualan` (`id`, `invoice_no`, `midtrans_order_id`, `subtotal_produk`, `diskon`, `grand_total`, `pembayaran`, `uang_diterima`, `kasir_id`, `created_at`, `updated_at`, `customer_id`, `order_status`, `payment_status`, `payment_proof`, `snap_token`, `midtrans_transaction_id`, `midtrans_payment_type`, `midtrans_status`, `shipping_address`, `delivery_type`, `shipping_area_id`, `shipping_cost`, `handling_fee`, `delivery_courier_id`, `catatan_customer`, `verified_at`, `verified_by`) VALUES
 (14, 'AES-20260624-001', NULL, 4000, 0, 4000, 'Midtrans', 0, 2, '2026-06-24 04:49:20', '2026-06-27 08:01:02', 2, 'completed', 'unpaid', NULL, '29ccf11d-3df6-4884-9bc0-7d77ac20f5dd', NULL, NULL, NULL, 'coba config', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
 (15, 'AES-20260624-002', NULL, 8500, 0, 8500, 'Midtrans', 0, 2, '2026-06-24 04:53:24', '2026-06-27 08:00:20', 2, 'completed', 'unpaid', NULL, 'abbe38f6-49f7-4fd1-9316-6c3f940e2962', NULL, NULL, NULL, 'jalan jalan ', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
-(16, 'AES-20260624-003', NULL, 4500, 0, 4500, 'Midtrans', 0, 2, '2026-06-24 04:59:04', '2026-06-27 07:59:42', 2, 'completed', 'unpaid', NULL, 'c4395b39-a9af-4fea-80d0-38ac7bec23b7', NULL, NULL, NULL, 'apakah stok berkurang', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
 (17, 'AES-20260624-004', NULL, 22000, 0, 22000, 'Midtrans', 0, 2, '2026-06-24 05:02:56', '2026-06-27 07:19:55', 2, 'cancelled', 'unpaid', NULL, '017798e9-5d52-423c-8e85-984faa0da60f', NULL, NULL, NULL, 'jalan', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
 (25, 'AES-20260624-005', NULL, 4000, 0, 4000, 'Midtrans', 0, 2, '2026-06-24 10:24:02', '2026-06-27 07:59:06', 2, 'completed', 'unpaid', NULL, 'eadbff00-4ca0-4bba-85b9-b802ac179618', NULL, NULL, NULL, 'coba stok', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
 (26, 'AES-20260624-006', NULL, 4000, 0, 4000, 'Midtrans', 0, 2, '2026-06-24 10:30:31', '2026-06-24 10:30:31', 2, 'pending', 'unpaid', NULL, '58645475-f871-4869-b419-3df2fe24720a', NULL, NULL, NULL, 'coba stok', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
-(27, 'AES-20260625-001', NULL, 6000, 0, 6000, 'Midtrans', 0, 2, '2026-06-25 22:18:19', '2026-06-27 07:57:58', 2, '', 'unpaid', NULL, '42a9df12-29f2-4ba6-b744-fff538415414', NULL, NULL, NULL, 'coba cleanup', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
 (28, 'AES-20260626-001', NULL, 22000, 0, 22000, 'Transfer', 0, 2, '2026-06-26 02:28:46', '2026-06-27 07:19:04', 2, 'completed', 'pending_verification', 'uploads/bukti_bayar/1782440943_21fb7a7057efd9dcb472.png', NULL, NULL, NULL, NULL, 'coba bukti pembayaran', 'pickup', NULL, 0, 0, NULL, '', NULL, NULL),
 (36, 'INV-20260627-001', NULL, 22000, 0, 22000, 'Transfer', 25000, 2, '2026-06-27 05:29:30', '2026-06-27 05:29:30', NULL, 'completed', 'paid', NULL, NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, 0, 0, NULL, NULL, NULL, NULL),
 (37, 'INV-20260627-002', NULL, 22000, 0, 22000, 'Cash', 50000, 2, '2026-06-27 05:30:08', '2026-06-27 05:30:08', NULL, 'completed', 'paid', NULL, NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, 0, 0, NULL, NULL, NULL, NULL),
 (39, 'AES-20260628-001', NULL, 22000, 0, 34000, 'Transfer', 0, 2, '2026-06-28 20:03:53', '2026-06-29 07:42:00', 2, 'completed', 'paid', 'uploads/bukti_bayar/1782677105_db542bdd07f7627f45dd.jpeg', NULL, NULL, NULL, NULL, 'coba ongkir dummy', 'delivery', NULL, 10000, 2000, NULL, '', '2026-06-28 20:07:39', 2),
 (42, 'AES-20260629-001', NULL, 6000, 0, 12000, 'Transfer', 0, 2, '2026-06-29 00:29:31', '2026-06-29 07:41:45', 2, 'completed', 'paid', 'uploads/bukti_bayar/1782695293_4b29695d40288b618cb1.jpeg', NULL, NULL, NULL, NULL, 'coba id area', 'delivery', 4, 1000, 5000, 4, '', '2026-06-29 01:08:34', 2),
-(50, 'AES-20260629-002', 'AES-20260629-002-4F31D2', 22000, 0, 27000, 'Midtrans', 0, 2, '2026-06-29 03:49:28', '2026-06-29 03:49:29', 2, 'pending', 'unpaid', NULL, '0c181081-1a20-4348-a923-da604bf0c014', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang, Batang, Jawa Tengah', 'pickup', NULL, 0, 5000, NULL, '', NULL, NULL);
+(50, 'AES-20260629-002', 'AES-20260629-002-4F31D2', 22000, 0, 27000, 'Midtrans', 0, 2, '2026-06-29 03:49:28', '2026-06-29 03:49:29', 2, 'pending', 'unpaid', NULL, '0c181081-1a20-4348-a923-da604bf0c014', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang, Batang, Jawa Tengah', 'pickup', NULL, 0, 5000, NULL, '', NULL, NULL),
+(51, 'AES-20260706-001', 'AES-20260706-001-FA372A', 4500, 0, 9500, 'QRIS', 0, 2, '2026-07-06 19:12:42', '2026-07-06 20:25:46', 2, 'pending', 'pending_verification', 'uploads/bukti_bayar/1783369546_ea9356f05396424e5929.png', NULL, NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang, Batang, Jawa Tengah', 'pickup', NULL, 0, 5000, NULL, '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -600,13 +623,13 @@ INSERT INTO `t_penjualan` (`id`, `invoice_no`, `midtrans_order_id`, `subtotal_pr
 --
 
 CREATE TABLE `t_penjualan_detail` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `penjualan_id` int(11) UNSIGNED NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `qty` smallint(5) UNSIGNED NOT NULL,
-  `hpp_price` mediumint(8) UNSIGNED NOT NULL DEFAULT 0,
-  `selling_price` mediumint(8) UNSIGNED NOT NULL,
-  `subtotal` int(11) UNSIGNED NOT NULL DEFAULT 0
+  `id` int UNSIGNED NOT NULL,
+  `penjualan_id` int UNSIGNED NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `qty` smallint UNSIGNED NOT NULL,
+  `hpp_price` mediumint UNSIGNED NOT NULL DEFAULT '0',
+  `selling_price` mediumint UNSIGNED NOT NULL,
+  `subtotal` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -617,7 +640,6 @@ INSERT INTO `t_penjualan_detail` (`id`, `penjualan_id`, `product_id`, `qty`, `hp
 (14, 14, 61, 1, 0, 4000, 4000),
 (15, 15, 60, 1, 0, 4000, 4000),
 (16, 15, 55, 1, 0, 4500, 4500),
-(17, 16, 54, 1, 0, 4500, 4500),
 (18, 17, 9, 1, 13965, 22000, 22000),
 (22, 25, 58, 1, 0, 4000, 4000),
 (23, 26, 58, 1, 0, 4000, 4000),
@@ -626,7 +648,8 @@ INSERT INTO `t_penjualan_detail` (`id`, `penjualan_id`, `product_id`, `qty`, `hp
 (34, 37, 9, 1, 13965, 22000, 22000),
 (36, 39, 9, 1, 13965, 22000, 22000),
 (41, 42, 66, 1, 5150, 6000, 6000),
-(44, 50, 9, 1, 13965, 22000, 22000);
+(44, 50, 9, 1, 13965, 22000, 22000),
+(45, 51, 56, 1, 0, 4500, 4500);
 
 -- --------------------------------------------------------
 
@@ -635,14 +658,14 @@ INSERT INTO `t_penjualan_detail` (`id`, `penjualan_id`, `product_id`, `qty`, `hp
 --
 
 CREATE TABLE `t_produksi` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `kode_produksi` char(16) NOT NULL,
-  `product_id` mediumint(8) UNSIGNED NOT NULL,
-  `user_id` int(11) UNSIGNED DEFAULT NULL,
-  `qty_hasil` smallint(5) NOT NULL DEFAULT 0,
+  `id` int UNSIGNED NOT NULL,
+  `kode_produksi` char(16) COLLATE utf8mb4_general_ci NOT NULL,
+  `product_id` mediumint UNSIGNED NOT NULL,
+  `user_id` int UNSIGNED DEFAULT NULL,
+  `qty_hasil` smallint NOT NULL DEFAULT '0',
   `tanggal_produksi` date NOT NULL,
-  `status_qc` enum('Lolos','Reject') NOT NULL DEFAULT 'Lolos',
-  `catatan` varchar(255) DEFAULT NULL,
+  `status_qc` enum('Lolos','Reject') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Lolos',
+  `catatan` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
@@ -663,9 +686,9 @@ INSERT INTO `t_produksi` (`id`, `kode_produksi`, `product_id`, `user_id`, `qty_h
 --
 
 CREATE TABLE `t_produksi_detail` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `produksi_id` int(11) UNSIGNED NOT NULL,
-  `bahan_baku_id` mediumint(8) UNSIGNED NOT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `produksi_id` int UNSIGNED NOT NULL,
+  `bahan_baku_id` mediumint UNSIGNED NOT NULL,
   `qty_digunakan` decimal(7,3) NOT NULL,
   `created_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -691,15 +714,15 @@ INSERT INTO `t_produksi_detail` (`id`, `produksi_id`, `bahan_baku_id`, `qty_digu
 --
 
 CREATE TABLE `t_stok_masuk` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `bahan_baku_id` mediumint(8) UNSIGNED NOT NULL,
-  `qty` mediumint(8) UNSIGNED NOT NULL,
-  `isi_per_satuan` decimal(10,2) NOT NULL DEFAULT 1.00,
-  `harga_satuan` mediumint(8) UNSIGNED NOT NULL,
-  `total_harga` int(11) UNSIGNED NOT NULL DEFAULT 0,
-  `nama_supplier` varchar(100) DEFAULT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `bahan_baku_id` mediumint UNSIGNED NOT NULL,
+  `qty` mediumint UNSIGNED NOT NULL,
+  `isi_per_satuan` decimal(10,2) NOT NULL DEFAULT '1.00',
+  `harga_satuan` mediumint UNSIGNED NOT NULL,
+  `total_harga` int UNSIGNED NOT NULL DEFAULT '0',
+  `nama_supplier` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `tanggal_masuk` date NOT NULL,
-  `keterangan` varchar(150) DEFAULT NULL,
+  `keterangan` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -718,29 +741,29 @@ INSERT INTO `t_stok_masuk` (`id`, `bahan_baku_id`, `qty`, `isi_per_satuan`, `har
 --
 
 CREATE TABLE `users` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `ip_address` varchar(45) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `email` varchar(254) NOT NULL,
-  `activation_selector` varchar(255) DEFAULT NULL,
-  `activation_code` varchar(255) DEFAULT NULL,
-  `forgotten_password_selector` varchar(255) DEFAULT NULL,
-  `forgotten_password_code` varchar(255) DEFAULT NULL,
-  `forgotten_password_time` int(11) UNSIGNED DEFAULT NULL,
-  `remember_selector` varchar(255) DEFAULT NULL,
-  `remember_code` varchar(255) DEFAULT NULL,
-  `created_on` int(11) UNSIGNED NOT NULL,
-  `last_login` int(11) UNSIGNED DEFAULT NULL,
+  `id` int UNSIGNED NOT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_general_ci NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(254) COLLATE utf8mb4_general_ci NOT NULL,
+  `activation_selector` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `activation_code` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `forgotten_password_selector` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `forgotten_password_code` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `forgotten_password_time` int UNSIGNED DEFAULT NULL,
+  `remember_selector` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `remember_code` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_on` int UNSIGNED NOT NULL,
+  `last_login` int UNSIGNED DEFAULT NULL,
   `active` datetime DEFAULT NULL,
-  `first_name` varchar(30) DEFAULT NULL,
-  `last_name` varchar(30) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` text DEFAULT NULL,
-  `city` varchar(100) DEFAULT NULL,
-  `province` varchar(100) DEFAULT NULL,
-  `postal_code` char(5) DEFAULT NULL,
-  `avatar` varchar(255) DEFAULT NULL,
+  `first_name` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `last_name` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_general_ci,
+  `city` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `province` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `postal_code` char(5) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `avatar` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -750,9 +773,13 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `email`, `activation_selector`, `activation_code`, `forgotten_password_selector`, `forgotten_password_code`, `forgotten_password_time`, `remember_selector`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`, `phone`, `address`, `city`, `province`, `postal_code`, `avatar`, `deleted_at`) VALUES
 (1, '127.0.0.1', 'hani', '$2y$10$cjTyDN2smU6Gtqq911B.semQt06Un3znT1IhV1oNDSGKMIDrTZt3S', 'hanifa@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1780963545, '2026-04-19 01:49:13', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, '127.0.0.1', 'admin', '$2y$12$1TfCXs1S6nIYa7Q2cq9eyuu.c3oYPolU12KcrOFdy8x1/oZoeh60i', 'admin@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1782745919, '2026-04-19 01:49:13', 'Super', 'Admin', '08123456789', 'jl sunan ampel kecamatan bawang', 'Batang', 'Jawa Tengah', '51234', NULL, NULL),
-(3, '127.0.0.1', 'gudang', '$2y$10$XfLmviVQME2CrIdl53bARe16BJfh9QiorjXA0dHDkhurcI22LvdAO', 'gudang@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1776695986, '2026-04-19 01:49:13', 'Gudang', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(4, '127.0.0.1', 'kurir', '$2y$10$P6Piwl/7jeH5leeWNvzbROYzO6Bm4fMDRt4lcVWsuIBqA4x3N7ADC', 'kurir@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, '0000-00-00 00:00:00', 'Joko', 'Kendil', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(2, '127.0.0.1', 'admin', '$2y$12$1TfCXs1S6nIYa7Q2cq9eyuu.c3oYPolU12KcrOFdy8x1/oZoeh60i', 'admin@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1783349436, '2026-04-19 01:49:13', 'Super', 'Admin', '08123456789', 'jl sunan ampel kecamatan bawang', 'Batang', 'Jawa Tengah', '51234', NULL, NULL),
+(3, '127.0.0.1', 'gudang', '$2y$10$XfLmviVQME2CrIdl53bARe16BJfh9QiorjXA0dHDkhurcI22LvdAO', 'gudang@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1783064273, '2026-04-19 01:49:13', 'Gudang', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, '127.0.0.1', 'kurir', '$2y$10$P6Piwl/7jeH5leeWNvzbROYzO6Bm4fMDRt4lcVWsuIBqA4x3N7ADC', 'kurir@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, '0000-00-00 00:00:00', 'Joko', 'Kendil', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, '127.0.0.1', 'pemilik', '$2y$10$BoNXhHVUarhntBsDqnl5gen3cQIMiAgWoRB8zMFBWKekBdWzDmPCS', 'pemilik@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061371, 1783232194, '2026-07-03 06:49:31', 'Pemilik', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, '127.0.0.1', 'produksi', '$2y$10$EdoEfIBfffk5WSFEERFFauegx6kY1A722lCBg2OqqCVj01BOdiBNS', 'produksi@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061391, NULL, '2026-07-03 06:49:51', 'Produksi', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, '127.0.0.1', 'penjualan', '$2y$10$ro.VCcTWWTShR46MB4PgO.4roj/z6TYNUAsNy8c38SZQ6rUUQ.ldK', 'penjualan@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061447, 1783230480, '2026-07-03 06:50:47', 'Penjualan', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(9, '::1', 'hanigudang', '$2y$10$Obs2hG7z6wmNCEnpglfB6evmIkBUAg1kaxUDFjXPfnJGzzivTzgLy', 'hanigudang@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783063240, 1783072311, '2026-07-03 07:20:40', 'hani', 'gudang', '08123456789', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -761,9 +788,9 @@ INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `email`, `activ
 --
 
 CREATE TABLE `users_groups` (
-  `id` int(11) UNSIGNED NOT NULL,
-  `user_id` int(11) UNSIGNED NOT NULL,
-  `group_id` int(11) UNSIGNED NOT NULL
+  `id` int UNSIGNED NOT NULL,
+  `user_id` int UNSIGNED NOT NULL,
+  `group_id` int UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -774,7 +801,11 @@ INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES
 (1, 1, 2),
 (3, 2, 1),
 (4, 3, 5),
-(5, 4, 7);
+(5, 4, 7),
+(6, 5, 6),
+(7, 6, 3),
+(8, 7, 4),
+(10, 9, 5);
 
 --
 -- Indexes for dumped tables
@@ -985,151 +1016,151 @@ ALTER TABLE `users_groups`
 -- AUTO_INCREMENT for table `attributes`
 --
 ALTER TABLE `attributes`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` smallint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `attribute_categories`
 --
 ALTER TABLE `attribute_categories`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `attribute_options`
 --
 ALTER TABLE `attribute_options`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` smallint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `m_bahan_baku`
 --
 ALTER TABLE `m_bahan_baku`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `m_recipes`
 --
 ALTER TABLE `m_recipes`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `m_shipping_area`
 --
 ALTER TABLE `m_shipping_area`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` smallint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `product_attribute_values`
 --
 ALTER TABLE `product_attribute_values`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `product_categories`
 --
 ALTER TABLE `product_categories`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `product_inventories`
 --
 ALTER TABLE `product_inventories`
-  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
 
 --
 -- AUTO_INCREMENT for table `product_reviews`
 --
 ALTER TABLE `product_reviews`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` smallint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `t_absensi`
 --
 ALTER TABLE `t_absensi`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `t_penjualan`
 --
 ALTER TABLE `t_penjualan`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `t_penjualan_detail`
 --
 ALTER TABLE `t_penjualan_detail`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `t_produksi`
 --
 ALTER TABLE `t_produksi`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `t_produksi_detail`
 --
 ALTER TABLE `t_produksi_detail`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `t_stok_masuk`
 --
 ALTER TABLE `t_stok_masuk`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `users_groups`
 --
 ALTER TABLE `users_groups`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
@@ -1255,8 +1286,8 @@ ALTER TABLE `t_stok_masuk`
 -- Constraints for table `users_groups`
 --
 ALTER TABLE `users_groups`
-  ADD CONSTRAINT `users_groups_group_id_foreign` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  ADD CONSTRAINT `users_groups_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  ADD CONSTRAINT `users_groups_group_id_foreign` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `users_groups_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

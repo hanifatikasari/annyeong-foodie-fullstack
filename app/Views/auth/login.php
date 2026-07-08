@@ -14,7 +14,7 @@
                 $isSuccess = preg_match('/Success|Logged Out|Berhasil/i', $message);
                 $class = $isSuccess ? 'alert-info' : 'alert-danger';
             ?>
-            <div class="alert <?= $class ?> text-dark">
+            <div class="alert <?= $class ?> text-light">
                 <?= $message ?>
             </div>
         <?php endif; ?>

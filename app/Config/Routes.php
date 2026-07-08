@@ -49,7 +49,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- PRODUCTS ---
-    $routes->group('products', ['filter' => 'authAdmin:admin,produksi,pemilik'], function($routes) {
+    $routes->group('products', ['filter' => 'authAdmin:admin,produksi,pemilik,penjualan'], function($routes) {
     // Tampilan List & Sampah
     $routes->get('/', 'Admin\Products::index');
     $routes->get('trashed', 'Admin\Products::trashed');
@@ -242,15 +242,9 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
 // MIDTRANS WEBHOOK — HARUS PUBLIK (tanpa auth filter apapun)
 // URL ini yang didaftarkan di dashboard Midtrans
 // ============================================================
-$routes->get('midtrans-test', 'MidtransNotification::handle');
-$routes->get('midtrans-test', 'TestMidtrans::index');
-
 $routes->get('midtrans/notification', 'MidtransNotification::handle');
 $routes->post('midtrans/notification', 'MidtransNotification::handle');
 
-$routes->get('hello', function() {
-    return 'hello world';
-});
 
 // ============================================================
 // E-COMMERCE FRONTEND ROUTES
@@ -277,6 +271,7 @@ $routes->get('hello', function() {
             // === Baris baru untuk Midtrans ===
         $routes->get('pay/(:segment)',     'Checkout::pay/$1');
         $routes->get('midtransReturn/(:segment)',  'Checkout::midtransReturn/$1');
+         $routes->get('return/(:segment)', 'Checkout::midtransReturn/$1');
     });
 
     // =========================

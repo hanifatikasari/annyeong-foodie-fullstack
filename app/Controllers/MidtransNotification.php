@@ -8,6 +8,9 @@ class MidtransNotification extends Controller
 {
     public function handle()
     {
+        log_message('error', '=== WEBHOOK MASUK ===');
+    die('OK');
+    
         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         \Midtrans\Config::$isProduction = (bool) env('MIDTRANS_IS_PRODUCTION', false);
 
