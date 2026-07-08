@@ -32,11 +32,10 @@ $routes->group('auth', function($routes) {
 $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,penjualan'], function($routes) {
     
     $routes->get('dashboard', 'Admin\Dashboard::index');
-    $routes->group('backup', ['filter' => 'authAdmin:admin,produksi,pemilik'], function($routes) {
-        $routes->get('/', 'Admin\Backup::index');
-        $routes->get('download', 'Admin\Backup::download');
-        $routes->post('restore', 'Admin\Backup::restore');
-    });
+    // Backup routes 
+    $routes->get('backup', 'Admin\Backup::index');
+    $routes->get('backup/download', 'Admin\Backup::download');
+    $routes->post('backup/restore', 'Admin\Backup::restore');
     
     $routes->group('categories', ['filter' => 'authAdmin:admin,gudang'], function($routes) {
         $routes->get('/', 'Admin\Categories::index');
@@ -49,7 +48,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     });
 
     // --- PRODUCTS ---
-    $routes->group('products', ['filter' => 'authAdmin:admin,produksi,pemilik,penjualan'], function($routes) {
+    $routes->group('products', ['filter' => 'authAdmin:admin,produksi,pemilik,penjualan,gudang'], function($routes) {
     // Tampilan List & Sampah
     $routes->get('/', 'Admin\Products::index');
     $routes->get('trashed', 'Admin\Products::trashed');
