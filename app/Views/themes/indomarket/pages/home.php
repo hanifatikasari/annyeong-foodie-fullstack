@@ -63,33 +63,6 @@ $isCarouselEditor = isset($auth) && $auth->loggedIn() && $auth->inGroup(['admin'
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                            <?php else: ?>
-                                <ol class="carousel-indicators">
-                                    <li data-target="#mainCarousel" data-slide-to="0" class="active"></li>
-                                    <li data-target="#mainCarousel" data-slide-to="1"></li>
-                                    <li data-target="#mainCarousel" data-slide-to="2"></li>
-                                </ol>
-                                <div class="carousel-inner shadow-sm rounded">
-                                    <div class="carousel-item active">
-                                        <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide1.jpg') ?>" alt="Kimbab">
-                                        <div class="carousel-caption d-none d-md-block">
-                                            <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Kimbab Terlaris!</h5>
-                                            <a href="<?= site_url('products') ?>" class="btn btn-primary btn-sm">Lihat Semua</a>
-                                        </div>
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide2.jpg') ?>" alt="Dessert">
-                                        <div class="carousel-caption d-none d-md-block">
-                                            <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Mochi Dessert</h5>
-                                        </div>
-                                    </div>
-                                    <div class="carousel-item">
-                                        <img class="d-block w-100" src="<?= base_url('/themes/indomarket/assets/img/slides/slide3.jpg') ?>" alt="Dimsum">
-                                        <div class="carousel-caption d-none d-md-block">
-                                            <h5 style="text-shadow:2px 2px 4px rgba(0,0,0,.6);">Dimsum Mentai Sauce</h5>
-                                        </div>
-                                    </div>
-                                </div>
                             <?php endif; ?>
                             <a class="carousel-control-prev"
                                href="#mainCarousel"

@@ -564,6 +564,27 @@ h1, h2, h4, h6 {
 .h5 {
   color: #1a2a6c !important; 
 }
+/* dibawah cariusel */
+h6.mb-0 {
+  color: var(--af-navy) !important; /* pakai palette Annyeong */
+  font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+  font-weight: 600;
+}
+small.text-muted {
+  color: var(--af-text-muted) !important;
+  font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+}
+
+
+.carousel-caption h5 {
+  display: inline-block;
+  background-color: rgba(44, 68, 87, 0.364); /* pakai --af-orange transparan */
+  color: var(--af-navy-tint);
+  padding: 5px 50px;
+  font-family: 'Poppins', 'Noto Sans KR', sans-serif; /* elegan, modern, ada nuansa Korea */
+  font-weight: 400;
+  text-shadow: 1px 1px 3px rgba(44, 68, 87, 0.4); /* pakai --af-navy-dark transparan */
+}
 
 
 ::selection {
