@@ -24,6 +24,7 @@ class Categories extends BaseController {
         $data = [
             'title'            => 'Categories',
             'currentAdminMenu' => 'catalogue',
+            'currentAdminSubMenu' => 'category',
             'categories'       => $categoryModel->paginate($perPage, 'categories'),
             'pager'            => $categoryModel->pager,
             'parentOptions'    => model('CategoryModel')->where('parent_id', null)->findAll(),
@@ -44,7 +45,7 @@ class Categories extends BaseController {
 
         $data = [
             'title'            => 'Edit Category',
-            'currentAdminMenu' => 'catalogue',
+            'currentAdminMenu' => 'category',
             'categories'       => model('CategoryModel')->paginate($perPage, 'categories', $page),
             'pager'            => model('CategoryModel')->pager,
             'category'         => $category, 

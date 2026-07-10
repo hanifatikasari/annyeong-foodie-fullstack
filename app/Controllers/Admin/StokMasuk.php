@@ -32,7 +32,7 @@ class StokMasuk extends BaseController
         $data = [
             'title'               => 'Riwayat Stok Masuk',
             'currentAdminMenu'    => 'inventory',
-            'currentAdminSubMenu' => 'stokmasuk',
+            'currentAdminSubMenu' => 'stok_masuk',
             'stok'                => $stokModel->orderBy('t_stok_masuk.id', 'DESC')->paginate($perPage, 'stokMasuk'),
             'bahan'               => model('BahanBakuModel')->findAll(),
             'pager'               => $stokModel->pager,
@@ -111,7 +111,7 @@ class StokMasuk extends BaseController
         $data = [
             'title'               => 'Tambah Stok Masuk',
             'currentAdminMenu'    => 'inventory',
-            'currentAdminSubMenu' => 'stokmasuk',
+            'currentAdminSubMenu' => 'stok_masuk',
             'bahan'               => model('BahanBakuModel')->findAll()
         ];
         return view('admin/stokmasuk/tambah', $data);

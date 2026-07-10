@@ -24,6 +24,24 @@ class Backup extends BaseController
         return view('admin/backup/index', $data);
     }
 
+    private function getMysqlDumpPath(): string
+    {
+        $mysqlBin = env('MYSQL_BIN');
+        if (!$mysqlBin) {
+            throw new \RuntimeException('MYSQL_BIN belum diatur di file .env');
+        }
+        return '"' . rtrim($mysqlBin, '\\/') . DIRECTORY_SEPARATOR . 'mysqldump.exe"';
+    }
+
+    private function getMysqlCliPath(): string
+    {
+        $mysqlBin = env('MYSQL_BIN');
+        if (!$mysqlBin) {
+            throw new \RuntimeException('MYSQL_BIN belum diatur di file .env');
+        }
+        return '"' . rtrim($mysqlBin, '\\/') . DIRECTORY_SEPARATOR . 'mysql.exe"';
+    }
+
     public function download()
     {
         $dbConfig = config('Database');
@@ -38,7 +56,7 @@ class Backup extends BaseController
         $fileName = 'backup_' . date('Ymd_His') . '.sql';
         $tmpFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $fileName;
 
-        $mysqldump = '"C:\\xampp\\mysql\\bin\\mysqldump.exe"';
+        $mysqldump = $this->getMysqlDumpPath();
         $command = sprintf(
             '%s --user=%s --password=%s --host=%s --databases %s --single-transaction --skip-lock-tables --result-file=%s',
             $mysqldump,
@@ -58,6 +76,10 @@ class Backup extends BaseController
 
         $content = file_get_contents($tmpFile);
 
+        // Hapus file temporary
+        if (file_exists($tmpFile)) {
+            unlink($tmpFile);
+        }
         return $this->response
             ->setHeader('Content-Type', 'application/sql')
             ->setHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"')
@@ -92,9 +114,9 @@ class Backup extends BaseController
         $pass = $settings['password'];
         $name = $settings['database'];
 
-        $mysql = '"C:\\xampp\\mysql\\bin\\mysql.exe"';
+        $mysql = $this->getMysqlCliPath();
         $command = sprintf(
-            '%s --user=%s --password=%s --host=%s %s < %s',
+            'cmd /c %s --user=%s --password=%s --host=%s %s < %s',
             $mysql,
             escapeshellarg($user),
             escapeshellarg($pass),
@@ -103,14 +125,21 @@ class Backup extends BaseController
             escapeshellarg($tmpFile)
         );
 
-        exec($command . ' 2>&1', $output, $status);
+        try{
+            exec($command . ' 2>&1', $output, $status);
 
-        if ($status !== 0) {
-            session()->setFlashdata('error', 'Restore gagal: ' . implode(' ', $output));
-        } else {
-            session()->setFlashdata('message', 'Restore database berhasil.');
+            if ($status !== 0) {
+                session()->setFlashdata('error', 'Restore gagal: ' . implode(' ', $output));
+            } else {
+                session()->setFlashdata('message', 'Restore database berhasil.');
+            }
+
+        }finally{
+            // Hapus file temporary
+            if (file_exists($tmpFile)) {
+                unlink($tmpFile);
+            }
         }
-
         return redirect()->to(site_url('admin/backup'));
     }
 }

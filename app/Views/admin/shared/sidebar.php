@@ -180,14 +180,6 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                                     </a>
                                 </li>
                             <?php endif; ?>
-
-                            <!-- <li class="nav-item">
-                                <a href="<?= site_url('admin/attributes') ?>"
-                                   class="nav-link <?= ($currentAdminSubMenu == 'attribute') ? 'active' : '' ?>">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Attributes</p>
-                                </a>
-                            </li> -->
                         </ul>
                     </li>
                 <?php endif; ?>
@@ -220,7 +212,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             <!-- Production Process -->
                             <li class="nav-item">
                                 <a href="<?= site_url('admin/produksi') ?>"
-                                   class="nav-link <?= ($currentAdminSubMenu == 'produksi') ? 'active' : '' ?>">
+                                   class="nav-link <?= ($currentAdminSubMenu == 'process') ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Production Process</p>
                                 </a>
