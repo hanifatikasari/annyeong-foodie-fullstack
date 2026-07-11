@@ -56,6 +56,7 @@ class ProductCleanup extends BaseCommand
      */
     public function run(array $params)
     {
+        log_message('info', 'Task Scheduler menjalankan Product Cleanup pada ' . date('Y-m-d H:i:s'));
         $products = model('ProductModel')
             ->onlyDeleted()
             ->where(
