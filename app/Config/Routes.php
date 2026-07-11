@@ -81,6 +81,7 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
     $routes->group('produksi', ['filter' => 'authAdmin:admin,produksi'], function($routes) {
         $routes->get('/', 'Admin\Produksi::index');
         $routes->get('tambah', 'Admin\Produksi::tambah');
+        $routes->get('getProdukAjax', 'Admin\Produksi::getProdukAjax');
         $routes->post('simulasi', 'Admin\Produksi::simulasi');
         $routes->post('simpan', 'Admin\Produksi::simpan');
         $routes->get('show/(:num)', 'Admin\Produksi::show/$1');

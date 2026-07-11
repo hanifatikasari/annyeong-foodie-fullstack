@@ -75,7 +75,7 @@ class StokMasuk extends BaseController
                 'qty'           => $qty,
                 'isi_per_satuan'=> $isi,
                 'harga_satuan'  => $harga,
-                'subtotal_produk'   => $totalHarga,
+                'total_harga'   => $totalHarga,
                 'nama_supplier' => $this->request->getPost('nama_supplier'),
                 'tanggal_masuk' => $this->request->getPost('tanggal_masuk'),
                 'keterangan'    => $this->request->getPost('keterangan'),

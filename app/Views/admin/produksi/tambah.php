@@ -28,15 +28,8 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label class="font-weight-bold">Produk yang Diproduksi <span class="text-danger">*</span></label>
-                                <select name="product_id" id="productSelect" class="form-control" required>
-                                    <option value="">-- Pilih Produk --</option>
-                                    <?php foreach ($products as $p): ?>
-                                        <option value="<?= $p->id ?>"
-                                                data-hpp="<?= $p->hpp_total ?>">
-                                            [<?= esc($p->sku) ?>] <?= esc($p->name) ?>
-                                            (HPP: Rp <?= number_format($p->hpp_total) ?>)
-                                        </option>
-                                    <?php endforeach ?>
+                                <select name="product_id" id="productSelect" class="form-control select2" required>
+                                    <!-- Options will be loaded via AJAX -->
                                 </select>
                                 <small class="text-muted">Hanya produk yang sudah memiliki resep yang ditampilkan.</small>
                             </div>
@@ -104,6 +97,33 @@
 
 <?= $this->section('script') ?>
 <script>
+$(document).ready(function() {
+    $('#productSelect').select2({
+        theme: 'bootstrap4',
+        placeholder: "Ketik nama produk...",
+        allowClear: true,
+        ajax: {
+            url: "<?= site_url('admin/produksi/getProdukAjax') ?>",
+            dataType: 'json',
+            headers: {
+                "X-CSRF-TOKEN": "<?= csrf_hash() ?>"
+            },
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        }
+    });
+});
+
 document.getElementById('btnSimulasi').addEventListener('click', function () {
     const productId = document.getElementById('productSelect').value;
     const qty       = document.getElementById('qtyInput').value;

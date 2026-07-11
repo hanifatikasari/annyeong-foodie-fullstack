@@ -43,24 +43,44 @@ class Produksi extends BaseController
 
     public function tambah()
     {
-        // Hanya produk yang sudah punya resep yang bisa diproduksi
-        $produkBisaDiproduksi = model('ProductModel')
-            ->select('products.id, products.name, products.sku, products.hpp_total')
-            ->join('m_recipes', 'm_recipes.product_id = products.id')
-            ->where('products.type', 'simple')
-            ->where('products.deleted_at IS NULL')
-            ->where('products.parent_id IS NULL')
-            ->groupBy('products.id')
-            ->findAll();
-
         $data = [
             'title'               => 'Catat Produksi Baru',
             'currentAdminMenu'    => 'production',
             'currentAdminSubMenu' => 'process',
-            'products'            => $produkBisaDiproduksi,
         ];
 
         return view('admin/produksi/tambah', $data);
+    }
+
+    public function getProdukAjax()
+    {
+        $search = $this->request->getVar('q');
+
+        $model = model('ProductModel')
+            ->select('products.id, products.name, products.sku, products.hpp_total')
+            ->join('m_recipes', 'm_recipes.product_id = products.id')
+            ->where('products.type', 'simple')
+            ->where('products.deleted_at IS NULL')
+            ->groupBy('products.id');
+
+        if (!empty($search)) {
+            $model->groupStart()
+                  ->like('products.name', $search)
+                  ->orLike('products.sku', $search)
+                  ->groupEnd();
+        }
+
+        $data = $model->limit(20)->findAll();
+
+        $result = [];
+        foreach ($data as $row) {
+            $result[] = [
+                'id'   => $row->id,
+                'text' => '[' . $row->sku . '] ' . $row->name . ' (HPP: Rp ' . number_format($row->hpp_total, 0, ',', '.') . ')'
+            ];
+        }
+
+        return $this->response->setJSON($result);
     }
 
     /**
