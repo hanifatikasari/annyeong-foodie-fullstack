@@ -235,6 +235,12 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('handling-fee', 'Admin\SettingsController::handlingFee');
         $routes->post('handling-fee/save', 'Admin\SettingsController::saveHandlingFee');
     });
+    // --- NOTIFICATIONS ---
+    $routes->group('notifications', function($routes) {
+        $routes->get('getUnread', 'Admin\Notification::getUnread');
+        $routes->post('markAsRead/(:num)', 'Admin\Notification::markAsRead/$1');
+        $routes->post('markAllAsRead', 'Admin\Notification::markAllAsRead');
+    });
     
 });
 

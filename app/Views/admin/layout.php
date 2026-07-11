@@ -173,6 +173,102 @@
 				});
 			}
 		});
+
+		// Real-time Notification Logic
+		$(document).ready(function() {
+			let lastNotifIds = [];
+
+			function fetchNotifications() {
+				$.ajax({
+					url: '<?= base_url('admin/notifications/getUnread') ?>',
+					method: 'GET',
+					dataType: 'json',
+					success: function(response) {
+						if (response.status === 'success') {
+							updateNotificationUI(response.count, response.data);
+						}
+					}
+				});
+			}
+
+			function updateNotificationUI(count, data) {
+				let badge = $('#notificationBadge');
+				let header = $('#notificationHeader');
+				let list = $('#notificationList');
+
+				if (count > 0) {
+					badge.text(count).show();
+					header.text(count + ' Pesanan Baru');
+					
+					let html = '';
+					let hasNew = false;
+					let currentIds = [];
+
+					data.forEach(function(item) {
+						currentIds.push(item.id);
+						if (!lastNotifIds.includes(item.id)) {
+							hasNew = true;
+						}
+
+						html += `
+							<a href="javascript:void(0)" class="dropdown-item notif-item" data-id="${item.id}" data-ref="${item.reference_id}">
+								<i class="fas fa-shopping-cart mr-2"></i> ${item.title}
+								<span class="float-right text-muted text-sm"><i class="far fa-clock"></i> Baru saja</span>
+								<div class="text-sm text-muted mt-1" style="white-space: normal;">${item.message}</div>
+							</a>
+							<div class="dropdown-divider"></div>
+						`;
+					});
+
+					list.html(html);
+
+					if (hasNew && lastNotifIds.length > 0) {
+						let audio = document.getElementById('orderNotificationSound');
+						if(audio) audio.play().catch(e => console.log('Audio autoplay prevented'));
+					}
+					
+					lastNotifIds = currentIds;
+				} else {
+					badge.hide();
+					header.text('0 Pesanan Baru');
+					list.html('<a href="#" class="dropdown-item text-center text-muted">Tidak ada notifikasi</a>');
+					lastNotifIds = [];
+				}
+			}
+
+			// Mark as read when clicked
+			$(document).on('click', '.notif-item', function(e) {
+				e.preventDefault();
+				let notifId = $(this).data('id');
+				let refId = $(this).data('ref');
+
+				$.ajax({
+					url: '<?= base_url('admin/notifications/markAsRead') ?>/' + notifId,
+					method: 'POST',
+					headers: { "X-CSRF-TOKEN": "<?= csrf_hash() ?>" },
+					success: function() {
+						window.location.href = '<?= base_url('admin/orders/detail') ?>/' + refId;
+					}
+				});
+			});
+
+			$('#markAllReadBtn').on('click', function(e) {
+				e.preventDefault();
+				$.ajax({
+					url: '<?= base_url('admin/notifications/markAllAsRead') ?>',
+					method: 'POST',
+					headers: { "X-CSRF-TOKEN": "<?= csrf_hash() ?>" },
+					success: function() {
+						fetchNotifications();
+					}
+				});
+			});
+
+			// Poll every 15 seconds
+			setInterval(fetchNotifications, 15000);
+			// Initial fetch
+			fetchNotifications();
+		});
 	</script>
 </body>
 </html>

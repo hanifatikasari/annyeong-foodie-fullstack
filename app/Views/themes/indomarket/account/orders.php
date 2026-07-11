@@ -17,7 +17,7 @@ TEST ORDERS.PHP
                         <?php if (!empty($orders)): ?>
                             <div class="table-responsive">
                                 <table class="table mb-0">
-                                    <thead class="bg-light">
+                                    <thead class="bg-cream">
                                         <tr>
                                             <th>Invoice</th>
                                             <th>Tanggal</th>

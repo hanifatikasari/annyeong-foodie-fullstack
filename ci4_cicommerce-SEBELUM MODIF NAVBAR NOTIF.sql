@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 06, 2026 at 09:12 PM
+-- Generation Time: Jul 11, 2026 at 05:23 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.30
 
@@ -223,10 +223,10 @@ CREATE TABLE `m_bahan_baku` (
 --
 
 INSERT INTO `m_bahan_baku` (`id`, `kode_bahan`, `category_id`, `nama_bahan`, `satuan`, `harga_beli_satuan`, `stok_sekarang`, `stok_minimal`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'TPG-001', 3, 'Tepung Terigu Segitiga Biru', 'gr', 15, 1958.00, 1000.00, '2026-04-19 08:26:36', '2026-06-10 08:24:03', NULL),
-(2, 'TPG-002', 3, 'Tepung Tapioka', 'gr', 10, 2332.00, 1000.00, '2026-04-19 09:50:54', '2026-06-10 08:24:03', NULL),
-(3, 'AYM-001', 4, 'Ayam Filet', 'gr', 70, 480.00, 2000.00, '2026-04-19 09:59:52', '2026-06-10 08:24:03', NULL),
-(4, 'KDM-001', 8, 'Kulit Dimsum', 'pcs', 200, 0.00, 30.00, '2026-05-10 15:42:41', '2026-06-10 08:24:03', NULL),
+(1, 'TPG-001', 3, 'Tepung Terigu Segitiga Biru', 'gr', 15, 1955.00, 1000.00, '2026-04-19 08:26:36', '2026-07-10 16:42:39', NULL),
+(2, 'TPG-002', 3, 'Tepung Tapioka', 'gr', 10, 2320.00, 1000.00, '2026-04-19 09:50:54', '2026-07-10 16:42:39', NULL),
+(3, 'AYM-001', 4, 'Ayam Filet', 'gr', 70, 300.00, 2000.00, '2026-04-19 09:59:52', '2026-07-10 16:42:39', NULL),
+(4, 'KDM-001', 8, 'Kulit Dimsum', 'pcs', 200, 42.00, 30.00, '2026-05-10 15:42:41', '2026-07-11 23:06:40', NULL),
 (5, 'TPG-003', 3, 'Tepung Panir', 'gr', 13, 40.00, 20.00, '2026-06-22 09:23:41', '2026-06-22 09:23:41', NULL),
 (6, 'TLR-001', 12, 'telur ayam', 'pcs', 2500, 30.00, 10.00, '2026-06-22 09:36:34', '2026-06-22 09:36:34', NULL),
 (7, 'MNS-001', 14, 'coklat batangan', 'gr', 50, 2000.00, 1000.00, '2026-06-22 09:54:18', '2026-06-22 09:54:18', NULL),
@@ -285,7 +285,8 @@ INSERT INTO `m_recipes` (`id`, `product_id`, `bahan_baku_id`, `jumlah_kebutuhan`
 (22, 62, 1, 12.500, '', '2026-07-05 16:46:10', '2026-07-05 16:46:10', NULL),
 (23, 62, 5, 12.000, '', '2026-07-05 16:46:34', '2026-07-05 16:46:34', NULL),
 (24, 62, 6, 0.250, '', '2026-07-05 16:47:09', '2026-07-05 16:47:09', NULL),
-(25, 62, 17, 40.000, '', '2026-07-05 16:55:22', '2026-07-05 16:55:22', NULL);
+(25, 62, 17, 40.000, '', '2026-07-05 16:55:22', '2026-07-05 16:55:22', NULL),
+(26, 55, 11, 1.000, '', '2026-07-07 07:45:29', '2026-07-07 07:45:29', NULL);
 
 -- --------------------------------------------------------
 
@@ -348,20 +349,20 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`id`, `parent_id`, `user_id`, `published_at`, `sku`, `type`, `name`, `slug`, `price`, `hpp_total`, `weight`, `length`, `width`, `height`, `short_description`, `description`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (9, NULL, 2, '2026-06-29 02:30:31', 'DSM-0001', 'simple', 'Dimsum Original', 'dimsum-original', 22000, 13965, 0.00, 0.00, 0.00, 0.00, 'bagai bintang di surga ', 'Nikmati kelezatan Dimsum Ayam Original kualitas resto yang dibuat dengan bahan-bahan berkualitas tinggi. Cocok untuk camilan keluarga maupun hidangan acara spesial.\r\n\r\nKenapa harus Dimsum Original kami?\r\n\r\n100% Daging Ayam Segar: Tanpa banyak campuran tepung.\r\n\r\nKulit Lembut: Tidak keras meski sudah dingin.\r\n\r\nTanpa Pengawet: Aman dikonsumsi siapa saja.\r\n\r\nSudah Termasuk Saus: Paket lengkap dengan saus chili oil/sambal spesial.\r\n\r\nSaran Penyajian:\r\nKukus selama 10-15 menit dalam keadaan air mendidih agar tekstur kembali kenyal dan nikmat.', '2026-04-26 19:29:21', '2026-06-29 02:30:31', NULL),
-(52, NULL, 2, '2026-06-24 20:45:58', 'RSL-0006', 'configurable', 'Risoles', 'risoles', 0, 0, 0.00, 0.00, 0.00, 0.00, 'Risoles adalah camilan gurih yang terbuat dari kulit tipis seperti crepe yang diisi dengan berbagai ', 'Risoles Choco Cheese: Risoles dengan isian cokelat dan keju, memberikan perpaduan rasa manis dan gurih.\r\nRisoles Matcha Cheese: Risoles berisi krim matcha dan keju, cocok untuk pecinta rasa teh hijau.\r\nRisoles Cheese Crunchy: Risoles dengan isian keju dan tekstur renyah di luar.\r\nRisoles Tiramisu Oreo: Risoles manis berisi krim tiramisu dan remahan biskuit Oreo.\r\nRisoles Seblak: Risoles dengan isian seblak pedas khas Indonesia.\r\nRisoles Ayam Suwir: Risoles berisi ayam suwir berbumbu gurih.\r\nRisoles Bolognese: Risoles dengan isian saus bolognese daging cincang.\r\nRisoles Rogout: Risoles berisi ragout (campuran sayuran dan daging dengan saus kental).\r\nRisoles Mayo: Risoles dengan isian mayones gurih.\r\nRisoles Mentai: Risoles berisi saus mentai (mayones bercampur saus pedas khas Jepang).', '2026-06-23 13:06:40', '2026-06-24 20:45:58', NULL),
-(53, 52, 2, '2026-06-24 20:45:58', 'RSL-0007', 'simple', 'Risoles Choco Cheese', 'risoles-choco-cheese', 4500, 3279, 0.00, 0.00, 0.00, 0.00, 'kkkkk', 'nkkknkk', '2026-06-23 13:13:01', '2026-06-27 06:52:18', NULL),
-(54, 52, 2, '2026-06-24 20:45:58', 'RSL-0008', 'simple', 'Risoles Matcha Cheese', 'risoles-matcha-cheese', 4500, 2469, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:13:20', '2026-06-27 06:54:12', NULL),
-(55, 52, 2, '2026-06-24 20:45:58', 'RSL-0009', 'simple', 'Risoles Cheese Crunchy', 'risoles-cheese-crunchy', 4500, 0, 0.00, 0.00, 0.00, 0.00, '', 'haaa?', '2026-06-23 13:30:51', '2026-06-24 20:45:58', NULL),
-(56, 52, 2, '2026-06-24 20:45:58', 'RSL-0010', 'simple', 'Risoles Tiramisu Oreo', 'risoles-tiramisu-oreo', 4500, 0, 0.00, 0.00, 0.00, 0.00, 'p', '', '2026-06-23 13:31:22', '2026-06-24 20:45:58', NULL),
-(57, 52, 2, '2026-06-24 20:45:58', 'RSL-0011', 'simple', 'Risoles Seblak', 'risoles-seblak', 4000, 0, 0.00, 0.00, 0.00, 0.00, 'lll', 'ok', '2026-06-23 13:31:58', '2026-06-24 20:45:58', NULL),
-(58, 52, 2, '2026-06-24 20:45:58', 'RSL-0012', 'simple', 'Risoles Mayo', 'risoles-mayo', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'l', '2026-06-23 13:32:46', '2026-06-24 20:45:58', NULL),
-(59, 52, 2, '2026-06-24 20:45:58', 'RSL-0013', 'simple', 'Risoles Rogout', 'risoles-rogout', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:33:01', '2026-06-24 20:45:58', NULL),
-(60, 52, 2, '2026-06-24 20:45:58', 'RSL-0014', 'simple', 'Risoles Bolognese', 'risoles-bolognese', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:33:27', '2026-06-24 20:45:58', NULL),
-(61, 52, 2, '2026-06-27 08:06:17', 'RSL-0015', 'simple', 'Risoles Mentai', 'risoles-mentai', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'o', '2026-06-23 13:34:00', '2026-06-27 08:06:17', NULL),
-(62, 52, 2, '2026-06-24 20:45:58', 'RSL-0016', 'simple', 'Risoles Ayam Suwir', 'risoles-ayam-suwir', 4000, 2689, 0.00, 0.00, 0.00, 0.00, 'ok', 'll', '2026-06-23 13:43:24', '2026-07-05 16:55:22', NULL),
-(65, NULL, 2, '2026-06-28 09:53:21', 'MCH-0017', 'configurable', 'Mochi', 'mochi', 0, 0, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:55:33', '2026-06-28 09:53:21', NULL),
-(66, 65, 2, '2026-06-28 09:53:21', 'MCH-0018', 'simple', 'mochi strawberry cream', 'mochi-strawberry-cream', 6000, 5150, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:56:10', '2026-06-28 09:53:21', NULL),
-(67, 65, 2, NULL, 'MCH-0019', 'simple', 'Mochi Anggur Cream', 'mochi-anggur-cream', 6000, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-07-06 19:22:47', '2026-07-06 19:22:47', NULL);
+(52, NULL, 2, '2026-07-08 23:09:59', 'RSL-0006', 'configurable', 'Risoles', 'risoles', 0, 0, 0.00, 0.00, 0.00, 0.00, 'Risoles adalah camilan gurih yang terbuat dari kulit tipis seperti crepe yang diisi dengan berbagai ', 'Risoles Choco Cheese: Risoles dengan isian cokelat dan keju, memberikan perpaduan rasa manis dan gurih.\r\nRisoles Matcha Cheese: Risoles berisi krim matcha dan keju, cocok untuk pecinta rasa teh hijau.\r\nRisoles Cheese Crunchy: Risoles dengan isian keju dan tekstur renyah di luar.\r\nRisoles Tiramisu Oreo: Risoles manis berisi krim tiramisu dan remahan biskuit Oreo.\r\nRisoles Seblak: Risoles dengan isian seblak pedas khas Indonesia.\r\nRisoles Ayam Suwir: Risoles berisi ayam suwir berbumbu gurih.\r\nRisoles Bolognese: Risoles dengan isian saus bolognese daging cincang.\r\nRisoles Rogout: Risoles berisi ragout (campuran sayuran dan daging dengan saus kental).\r\nRisoles Mayo: Risoles dengan isian mayones gurih.\r\nRisoles Mentai: Risoles berisi saus mentai (mayones bercampur saus pedas khas Jepang).', '2026-06-23 13:06:40', '2026-07-08 23:09:59', NULL),
+(53, 52, 2, '2026-07-08 23:09:59', 'RSL-0007', 'simple', 'Risoles Choco Cheese', 'risoles-choco-cheese', 4500, 3279, 0.00, 0.00, 0.00, 0.00, 'kkkkk', 'nkkknkk', '2026-06-23 13:13:01', '2026-07-08 23:09:59', NULL),
+(54, 52, 2, '2026-07-08 23:09:59', 'RSL-0008', 'simple', 'Risoles Matcha Cheese', 'risoles-matcha-cheese', 4500, 2469, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:13:20', '2026-07-08 23:09:59', NULL),
+(55, 52, 2, '2026-07-08 23:09:59', 'RSL-0009', 'simple', 'Risoles Cheese Crunchy', 'risoles-cheese-crunchy', 4500, 18, 0.00, 0.00, 0.00, 0.00, '', 'haaa?', '2026-06-23 13:30:51', '2026-07-08 23:09:59', NULL),
+(56, 52, 2, '2026-07-08 23:09:59', 'RSL-0010', 'simple', 'Risoles Tiramisu Oreo', 'risoles-tiramisu-oreo', 4500, 0, 0.00, 0.00, 0.00, 0.00, 'p', '', '2026-06-23 13:31:22', '2026-07-08 23:09:59', NULL),
+(57, 52, 2, '2026-07-08 23:09:59', 'RSL-0011', 'simple', 'Risoles Seblak', 'risoles-seblak', 4000, 0, 0.00, 0.00, 0.00, 0.00, 'lll', 'ok', '2026-06-23 13:31:58', '2026-07-08 23:09:59', NULL),
+(58, 52, 2, '2026-07-08 23:09:59', 'RSL-0012', 'simple', 'Risoles Mayo', 'risoles-mayo', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'l', '2026-06-23 13:32:46', '2026-07-08 23:09:59', NULL),
+(59, 52, 2, '2026-07-08 23:09:59', 'RSL-0013', 'simple', 'Risoles Rogout', 'risoles-rogout', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:33:01', '2026-07-08 23:09:59', NULL),
+(60, 52, 2, '2026-07-08 23:09:59', 'RSL-0014', 'simple', 'Risoles Bolognese', 'risoles-bolognese', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'm', '2026-06-23 13:33:27', '2026-07-08 23:09:59', NULL),
+(61, 52, 2, '2026-07-08 23:09:59', 'RSL-0015', 'simple', 'Risoles Mentai', 'risoles-mentai', 4000, 0, 0.00, 0.00, 0.00, 0.00, '', 'o', '2026-06-23 13:34:00', '2026-07-08 23:09:59', NULL),
+(62, 52, 2, '2026-07-08 23:09:59', 'RSL-0016', 'simple', 'Risoles Ayam Suwir', 'risoles-ayam-suwir', 4000, 2689, 0.00, 0.00, 0.00, 0.00, 'ok', 'll', '2026-06-23 13:43:24', '2026-07-08 23:09:59', NULL),
+(65, NULL, 2, '2026-06-28 09:53:21', 'MCH-0017', 'configurable', 'Mochi', 'mochi', 0, 0, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:55:33', '2026-07-10 16:58:55', '2026-07-10 16:58:55'),
+(66, 65, 2, '2026-06-28 09:53:21', 'MCH-0018', 'simple', 'mochi strawberry cream', 'mochi-strawberry-cream', 6000, 5150, 0.00, 0.00, 0.00, 0.00, '', '', '2026-06-28 08:56:10', '2026-07-10 16:58:55', '2026-07-10 16:58:55'),
+(67, 65, 2, '2026-07-08 16:38:22', 'MCH-0019', 'simple', 'Mochi Anggur Cream', 'mochi-anggur-cream', 6000, 0, 0.00, 0.00, 0.00, 0.00, '', '', '2026-07-06 19:22:47', '2026-07-10 16:58:55', '2026-07-10 16:58:55');
 
 -- --------------------------------------------------------
 
@@ -420,7 +421,7 @@ INSERT INTO `product_categories` (`id`, `product_id`, `category_id`, `created_at
 (124, 65, 5, NULL, NULL, NULL),
 (126, 66, 5, NULL, NULL, NULL),
 (127, 9, 6, NULL, NULL, NULL),
-(128, 67, 5, NULL, NULL, NULL);
+(131, 67, 5, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -446,7 +447,7 @@ CREATE TABLE `product_images` (
 INSERT INTO `product_images` (`id`, `product_id`, `original`, `large`, `medium`, `small`, `created_at`, `updated_at`) VALUES
 (4, 9, 'uploads/products/1778379251_c471f7308d39b3c636a7.jpg', 'uploads/products/1778379251_c471f7308d39b3c636a7_large.jpg', 'uploads/products/1778379251_c471f7308d39b3c636a7_medium.jpg', 'uploads/products/1778379251_c471f7308d39b3c636a7_small.jpg', '2026-05-10 02:14:11', '2026-05-10 02:14:11'),
 (9, 52, 'uploads/products/1782220324_810717174dd59086f913.png', 'uploads/products/1782220324_810717174dd59086f913_large.png', 'uploads/products/1782220324_810717174dd59086f913_medium.png', 'uploads/products/1782220324_810717174dd59086f913_small.png', '2026-06-23 13:12:06', '2026-06-23 13:12:06'),
-(12, 65, 'uploads/products/1782637015_1460460749358b750ba0.jpg', 'uploads/products/1782637015_1460460749358b750ba0_large.jpg', 'uploads/products/1782637015_1460460749358b750ba0_medium.jpg', 'uploads/products/1782637015_1460460749358b750ba0_small.jpg', '2026-06-28 08:56:55', '2026-06-28 08:56:55');
+(14, 65, 'uploads/products/1783503611_7130f1d2f8530e27556b.jpg', 'uploads/products/1783503611_7130f1d2f8530e27556b_large.jpg', 'uploads/products/1783503611_7130f1d2f8530e27556b_medium.jpg', 'uploads/products/1783503611_7130f1d2f8530e27556b_small.jpg', '2026-07-08 16:40:11', '2026-07-08 16:40:11');
 
 -- --------------------------------------------------------
 
@@ -468,19 +469,19 @@ CREATE TABLE `product_inventories` (
 --
 
 INSERT INTO `product_inventories` (`id`, `product_id`, `qty`, `low_stock_threshold`, `created_at`, `updated_at`) VALUES
-(103, 55, 5, 10, NULL, '2026-06-24 20:45:58'),
-(104, 56, 4, 10, NULL, '2026-07-06 19:12:42'),
-(106, 58, 3, 10, NULL, '2026-07-06 19:47:44'),
-(107, 59, 5, 10, NULL, '2026-06-24 20:45:58'),
-(108, 60, 5, 10, NULL, '2026-06-24 20:45:58'),
-(110, 57, 8, 10, NULL, '2026-06-24 20:45:58'),
-(111, 62, 6, 10, NULL, '2026-06-24 20:45:58'),
-(114, 54, 5, 10, NULL, '2026-06-28 23:19:20'),
-(116, 53, 6, 10, NULL, '2026-06-24 20:45:58'),
-(123, 61, 5, 10, NULL, NULL),
-(127, 66, 9, 10, NULL, '2026-06-29 00:29:31'),
-(128, 9, 10, 10, NULL, '2026-07-06 19:56:40'),
-(129, 67, 7, 10, '2026-07-06 19:22:47', '2026-07-06 20:27:30');
+(103, 55, 4, 10, NULL, '2026-07-09 00:20:14'),
+(104, 56, 4, 10, NULL, '2026-07-08 23:09:59'),
+(106, 58, 0, 10, NULL, '2026-07-08 23:09:59'),
+(107, 59, 5, 10, NULL, '2026-07-08 23:09:59'),
+(108, 60, 4, 10, NULL, '2026-07-08 23:09:59'),
+(110, 57, 5, 10, NULL, '2026-07-08 23:09:59'),
+(111, 62, 5, 10, NULL, '2026-07-08 23:32:59'),
+(114, 54, 5, 10, NULL, '2026-07-08 23:09:59'),
+(116, 53, 6, 10, NULL, '2026-07-08 23:09:59'),
+(123, 61, 4, 10, NULL, '2026-07-09 00:36:16'),
+(127, 66, 7, 10, NULL, '2026-07-08 18:05:45'),
+(128, 9, 10, 10, NULL, '2026-07-10 16:42:39'),
+(132, 67, 3, 10, NULL, '2026-07-08 23:31:50');
 
 -- --------------------------------------------------------
 
@@ -526,13 +527,13 @@ CREATE TABLE `settings` (
 --
 
 INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `setting_group`, `label`, `created_at`, `updated_at`) VALUES
-(1, 'payment_midtrans_enabled', '1', 'payment', 'Aktifkan Pembayaran Midtrans', NULL, '2026-07-04 17:57:14'),
-(2, 'payment_transfer_enabled', '1', 'payment', 'Aktifkan Transfer Bank Manual', NULL, '2026-07-04 17:57:14'),
-(3, 'payment_qris_enabled', '1', 'payment', 'Aktifkan QRIS Manual (Upload Bukti)', NULL, '2026-07-04 17:57:14'),
+(1, 'payment_midtrans_enabled', '1', 'payment', 'Aktifkan Pembayaran Midtrans', NULL, '2026-07-07 08:19:01'),
+(2, 'payment_transfer_enabled', '1', 'payment', 'Aktifkan Transfer Bank Manual', NULL, '2026-07-07 08:19:01'),
+(3, 'payment_qris_enabled', '1', 'payment', 'Aktifkan QRIS Manual (Upload Bukti)', NULL, '2026-07-07 08:19:01'),
 (4, 'manual_bank_name', 'BCA', 'payment', 'Nama Bank Transfer', NULL, NULL),
 (5, 'manual_account_number', '1234567890', 'payment', 'Nomor Rekening', NULL, NULL),
 (6, 'manual_account_name', 'Annyeong Foodie', 'payment', 'Nama Pemilik Rekening', NULL, NULL),
-(7, 'payment_cash_enabled', '1', 'general', NULL, '2026-06-26 02:28:11', '2026-07-04 17:57:14'),
+(7, 'payment_cash_enabled', '1', 'general', NULL, '2026-06-26 02:28:11', '2026-07-07 08:19:01'),
 (8, 'handling_fee', '2000', 'general', NULL, '2026-06-28 10:52:16', '2026-07-06 20:27:13');
 
 -- --------------------------------------------------------
@@ -559,7 +560,8 @@ CREATE TABLE `t_absensi` (
 --
 
 INSERT INTO `t_absensi` (`id`, `user_id`, `jam_masuk`, `status_masuk`, `jam_keluar`, `status_keluar`, `total_jam`, `keterangan`, `created_at`, `updated_at`) VALUES
-(3, 2, '2026-07-05 09:22:19', 'Terlambat', '2026-07-05 09:22:34', 'Pulang Cepat', 0.00, 'Hadir', '2026-07-05 09:22:19', '2026-07-05 09:22:34');
+(3, 2, '2026-07-05 09:22:19', 'Terlambat', '2026-07-05 09:22:34', 'Pulang Cepat', 0.00, 'Hadir', '2026-07-05 09:22:19', '2026-07-05 09:22:34'),
+(4, 2, '2026-07-07 00:39:17', 'Tepat Waktu', '2026-07-07 07:41:52', 'Pulang Cepat', 7.04, 'Hadir', '2026-07-07 00:39:17', '2026-07-07 07:41:52');
 
 -- --------------------------------------------------------
 
@@ -614,7 +616,16 @@ INSERT INTO `t_penjualan` (`id`, `invoice_no`, `midtrans_order_id`, `subtotal_pr
 (39, 'AES-20260628-001', NULL, 22000, 0, 34000, 'Transfer', 0, 2, '2026-06-28 20:03:53', '2026-06-29 07:42:00', 2, 'completed', 'paid', 'uploads/bukti_bayar/1782677105_db542bdd07f7627f45dd.jpeg', NULL, NULL, NULL, NULL, 'coba ongkir dummy', 'delivery', NULL, 10000, 2000, NULL, '', '2026-06-28 20:07:39', 2),
 (42, 'AES-20260629-001', NULL, 6000, 0, 12000, 'Transfer', 0, 2, '2026-06-29 00:29:31', '2026-06-29 07:41:45', 2, 'completed', 'paid', 'uploads/bukti_bayar/1782695293_4b29695d40288b618cb1.jpeg', NULL, NULL, NULL, NULL, 'coba id area', 'delivery', 4, 1000, 5000, 4, '', '2026-06-29 01:08:34', 2),
 (50, 'AES-20260629-002', 'AES-20260629-002-4F31D2', 22000, 0, 27000, 'Midtrans', 0, 2, '2026-06-29 03:49:28', '2026-06-29 03:49:29', 2, 'pending', 'unpaid', NULL, '0c181081-1a20-4348-a923-da604bf0c014', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang, Batang, Jawa Tengah', 'pickup', NULL, 0, 5000, NULL, '', NULL, NULL),
-(51, 'AES-20260706-001', 'AES-20260706-001-FA372A', 4500, 0, 9500, 'QRIS', 0, 2, '2026-07-06 19:12:42', '2026-07-06 20:25:46', 2, 'pending', 'pending_verification', 'uploads/bukti_bayar/1783369546_ea9356f05396424e5929.png', NULL, NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang, Batang, Jawa Tengah', 'pickup', NULL, 0, 5000, NULL, '', NULL, NULL);
+(51, 'AES-20260706-001', 'AES-20260706-001-FA372A', 4500, 0, 9500, 'QRIS', 0, 2, '2026-07-06 19:12:42', '2026-07-06 20:25:46', 2, 'pending', 'pending_verification', 'uploads/bukti_bayar/1783369546_ea9356f05396424e5929.png', NULL, NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang, Batang, Jawa Tengah', 'pickup', NULL, 0, 5000, NULL, '', NULL, NULL),
+(59, 'AES-20260707-001', 'AES-20260707-001-448BC3', 6000, 0, 9000, 'Midtrans', 0, 2, '2026-07-07 00:36:30', '2026-07-07 00:38:43', 2, 'shipped', 'paid', NULL, '61bc5ef9-009a-4377-8d34-e6fba9064012', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, '', '2026-07-07 00:38:20', 2),
+(60, 'INV-20260707-001', NULL, 6000, 0, 6000, 'Cash', 10000, 2, '2026-07-07 07:44:20', '2026-07-07 07:44:20', NULL, 'completed', 'paid', NULL, NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, 0, 0, NULL, NULL, NULL, NULL),
+(61, 'AES-20260707-002', 'AES-20260707-002-759368', 8000, 0, 15000, 'Midtrans', 0, 7, '2026-07-07 08:23:26', '2026-07-07 08:23:27', 7, 'pending', 'unpaid', NULL, '573e26d1-67cc-4319-ac36-f923bb1159ee', NULL, NULL, NULL, 'jalan jalan dengan sepatu rodaku', 'delivery', 1, 5000, 2000, NULL, '', NULL, NULL),
+(62, 'AES-20260708-001', 'AES-20260708-001-E4A7D9', 6000, 0, 9000, 'Midtrans', 0, 2, '2026-07-08 16:42:37', '2026-07-08 18:05:45', 2, 'cancelled', 'paid', NULL, 'b9402a96-0d8b-4356-bbec-2b282426277e', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, '', '2026-07-08 18:05:37', 2),
+(63, 'AES-20260708-002', 'AES-20260708-002-765A54', 6000, 0, 9000, 'Midtrans', 0, 2, '2026-07-08 17:48:09', '2026-07-08 17:49:08', 2, 'processing', 'paid', NULL, '5d9d91a4-22d0-4d4e-bfa6-79a04d973ca6', '3ec6cc4a-d159-42b1-9ff9-fb8ba5bf08fe', 'qris', 'settlement', 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, '', '2026-07-08 17:49:08', NULL),
+(68, 'AES-20260708-003', 'AES-20260708-003-5BB58F', 4000, 0, 7000, 'Midtrans', 0, 2, '2026-07-08 21:05:51', '2026-07-08 21:05:51', 2, 'pending', 'unpaid', NULL, '7a8c1725-cf4c-4f36-8980-2970df64b888', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, '', NULL, NULL),
+(69, 'AES-20260708-004', 'AES-20260708-004-509649', 4000, 0, 7000, 'Midtrans', 0, 2, '2026-07-08 21:23:32', '2026-07-08 21:23:33', 2, 'pending', 'unpaid', NULL, '330ddf5b-62cd-4cad-bd20-4e2d40a1c9d8', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, '', NULL, NULL),
+(74, 'AES-20260709-001', 'AES-20260709-001-416AC2', 4000, 0, 7000, 'Midtrans', 0, 2, '2026-07-09 00:36:16', '2026-07-09 00:36:16', 2, 'pending', 'unpaid', NULL, '3b302004-ca92-4d23-aa5a-33ef10d702e7', NULL, NULL, NULL, 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, 'slow', NULL, NULL),
+(75, 'AES-20260709-002', 'AES-20260709-002-BE4B20', 22000, 0, 25000, 'Midtrans', 0, 2, '2026-07-09 00:49:00', '2026-07-09 00:51:58', 2, 'processing', 'paid', NULL, 'e04f2c4a-882e-44d8-88f9-76b087516583', '1ca81117-31ec-4fd3-bfd2-f3fb9eb73dfa', 'qris', 'refund', 'jl sunan ampel kecamatan bawang', 'delivery', 4, 1000, 2000, NULL, 'semoga bisa', '2026-07-09 00:49:25', NULL);
 
 -- --------------------------------------------------------
 
@@ -649,7 +660,16 @@ INSERT INTO `t_penjualan_detail` (`id`, `penjualan_id`, `product_id`, `qty`, `hp
 (36, 39, 9, 1, 13965, 22000, 22000),
 (41, 42, 66, 1, 5150, 6000, 6000),
 (44, 50, 9, 1, 13965, 22000, 22000),
-(45, 51, 56, 1, 0, 4500, 4500);
+(45, 51, 56, 1, 0, 4500, 4500),
+(53, 59, 67, 1, 0, 6000, 6000),
+(54, 60, 66, 1, 5150, 6000, 6000),
+(55, 61, 57, 2, 0, 4000, 8000),
+(56, 62, 66, 1, 5150, 6000, 6000),
+(57, 63, 66, 1, 5150, 6000, 6000),
+(59, 68, 57, 1, 0, 4000, 4000),
+(60, 69, 60, 1, 0, 4000, 4000),
+(65, 74, 61, 1, 0, 4000, 4000),
+(66, 75, 9, 1, 13965, 22000, 22000);
 
 -- --------------------------------------------------------
 
@@ -677,7 +697,9 @@ CREATE TABLE `t_produksi` (
 
 INSERT INTO `t_produksi` (`id`, `kode_produksi`, `product_id`, `user_id`, `qty_hasil`, `tanggal_produksi`, `status_qc`, `catatan`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'PRD-20260510-001', 9, 2, 5, '2026-05-10', 'Lolos', 'untuk dijual di hari senin, 11 mei 2026', '2026-05-10 16:03:21', '2026-05-10 16:03:21', NULL),
-(2, 'PRD-20260610-001', 9, 2, 9, '2026-06-10', 'Lolos', '', '2026-06-10 08:24:03', '2026-06-10 08:24:03', NULL);
+(2, 'PRD-20260610-001', 9, 2, 9, '2026-06-10', 'Lolos', '', '2026-06-10 08:24:03', '2026-06-10 08:24:03', NULL),
+(3, 'PRD-20260710-001', 9, 2, 1, '2026-07-10', 'Reject', '', '2026-07-10 16:41:02', '2026-07-10 16:41:02', NULL),
+(4, 'PRD-20260710-002', 9, 2, 1, '2026-07-10', 'Lolos', '', '2026-07-10 16:42:39', '2026-07-10 16:42:39', NULL);
 
 -- --------------------------------------------------------
 
@@ -705,7 +727,15 @@ INSERT INTO `t_produksi_detail` (`id`, `produksi_id`, `bahan_baku_id`, `qty_digu
 (5, 2, 1, 27.000, '2026-06-10 08:24:03'),
 (6, 2, 2, 108.000, '2026-06-10 08:24:03'),
 (7, 2, 3, 1620.000, '2026-06-10 08:24:03'),
-(8, 2, 4, 54.000, '2026-06-10 08:24:03');
+(8, 2, 4, 54.000, '2026-06-10 08:24:03'),
+(9, 3, 1, 3.000, '2026-07-10 16:41:02'),
+(10, 3, 2, 12.000, '2026-07-10 16:41:02'),
+(11, 3, 3, 180.000, '2026-07-10 16:41:02'),
+(12, 3, 4, 6.000, '2026-07-10 16:41:02'),
+(13, 4, 1, 3.000, '2026-07-10 16:42:39'),
+(14, 4, 2, 12.000, '2026-07-10 16:42:39'),
+(15, 4, 3, 180.000, '2026-07-10 16:42:39'),
+(16, 4, 4, 6.000, '2026-07-10 16:42:39');
 
 -- --------------------------------------------------------
 
@@ -732,7 +762,8 @@ CREATE TABLE `t_stok_masuk` (
 
 INSERT INTO `t_stok_masuk` (`id`, `bahan_baku_id`, `qty`, `isi_per_satuan`, `harga_satuan`, `total_harga`, `nama_supplier`, `tanggal_masuk`, `keterangan`, `created_at`) VALUES
 (3, 1, 2, 1000.00, 15000, 30000, 'toko mekar', '2026-04-23', NULL, '2026-04-23 21:28:56'),
-(4, 2, 1, 1000.00, 16000, 16000, 'toko maryam', '2026-04-23', NULL, '2026-04-23 23:58:27');
+(4, 2, 1, 1000.00, 16000, 16000, 'toko maryam', '2026-04-23', NULL, '2026-04-23 23:58:27'),
+(5, 4, 36, 1.00, 200, 7200, 'toko maryam', '2026-07-11', NULL, '2026-07-11 23:06:40');
 
 -- --------------------------------------------------------
 
@@ -773,13 +804,13 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `email`, `activation_selector`, `activation_code`, `forgotten_password_selector`, `forgotten_password_code`, `forgotten_password_time`, `remember_selector`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`, `phone`, `address`, `city`, `province`, `postal_code`, `avatar`, `deleted_at`) VALUES
 (1, '127.0.0.1', 'hani', '$2y$10$cjTyDN2smU6Gtqq911B.semQt06Un3znT1IhV1oNDSGKMIDrTZt3S', 'hanifa@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1780963545, '2026-04-19 01:49:13', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, '127.0.0.1', 'admin', '$2y$12$1TfCXs1S6nIYa7Q2cq9eyuu.c3oYPolU12KcrOFdy8x1/oZoeh60i', 'admin@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1783349436, '2026-04-19 01:49:13', 'Super', 'Admin', '08123456789', 'jl sunan ampel kecamatan bawang', 'Batang', 'Jawa Tengah', '51234', NULL, NULL),
-(3, '127.0.0.1', 'gudang', '$2y$10$XfLmviVQME2CrIdl53bARe16BJfh9QiorjXA0dHDkhurcI22LvdAO', 'gudang@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1783064273, '2026-04-19 01:49:13', 'Gudang', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, '127.0.0.1', 'admin', '$2y$12$1TfCXs1S6nIYa7Q2cq9eyuu.c3oYPolU12KcrOFdy8x1/oZoeh60i', 'admin@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1783783169, '2026-04-19 01:49:13', 'Super', 'Admin', '08123456789', 'jl sunan ampel kecamatan bawang', 'Batang', 'Jawa Tengah', '51234', NULL, NULL),
+(3, '127.0.0.1', 'gudang', '$2y$10$XfLmviVQME2CrIdl53bARe16BJfh9QiorjXA0dHDkhurcI22LvdAO', 'gudang@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1776563353, 1783659082, '2026-04-19 01:49:13', 'Gudang', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (4, '127.0.0.1', 'kurir', '$2y$10$P6Piwl/7jeH5leeWNvzbROYzO6Bm4fMDRt4lcVWsuIBqA4x3N7ADC', 'kurir@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, '0000-00-00 00:00:00', 'Joko', 'Kendil', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(5, '127.0.0.1', 'pemilik', '$2y$10$BoNXhHVUarhntBsDqnl5gen3cQIMiAgWoRB8zMFBWKekBdWzDmPCS', 'pemilik@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061371, 1783232194, '2026-07-03 06:49:31', 'Pemilik', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, '127.0.0.1', 'pemilik', '$2y$10$BoNXhHVUarhntBsDqnl5gen3cQIMiAgWoRB8zMFBWKekBdWzDmPCS', 'pemilik@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061371, 1783677606, '2026-07-03 06:49:31', 'Pemilik', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6, '127.0.0.1', 'produksi', '$2y$10$EdoEfIBfffk5WSFEERFFauegx6kY1A722lCBg2OqqCVj01BOdiBNS', 'produksi@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061391, NULL, '2026-07-03 06:49:51', 'Produksi', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(7, '127.0.0.1', 'penjualan', '$2y$10$ro.VCcTWWTShR46MB4PgO.4roj/z6TYNUAsNy8c38SZQ6rUUQ.ldK', 'penjualan@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061447, 1783230480, '2026-07-03 06:50:47', 'Penjualan', 'User', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(9, '::1', 'hanigudang', '$2y$10$Obs2hG7z6wmNCEnpglfB6evmIkBUAg1kaxUDFjXPfnJGzzivTzgLy', 'hanigudang@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783063240, 1783072311, '2026-07-03 07:20:40', 'hani', 'gudang', '08123456789', NULL, NULL, NULL, NULL, NULL, NULL);
+(7, '127.0.0.1', 'penjualan', '$2y$10$ro.VCcTWWTShR46MB4PgO.4roj/z6TYNUAsNy8c38SZQ6rUUQ.ldK', 'penjualan@annyeongfoodie.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783061447, 1783663395, '2026-07-03 06:50:47', 'Penjualan', 'User', '085212345678', 'jalan jalan dengan sepatu rodaku', 'batang', 'jawa tengah', '51274', NULL, NULL),
+(9, '::1', 'hanigudang', '$2y$10$THho1dCJBpzMHtvEXhksM.VG7e2s4MprIuReKPIyqqFjPmXv6klsW', 'hanigudang@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1783063240, 1783533475, '2026-07-03 07:20:40', 'hani', 'gudang', '08123456789', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1034,7 +1065,7 @@ ALTER TABLE `attribute_options`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `groups`
@@ -1046,7 +1077,7 @@ ALTER TABLE `groups`
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -1064,7 +1095,7 @@ ALTER TABLE `m_bahan_baku`
 -- AUTO_INCREMENT for table `m_recipes`
 --
 ALTER TABLE `m_recipes`
-  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `m_shipping_area`
@@ -1088,19 +1119,19 @@ ALTER TABLE `product_attribute_values`
 -- AUTO_INCREMENT for table `product_categories`
 --
 ALTER TABLE `product_categories`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=132;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `product_inventories`
 --
 ALTER TABLE `product_inventories`
-  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
+  MODIFY `id` mediumint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
 
 --
 -- AUTO_INCREMENT for table `product_reviews`
@@ -1118,37 +1149,37 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `t_absensi`
 --
 ALTER TABLE `t_absensi`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `t_penjualan`
 --
 ALTER TABLE `t_penjualan`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 
 --
 -- AUTO_INCREMENT for table `t_penjualan_detail`
 --
 ALTER TABLE `t_penjualan_detail`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT for table `t_produksi`
 --
 ALTER TABLE `t_produksi`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `t_produksi_detail`
 --
 ALTER TABLE `t_produksi_detail`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `t_stok_masuk`
 --
 ALTER TABLE `t_stok_masuk`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`

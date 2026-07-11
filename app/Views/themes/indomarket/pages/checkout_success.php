@@ -175,7 +175,7 @@
             BCA
         </h3>
 
-        <h2 class="font-weight-bold">
+        <h2 class="font-weight-bold text-dark">
             1234567890
         </h2>
 

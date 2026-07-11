@@ -373,6 +373,33 @@ class Checkout extends BaseController
                 }
             }
 
+            // =====================================================
+            // CREATE NOTIFICATIONS FOR ADMIN/OWNER
+            // =====================================================
+            $adminUsers = $db->table('users_groups')
+                ->join('groups', 'groups.id = users_groups.group_id')
+                ->whereIn('groups.name', ['admin', 'owner', 'penjualan'])
+                ->select('users_groups.user_id')
+                ->get()
+                ->getResult();
+
+            $notifData = [];
+            foreach ($adminUsers as $admin) {
+                $notifData[] = [
+                    'user_id'      => $admin->user_id,
+                    'type'         => 'new_order',
+                    'reference_id' => $orderId,
+                    'title'        => 'Pesanan Baru: ' . $invoiceNo,
+                    'message'      => 'Pesanan baru dari ' . ($this->currentUser->first_name ?? 'Pelanggan') . ' senilai Rp ' . number_format($totalHarga, 0, ',', '.'),
+                    'is_read'      => 0,
+                    'created_at'   => date('Y-m-d H:i:s'),
+                    'updated_at'   => date('Y-m-d H:i:s'),
+                ];
+            }
+            if (!empty($notifData)) {
+                $db->table('notifications')->insertBatch($notifData);
+            }
+
             $db->transComplete();
 
             if ($db->transStatus() === false) {
