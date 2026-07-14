@@ -90,7 +90,7 @@ $currentUser = $currentUser ?? null;
                             <input type="text"
                                 name="q"
                                 class="form-control"
-                                placeholder="Cari produk Korea favorit Anda..."
+                                placeholder="Cari produk favorit Anda..."
                                 value="<?= esc(service('request')->getGet('q') ?? '') ?>"
                                 autocomplete="off">
                             <div class="input-group-append">

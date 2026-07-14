@@ -76,15 +76,38 @@ class Products extends BaseController
             }
         }
 
-        // Filter: Rentang harga
-        $priceRange = $this->request->getGet('price');
-        if ($priceRange && strpos($priceRange, '-') !== false) {
-            [$low, $high] = explode('-', $priceRange, 2);
-            $low  = (int) $low;
-            $high = (int) $high;
-            if ($low >= 0 && $high > $low) {
-                $builder->where("products.price BETWEEN {$low} AND {$high}");
+        // =======================
+        // Filter Harga
+        // =======================
+        $minPrice=(int)$this->request->getGet('min_price');
+        $maxPrice=(int)$this->request->getGet('max_price');
+
+        if($minPrice || $maxPrice){
+            if($minPrice>$maxPrice){
+                [$minPrice,$maxPrice]=[$maxPrice,$minPrice];
             }
+
+            if($minPrice>$maxPrice){
+                [$minPrice,$maxPrice]=[$maxPrice,$minPrice];
+            }
+            $builder->groupStart()
+                // produk simple
+                ->groupStart()
+                    ->where('products.type','simple')
+                    ->where('products.price >=',$minPrice)
+                    ->where('products.price <=',$maxPrice)
+                ->groupEnd()
+                // produk configurable
+                ->orWhere("
+                    EXISTS(
+                        SELECT 1
+                        FROM products variants
+                        WHERE variants.parent_id=products.id
+                        AND variants.deleted_at IS NULL
+                        AND variants.price BETWEEN {$minPrice} AND {$maxPrice}
+                    )
+                ",null,false)
+            ->groupEnd();
         }
 
         // Sorting
@@ -102,7 +125,6 @@ class Products extends BaseController
             : ['products.created_at', 'DESC'];
 
         $builder->orderBy($orderField, $orderDir);
-
         $products = $builder->paginate($this->perPage, 'products');
 
         // Lampirkan gambar utama ke setiap produk

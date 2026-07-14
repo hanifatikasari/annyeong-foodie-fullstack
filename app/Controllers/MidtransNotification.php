@@ -10,9 +10,9 @@ class MidtransNotification extends Controller
     {
         log_message('critical','===== WEBHOOK TERBARU MASUK =====');
 
-    $raw = file_get_contents('php://input');
+        $raw = file_get_contents('php://input');
 
-    log_message('critical',$raw);
+        log_message('critical',$raw);
 
         log_message('info', '===== WEBHOOK MASUK =====');
 

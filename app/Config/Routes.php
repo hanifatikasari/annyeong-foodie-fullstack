@@ -13,7 +13,7 @@ $routes->setAutoRoute(false);
 $routes->get('/', 'Home::index');
 $routes->get('products', 'Products::index');
 $routes->get('products/(:segment)/(:segment)', 'Products::show/$1/$2');
-$routes->get('test-midtrans', 'TestMidtrans::index');
+//$routes->get('test-midtrans', 'TestMidtrans::index');
 
 // 2. AUTHENTICATION
 $routes->group('auth', function($routes) {

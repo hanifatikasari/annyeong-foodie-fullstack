@@ -5,18 +5,23 @@
         </div>
         <div class="widget-content shop-by-price">
             <form method="GET" action="<?= site_url('products') ?>">
+                <?php if(service('request')->getGet('category')): ?>
+                    <input type="hidden" name="category" value="<?= esc(service('request')->getGet('category')) ?>">
+                <?php endif; ?>
+                
                 <div class="price-filter">
                     <div class="price-filter-inner">
                         <div id="slider-range"></div>
                         <div class="price_slider_amount">
-                            <div class="label-input">
-                                <input type="text" id="amount" name="price"
-                                    placeholder="Add Your Price" />
-                                <button type="submit">Filter</button>
-                            </div>
+                            <input type="text" id="amount" name="price" placeholder="0 - 1000000">
+                            <input type="hidden" id="min_price" name="min_price">
+                            <input type="hidden" id="max_price" name="max_price">
+                            <button type="submit">
+                                Filter
+                            </button>
                         </div>
                     </div>
-                </div>
+                </div>  
             </form>
         </div>
     </div>
@@ -28,7 +33,7 @@
             <div class="widget-content widget-categories">
                 <ul>
                     <?php foreach ($categories as $category): ?>
-                        <li>
+                         <li>
                             <a href="<?= site_url('products?category=' . $category->slug) ?>">
                                 <?= $category->name ?>
                             </a>
@@ -45,5 +50,4 @@
             </div>
         </div>
     <?php endif;?>
-
 </div>

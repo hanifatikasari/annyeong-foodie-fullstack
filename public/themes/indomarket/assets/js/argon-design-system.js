@@ -35,23 +35,23 @@ var $tagsinput = $('.tagsinput');
   var isWindows = navigator.platform.indexOf('Win') > -1 ? true : false;
 
   if (isWindows) {
-    // if we are on windows OS we activate the perfectScrollbar function
+      $html.addClass('perfect-scrollbar-on');
 
-    $('.wrapper .login-page, .register-page, .card').perfectScrollbar();
+      document.querySelectorAll('.wrapper .login-page, .register-page, .card')
+        .forEach(function(el) {
+          new PerfectScrollbar(el);
+        });
 
-
-    if ($('.tab-content .table-responsive').length != 0) {
-
-      $('.table-responsive').each(function() {
-        var ps2 = new PerfectScrollbar($(this)[0]);
-      });
+      if (document.querySelectorAll('.tab-content .table-responsive').length !== 0) {
+        document.querySelectorAll('.table-responsive').forEach(function(el) {
+          new PerfectScrollbar(el);
+        });
+      }
+    } else {
+      $html.addClass('perfect-scrollbar-off');
     }
-
-    $html.addClass('perfect-scrollbar-on');
-  } else {
-    $html.addClass('perfect-scrollbar-off');
   }
-})();
+)();
 
 $(document).ready(function() {
   //  Activate the Tooltips
