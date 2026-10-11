@@ -16,7 +16,7 @@ class UserKurirSeeder extends Seeder
             'ip_address' => '127.0.0.1',
             'username'   => 'kurir',
             'password'   => $password,
-            'email'      => 'kurir@annyeongfoodie.com',
+            'email'      => 'kurir@batterbit.com',
             'first_name' => 'Joko',
             'last_name'  => 'Kendil',
             'active'     => 1,

@@ -17,7 +17,7 @@ class UserPenjualanSeeder extends Seeder
             'ip_address' => '127.0.0.1',
             'username'   => 'penjualan',
             'password'   => $password,
-            'email'      => 'penjualan@annyeongfoodie.com',
+            'email'      => 'penjualan@batterbit.com',
             'active'     => date('Y-m-d H:i:s'),
             'first_name' => 'Penjualan',
             'last_name'  => 'User',

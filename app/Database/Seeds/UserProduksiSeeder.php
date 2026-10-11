@@ -17,7 +17,7 @@ class UserProduksiSeeder extends Seeder
             'ip_address' => '127.0.0.1',
             'username'   => 'produksi',
             'password'   => $password,
-            'email'      => 'produksi@annyeongfoodie.com',
+            'email'      => 'produksi@batterbit.com',
             'active'     => date('Y-m-d H:i:s'),
             'first_name' => 'Produksi',
             'last_name'  => 'User',

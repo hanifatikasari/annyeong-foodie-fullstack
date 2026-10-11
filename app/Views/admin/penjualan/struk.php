@@ -208,7 +208,7 @@
         <div class="footer">
             Thankyou for your order !!!<br><br>
             Follow Instagram<br>
-            <strong>@annyeong.foodie</strong><br>
+            <strong>@batterbit_</strong><br>
             Don't Forget To Mention Us
         </div>
     </div>

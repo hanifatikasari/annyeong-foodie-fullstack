@@ -9,17 +9,14 @@
 
                         <div class="logo-footer mb-3">
                             <a href="<?= site_url() ?>" class="navbar-brand p-0">
-                                <img src="<?= base_url('uploads/settings/annyeong-logo.png') ?>"
-                                     alt="Annyeong Foodie"
+                                <img src="<?= base_url('uploads/settings/produk-logo.png') ?>"
+                                     alt="Batterbit"
                                      class="logo-img">
                             </a>
                         </div>
 
                         <p class="text">
-                            <strong>Annyeong Foodie</strong> merupakan UMKM kuliner yang
-                            menghadirkan berbagai menu Korean Street Food seperti Kimbab,
-                            Tteokbokki, Dimsum, Mochi, dan menu favorit lainnya dengan
-                            bahan berkualitas serta cita rasa autentik.
+                            <strong>Batterbit</strong> merupakan homade bakery yang berdedikasi untuk memberikan produk berkualitas tinggi dengan rasa yang lezat dan konsisten.
                         </p>
 
                         <p class="call">
@@ -78,25 +75,25 @@
                                 <li>TRIUMPHANT FUTSAL</li>
                                 <li>Bantir, Bawang</li>
                                 <li>Kabupaten Batang, Jawa Tengah</li>
-                                <li>annyeongfoodie@gmail.com</li>
+                                <li>batterbit@gmail.com</li>
                                 <li>+62 858-7950-5277</li>
                             </ul>
                         </div>
 
                         <ul class="mt-3">
                             <li>
-                                <a href="https://www.instagram.com/annyeong.foodie" target="_blank">
+                                <a href="https://www.instagram.com/batterbit_/" target="_blank">
                                     <i class="fa fa-instagram"></i>
                                 </a>
                             </li>
 
-                            <li>
+                            <!-- <li>
                                 <a href="https://www.tiktok.com/@annyeong.foodie" target="_blank">
                                     <img src="<?= base_url('themes/indomarket/assets/img/icons/tiktok.svg') ?>"
                                         class="social-icon"
                                         alt="TikTok">
                                 </a>
-                            </li>
+                            </li> -->
 
                             <li>
                                 <a href="https://wa.me/6285879505277" target="_blank">
@@ -129,7 +126,7 @@
 
                         <div class="left">
                             <p>
-                                © <?= date('Y') ?> <strong>Annyeong Foodie</strong>.
+                                © <?= date('Y') ?> <strong>Batterbit</strong>.
                                 All Rights Reserved.
                             </p>
                         </div>

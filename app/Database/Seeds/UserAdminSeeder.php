@@ -18,7 +18,7 @@ class UserAdminSeeder extends Seeder
             'ip_address' => '127.0.0.1',
             'username'   => 'admin',
             'password'   => $password,
-            'email'      => 'admin@annyeongfoodie.com',
+            'email'      => 'admin@batterbit.com',
             'active'     => date('Y-m-d H:i:s'),
             'first_name' => 'Super',
             'last_name'  => 'Admin',

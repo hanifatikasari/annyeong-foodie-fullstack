@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title><?= $title ?? 'Annyeong Foodie' ?></title>
+    <title><?= $title ?? 'Batterbit' ?></title>
 
     <link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i&display=swap" rel="stylesheet">
     <link href="<?= base_url('/themes/indomarket/assets/css/nucleo-icons.css') ?>" rel="stylesheet">
@@ -15,7 +15,7 @@
 
     <style>
         /* ==========================================================
-           Annyeong Foodie — theme accents (inline, page-level)
+           Batterbit — theme accents (inline, page-level)
            Variabel warna diwarisi dari style.css (:root). Fallback
            hex disertakan agar tetap aman meski dimuat terpisah.
            ========================================================== */

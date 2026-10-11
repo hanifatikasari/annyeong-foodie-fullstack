@@ -17,7 +17,7 @@ class UserPemilikSeeder extends Seeder
             'ip_address' => '127.0.0.1',
             'username'   => 'pemilik',
             'password'   => $password,
-            'email'      => 'pemilik@annyeongfoodie.com',
+            'email'      => 'pemilik@batterbit.com',
             'active'     => date('Y-m-d H:i:s'),
             'first_name' => 'Pemilik',
             'last_name'  => 'User',

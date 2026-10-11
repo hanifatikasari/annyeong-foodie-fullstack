@@ -22,11 +22,11 @@ $currentUser = $currentUser ?? null;
                     <ul class="top-links contact-info list-unstyled d-flex mb-0">
                         <li class="mr-3">
                             <i class="fa fa-envelope-o mr-1"></i>
-                            <a href="mailto:annyeongfoodie@gmail.com">annyeongfoodie@gmail.com</a>
+                            <a href="mailto:batterbit@gmail.com">batterbit@gmail.com</a>
                         </li>
                         <li>
                             <i class="fa fa-whatsapp mr-1"></i>
-                            <a href="https://wa.me/6281234567890" target="_blank">+62 858-7950-5277</a>
+                            <a href="https://wa.me/6285879505277" target="_blank">+62 858-7950-5277</a>
                         </li>
                     </ul>
                 </div>
@@ -77,9 +77,9 @@ $currentUser = $currentUser ?? null;
                 <div class="col-lg-3 col-md-4 col-12 order-1 order-md-1">
                     <a href="<?= site_url() ?>" class="navbar-brand d-flex align-items-center text-decoration-none">
                         <img src="<?= base_url('uploads/settings/logo.png') ?>" 
-                            alt="Annyeong Foodie" 
+                            alt="Batterbit" 
                             class="logo-img">
-                        <span class="logo-text">Annyeong Foodie</span>
+                        <span class="logo-text">Batterbit</span>
                     </a>
                 </div>
 

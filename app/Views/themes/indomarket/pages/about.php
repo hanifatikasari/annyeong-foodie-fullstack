@@ -4,11 +4,36 @@
 <section class="py-5">
     <div class="container">
         <div class="row align-items-center mb-5">
-            <div class="col-md-6 mb-4 mb-md-0">
-                <h2 class="font-weight-bold">Tentang <span class="text-primary">Annyeong Foodie</span></h2>
-                <p class="lead text-muted">Kami hadir untuk membawa kehangatan rasa Korea ke meja makan Anda.</p>
-                <p>Annyeong Foodie lahir dari kecintaan kami pada kuliner Korea di Kabupaten Batang, Jawa Tengah. Dari dapur kecil di Kecamatan Bawang, kami meracik Kimbab, Dimsum, Tteokbokki, dan banyak pilihan lain yang siap menemani momen santai maupun acara spesial Anda.</p>
-                <p>Setiap hidangan dibuat dari bahan segar tanpa pengawet, dengan sentuhan tangan tim dapur yang penuh semangat. Kami percaya makanan bukan sekadar mengenyangkan, tapi juga menghadirkan cerita dan kebahagiaan di setiap gigitan.</p>
+            <div class="col-md-6 mb-4 mb-md-0">              
+                <h2 class="font-weight-bold">
+                    Tentang <span class="text-primary">Batterbit</span>
+                </h2>
+                <p class="lead text-muted">
+                    From Batter to Bite — dibuat dengan hangat,
+                    dinikmati di setiap momen.
+                </p>
+                <p>
+                    Batterbit adalah usaha bakery rumahan yang menghadirkan
+                    beragam roti dan kue untuk menemani keseharianmu.
+                    Berawal dari dapur keluarga, kami percaya bahwa camilan
+                    sederhana pun bisa membawa kebahagiaan, baik untuk
+                    dinikmati sendiri, dibagikan bersama orang tersayang,
+                    maupun melengkapi momen spesial.
+                </p>
+                <p>
+                    Dari roti manis dan soft bun hingga bolu, mini pizza,
+                    serta kue untuk berbagai acara, setiap produk kami hadir
+                    dengan perhatian pada rasa, kualitas, dan harga yang
+                    tetap bersahabat.
+                </p>
+                <p>
+                    Bagi kami, Batterbit bukan sekadar tentang adonan yang
+                    menjadi roti dan kue. Ini tentang kehangatan yang tumbuh
+                    dari dapur keluarga, kebahagiaan dalam setiap gigitan,
+                    dan momen sederhana yang menjadi lebih berkesan ketika
+                    dibagikan.
+                </p>
+
                 <div class="row mt-4">
                     <div class="col-4 text-center">
                         <h3 class="text-primary font-weight-bold">100+</h3>
@@ -19,7 +44,7 @@
                         <small class="text-muted">Menu Tersedia</small>
                     </div>
                     <div class="col-4 text-center">
-                        <h3 class="text-primary font-weight-bold">2022</h3>
+                        <h3 class="text-primary font-weight-bold">2024</h3>
                         <small class="text-muted">Tahun Berdiri</small>
                     </div>
                 </div>
@@ -34,7 +59,7 @@
             <div class="col-md-4 mb-3">
                 <i class="fa fa-map-marker fa-2x text-primary mb-2"></i>
                 <h6>Alamat</h6>
-                <p class="text-muted"><a href="https://share.google/ArTUKP1gRSHXwWX2t"></a> TRIUMPHANT FUTSAL, Bantir, Bawang, Kec. Bawang, Kabupaten Batang, Jawa Tengah 51274</p>
+                <p class="text-muted"><a href="https://maps.app.goo.gl/YvsK61M7WwdsryRx7?g_st=aw"></a> TRIUMPHANT FUTSAL, Bantir, Bawang, Kec. Bawang, Kabupaten Batang, Jawa Tengah 51274</p>
             </div>
             <div class="col-md-4 mb-3">
                 <i class="fa fa-whatsapp fa-2x text-success mb-2"></i>
@@ -44,7 +69,7 @@
             <div class="col-md-4 mb-3">
                 <i class="fa fa-instagram fa-2x text-danger mb-2"></i>
                 <h6>Instagram</h6>
-                <p class="text-muted"><a href="https://www.instagram.com/annyeong.foodie" target="_blank">@annyeong.foodie</a></p>
+                <p class="text-muted"><a href="https://www.instagram.com/batterbit_" target="_blank">@batterbit_</a></p>
             </div>
         </div>
     </div>

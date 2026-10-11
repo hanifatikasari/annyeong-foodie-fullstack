@@ -18,7 +18,7 @@ class UserGudangSeeder extends Seeder
             'ip_address' => '127.0.0.1',
             'username'   => 'gudang',
             'password'   => $password,
-            'email'      => 'gudang@annyeongfoodie.com',
+            'email'      => 'gudang@batterbit.com',
             'active'     => date('Y-m-d H:i:s'),
             'first_name' => 'Gudang',
             'last_name'  => 'User',
