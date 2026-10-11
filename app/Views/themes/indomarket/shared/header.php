@@ -21,11 +21,11 @@ $currentUser = $currentUser ?? null;
                 <div class="col-md-6 text-left">
                     <ul class="top-links contact-info list-unstyled d-flex mb-0">
                         <li class="mr-3">
-                            <i class="fa fa-envelope-o mr-1"></i>
+                            <i class="fas fa-envelope mr-1"></i>
                             <a href="mailto:batterbit@gmail.com">batterbit@gmail.com</a>
                         </li>
                         <li>
-                            <i class="fa fa-whatsapp mr-1"></i>
+                            <i class="fab fa-whatsapp mr-1"></i>
                             <a href="https://wa.me/6285879505277" target="_blank">+62 858-7950-5277</a>
                         </li>
                     </ul>
@@ -39,12 +39,12 @@ $currentUser = $currentUser ?? null;
                             ?>
                             <?php if ($isAdmin): ?>
                                 <li class="mr-3">
-                                    <i class="fa fa-tachometer mr-1"></i>
+                                    <i class="fas fa-tachometer-alt mr-1"></i>
                                     <a href="<?= site_url('admin/dashboard') ?>">Dashboard Admin</a>
                                 </li>
                             <?php endif; ?>
                             <li class="mr-3">
-                                <i class="fa fa-user-circle-o mr-1"></i>
+                                <i class="far fa-user-circle mr-1"></i>
                                 <a href="<?= site_url('account') ?>">
                                     <?= esc($currentUser->first_name ?? 'Akun Saya') ?>
                                 </a>
@@ -90,7 +90,7 @@ $currentUser = $currentUser ?? null;
                             <input type="text"
                                 name="q"
                                 class="form-control"
-                                placeholder="Cari produk favorit Anda..."
+                                placeholder="Cari menu favorit Anda..."
                                 value="<?= esc(service('request')->getGet('q') ?? '') ?>"
                                 autocomplete="off">
                             <div class="input-group-append">

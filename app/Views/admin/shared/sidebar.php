@@ -11,9 +11,9 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
     <!-- Brand Logo -->
 <a href="<?= site_url('admin/dashboard') ?>" class="brand-link navbar-primary d-flex align-items-center text-decoration-none">
     <img src="<?= base_url('uploads/settings/logo.png') ?>" 
-         alt="Annyeong Foodie" 
+         alt="Batterbit" 
          class="logo-img">
-    <span class="logo-text">Annyeong Foodie</span>
+    <span class="logo-text">Batterbit</span>
 </a>
 
 
@@ -321,7 +321,7 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
 
                 <li class="nav-item">
                     <a href="<?= site_url('auth/logout') ?>"
-                       class="nav-link text-danger"
+                       class="nav-link text-danger-bg"
                        onclick="return confirm('Apakah anda yakin ingin keluar?')">
                         <i class="nav-icon fas fa-sign-out-alt"></i>
                         <p>Logout</p>

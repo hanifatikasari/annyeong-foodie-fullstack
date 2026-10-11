@@ -86,46 +86,46 @@ $isCarouselEditor = isset($auth) && $auth->loggedIn() && $auth->inGroup(['admin'
     </div>
 </section>
 
-<!-- SERVICES -->
 <section class="pt-4 pb-4 bg-light">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-sm-6 col-md-4 mb-3">
-                <div class="d-flex align-items-center justify-content-center">
-                    <div class="iconbox rounded-circle text-white bg-primary mr-3 p-3">
-                        <i class="fa fa-truck fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Pengiriman Cepat</h6>
-                        <small class="text-muted">Area Pemalang & sekitarnya</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-4 mb-3">
-                <div class="d-flex align-items-center justify-content-center">
-                    <div class="iconbox rounded-circle text-white bg-success mr-3 p-3">
-                        <i class="fa fa-credit-card fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Bayar Online</h6>
-                        <small class="text-muted">QRIS & Transfer Bank</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-4 mb-3">
-                <div class="d-flex align-items-center justify-content-center">
-                    <div class="iconbox rounded-circle text-white bg-warning mr-3 p-3">
-                        <i class="fa fa-shield fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">100% Halal</h6>
-                        <small class="text-muted">Bahan pilihan berkualitas</small>
-                    </div>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-sm-6 col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center">
+          <div class="iconbox rounded-circle bg-cocoa mr-3 p-3">
+            <i class="fas fa-bread-slice fa-lg"></i>
+          </div>
+          <div>
+            <h6 class="mb-0">Fresh Baked</h6>
+            <small class="text-muted">Dibuat tanpa pengawet</small>
+          </div>
         </div>
+      </div>
+      <div class="col-sm-6 col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center">
+          <div class="iconbox rounded-circle bg-caramel mr-3 p-3">
+            <i class="fas fa-cookie-bite fa-lg"></i>
+          </div>
+          <div>
+            <h6 class="mb-0">Pembayaran Mudah</h6>
+            <small class="text-muted">QRIS & Transfer Bank</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center">
+          <div class="iconbox rounded-circle mr-3 p-3">
+            <i class="fas fa-seedling fa-lg"></i>
+          </div>
+          <div>
+            <h6 class="mb-0">Halal & Berkualitas</h6>
+            <small class="text-muted">Bahan pilihan terbaik</small>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
+
 
 
 <!-- TRENDING MENU -->

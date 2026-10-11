@@ -7,58 +7,24 @@
 
     <link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i&display=swap" rel="stylesheet">
     <link href="<?= base_url('/themes/indomarket/assets/css/nucleo-icons.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('/themes/indomarket/assets/css/font-awesome.css') ?>" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/jquery-ui.css') ?>" rel="stylesheet">
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/argon-design-system.min.css') ?>" rel="stylesheet">
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/style.css') ?>" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
-        /* ==========================================================
-           Batterbit — theme accents (inline, page-level)
-           Variabel warna diwarisi dari style.css (:root). Fallback
-           hex disertakan agar tetap aman meski dimuat terpisah.
-           ========================================================== */
-        body {
-            background-color: var(--af-white, #FFFFFF);
-        }
-
         .cart-badge { position:relative; }
-        .cart-badge .badge-count {
-            position:absolute;
-            top:-8px;
-            right:-8px;
-            background: var(--af-orange, #F2891F);
-            color:#fff;
-            border-radius:50%;
-            width:18px;
-            height:18px;
-            font-size:11px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            box-shadow: 0 2px 6px rgba(242,137,31,0.35);
-        }
-        .product-card {
-            transition: transform .2s, box-shadow .2s;
-            border-radius: var(--af-radius-md, 16px);
-        }
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--af-shadow-hover, 0 10px 30px rgba(59,90,115,.18));
-        }
-        .star-rating { color: var(--af-orange, #F2891F); }
-        .status-badge {
-            font-size:12px;
-            padding:4px 10px;
-            border-radius: var(--af-radius-pill, 20px);
-            font-weight: 600;
-        }
-        .status-pending { background: var(--af-orange-tint, #FDE9D4); color: var(--af-orange-dark, #D9740A); }
-        .status-processing { background: var(--af-navy-tint, #EAF0F4); color: var(--af-navy, #3B5A73); }
-        .status-shipped { background:#EFE7F7; color:#5B3E8C; }
-        .status-completed { background:#E7F5EC; color:#1F6B3A; }
-        .status-cancelled { background:#FCEAE8; color:#B23A2E; }
+        .cart-badge .badge-count { position:absolute; top:-8px; right:-8px; background:#e83e8c; color:#fff; border-radius:50%; width:18px; height:18px; font-size:11px; display:flex; align-items:center; justify-content:center; }
+        .product-card { transition: transform .2s; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,.15); }
+        .star-rating { color: #ffc107; }
+        .status-badge { font-size:12px; padding:4px 10px; border-radius:20px; }
+        .status-pending { background:#fff3cd; color:#856404; }
+        .status-processing { background:#cfe2ff; color:#084298; }
+        .status-shipped { background:#e2d9f3; color:#432874; }
+        .status-completed { background:#d1e7dd; color:#0a3622; }
+        .status-cancelled { background:#f8d7da; color:#842029; }
     </style>
 </head>
 <body>

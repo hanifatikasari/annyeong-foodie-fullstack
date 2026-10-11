@@ -285,7 +285,7 @@ $user = $user ?? null;
                                 <label class="custom-control-label" for="payTransfer">
                                     <strong><i class="fa fa-university mr-1 text-success"></i> Transfer Bank (Upload Bukti Manual)</strong>
                                     <small class="text-muted d-block ml-4 mt-1">
-                                        BCA: <strong>1234567890</strong> a/n <strong>Annyeong Foodie</strong>
+                                        BCA: <strong>1234567890</strong> a/n <strong>batterbit</strong>
                                         <br>Transfer lalu upload bukti. Diverifikasi tim dalam 1-3 jam kerja.
                                     </small>
                                 </label>

@@ -136,7 +136,7 @@
                                     <?php if (($order->pembayaran ?? '') === 'QRIS'): ?>
                                         <li>Scan QR Code di aplikasi dompet digital Anda.</li>
                                     <?php else: ?>
-                                        <li>Transfer ke <strong>BCA: 1234567890 a/n Annyeong Foodie</strong></li>
+                                        <li>Transfer ke <strong>BCA: 1234567890 a/n batterbit</strong></li>
                                     <?php endif; ?>
                                     <li>Klik tombol <strong>"Upload Bukti Bayar"</strong> di bawah.</li>
                                     <li>Tunggu verifikasi dari tim kami (1-3 jam kerja).</li>
