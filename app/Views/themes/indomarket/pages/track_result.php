@@ -18,12 +18,11 @@
             'color' => 'secondary'
         ];
         ?>
-
         <div class="row justify-content-center">
             <div class="col-md-9">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-                        <h5 class="mb-0">Pesanan <?= esc($order->invoice_no) ?></h5>
+                        <h5 class="mb-0" style="color: #f0f0f0;">Pesanan <?= esc($order->invoice_no) ?></h5>
                         <span class="badge badge-<?= $st['color'] ?> badge-pill p-2">
                             <i class="fa <?= $st['icon'] ?> mr-1"></i> <?= $st['label'] ?>
                         </span>
@@ -56,25 +55,99 @@
 
                         <!-- Item -->
                         <div class="table-responsive">
-                            <table class="table table-sm border">
+                            <table class="table table-sm mb-0 border">
+
                                 <thead class="bg-light">
-                                    <tr><th>Produk</th><th class="text-center">Qty</th><th class="text-right">Subtotal</th></tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($details as $d): ?>
-                                        <tr>
-                                            <td><?= esc($d->product_name) ?></td>
-                                            <td class="text-center"><?= $d->qty ?></td>
-                                            <td class="text-right">Rp <?= number_format($d->subtotal) ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                                <tfoot>
-                                    <tr class="table-primary">
-                                        <th colspan="2">TOTAL</th>
-                                        <th class="text-right">Rp <?= number_format($order->grand_total) ?></th>
+                                    <tr>
+                                        <th>Produk</th>
+                                        <th class="text-right">Subtotal</th>
                                     </tr>
+                                </thead>
+
+                                <tbody>
+
+                                <?php foreach ($details as $d): ?>
+
+                                    <tr>
+
+                                        <td>
+
+                                            <div class="font-weight-bold">
+                                                <?= esc($d->product_name) ?>
+                                            </div>
+
+                                            <small class="text-muted">
+                                                Rp <?= number_format($d->selling_price) ?>
+                                                ×
+                                                <?= $d->qty ?>
+                                            </small>
+
+                                        </td>
+
+                                        <td class="text-right align-middle">
+
+                                            Rp <?= number_format($d->subtotal) ?>
+
+                                        </td>
+
+                                    </tr>
+
+                                <?php endforeach; ?>
+
+                                </tbody>
+
+                                <tfoot>
+                                    <tr style="background-color: #eddede;">
+                                        <td>Total Belanja</td>
+                                        <td class="text-right">
+                                            Rp <?= number_format($order->subtotal_produk) ?>
+                                        </td>
+                                    </tr>
+
+                                    <?php if (($order->handling_fee ?? 0) > 0): ?>
+                                    <tr>
+                                        <td>Handling Fee</td>
+                                        <td class="text-right">
+                                            Rp <?= number_format($order->handling_fee) ?>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+
+                                    <?php if (($order->shipping_cost ?? 0) > 0): ?>
+                                    <tr>
+                                        <td>Ongkos Kirim</td>
+                                        <td class="text-right">
+                                            Rp <?= number_format($order->shipping_cost) ?>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+
+                                    <?php if (($order->diskon ?? 0) > 0): ?>
+                                    <tr>
+                                        <td class="text-success">
+                                            Diskon
+                                        </td>
+
+                                        <td class="text-right text-success">
+                                            - Rp <?= number_format($order->diskon) ?>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+
+                                    <tr class="table-primary">
+
+                                        <th>Grand Total</th>
+
+                                        <th class="text-right">
+
+                                            Rp <?= number_format($order->grand_total) ?>
+
+                                        </th>
+
+                                    </tr>
+
                                 </tfoot>
+
                             </table>
                         </div>
 

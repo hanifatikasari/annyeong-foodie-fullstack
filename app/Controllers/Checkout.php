@@ -39,7 +39,7 @@ class Checkout extends BaseController
                     'image'      => $buyNow['image'],
                 ]
             ];
-        } else {
+        } else {;
             $cart = get_cart();
         }
         if (empty($cart)) return redirect()->to('cart')->with('error','Keranjang Anda kosong.');
@@ -101,7 +101,6 @@ class Checkout extends BaseController
                     'Saat ini pembayaran sedang tidak tersedia.'
                 );
         }
-
         return view('themes/indomarket/pages/checkout', $this->data);
     }
 
@@ -112,7 +111,6 @@ class Checkout extends BaseController
     public function process()
     {
         $buyNow = session()->get('buy_now');
-
         if ($buyNow) {
             $product = model('ProductModel')->find($buyNow['product_id']);
             if (!$product) {
@@ -324,7 +322,6 @@ class Checkout extends BaseController
                          $handlingFee,
                          $diskon
                     );
-                    //dd($snapToken);
 
                     $penjualanModel->update($orderId, [
                         'snap_token' => $snapToken
@@ -342,7 +339,6 @@ class Checkout extends BaseController
             $invModel = model('ProductInventoryModel');
 
             foreach ($cart as $item) {
-                //dd($cart);
                 $product = model('ProductModel')->find($item['product_id']);
                 $hpp     = $product ? ($product->hpp_total ?? 0) : 0;
                 $price   = $item['price'];

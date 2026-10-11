@@ -431,7 +431,6 @@ Products Page
     line-height: 1;
     padding: 4px 0 0;
     text-transform: capitalize;
-    float: right;
     font-size: 14px;
 }
 
@@ -564,6 +563,11 @@ h1, h2, h4, h6 {
 .h5 {
   color: #1a2a6c !important; 
 }
+
+h5 .mb-0{
+    color: #ffffff !important;
+}
+
 /* dibawah cariusel */
 h6.mb-0 {
   color: var(--af-navy) !important; /* pakai palette Annyeong */

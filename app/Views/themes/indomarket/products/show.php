@@ -174,21 +174,17 @@
                                    name="product_id"
                                    id="selectedVariantId"
                                    value="">
-                            <div class="input-group mr-3" style="max-width:130px;">
+                           <div class="input-group input-group-sm" style="width: 100px;">
                                 <div class="input-group-prepend">
-                                    <button type="button"
-                                            class="btn btn-outline-secondary btn-qty-variant"
-                                            data-action="minus">−</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-qty-variant" data-action="minus">−</button>
                                 </div>
-                                <input type="number"
-                                       name="qty"
-                                       id="variantQtyInput"
-                                       class="form-control text-center"
-                                       value="1" min="1" max="99">
+                                <input type="number" 
+                                        name="qty" 
+                                        id="variantQtyInput" 
+                                        class="form-control text-center" 
+                                        value="1" min="1" max="99">
                                 <div class="input-group-append">
-                                    <button type="button"
-                                            class="btn btn-outline-secondary btn-qty-variant"
-                                            data-action="plus">+</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-qty-variant" data-action="plus">+</button>
                                 </div>
                             </div>
                             <button type="submit"

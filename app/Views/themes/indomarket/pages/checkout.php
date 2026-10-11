@@ -1,3 +1,11 @@
+<?php
+echo "<h1 style='color:red'>INI FILE CHECKOUT YANG SEDANG DIPAKAI</h1>";
+
+echo "<pre>";
+print_r($cart);
+echo "</pre>";
+// exit;
+?>
 <?= $this->extend('themes/indomarket/layout') ?>
 <?= $this->section('content') ?>
 
@@ -295,99 +303,107 @@ $user = $user ?? null;
                 </div>
 
                 <!-- ============================
-                     KOLOM KANAN: Ringkasan Order
-                     ============================ -->
+                    KOLOM KANAN: Ringkasan Order
+                    ============================ -->
                 <div class="col-lg-5">
                     <div class="card shadow-sm border-0 sticky-top" style="top:20px;">
                         <div class="card-header bg-primary border-0">
-                            <h6 class="mb-0 font-weight-bold ">
-                                <i class="fa fa-list-alt mr-2"></i>Ringkasan Pesanan
+                            <h6 class="mb-0 font-weight-bold text-white">
+                                <i class="fa fa-list-alt mr-2"></i>
+                                Ringkasan Pesanan
                             </h6>
                         </div>
+
                         <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-sm mb-0">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th>Produk</th>
-                                            <th class="text-right text-nowrap">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($cart as $item): ?>
-                                            <tr>
-                                                <td>
-                                                    <?= esc($item['name']) ?>
-                                                    <span class="text-muted">&times;<?= $item['qty'] ?></span>
-                                                </td>
-                                                <td class="text-right text-nowrap">
-                                                    Rp <?= number_format($item['price'] * $item['qty']) ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td>Total Belanja</td>
-                                            <td class="text-right">
-                                                Rp <?= number_format($total) ?>
-                                            </td>
-                                        </tr>
+                            <table class="table mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Produk</th>
+                                        <th class="text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($cart as $item): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="font-weight-bold">
+                                                <?= esc($item['name']) ?>
+                                            </div>
+                                            <small class="text-muted">
+                                                Rp <?= number_format((int)$item['price']) ?>
+                                                ×
+                                                <?= $item['qty'] ?>
+                                            </small>
+                                        </td>
+                                        <td class="text-right align-middle">
+                                            Rp <?= number_format((int)$item['price'] * (int)$item['qty']) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>Total Belanja</td>
+                                        <td class="text-right">
+                                            Rp <?= number_format($total) ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Handling Fee</td>
+                                        <td class="text-right">
+                                            <span id="handlingFee">
+                                                Rp <?= number_format($handlingFee) ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr id="shippingRow" style="display:none;">
+                                        <td>Ongkos Kirim</td>
+                                        <td class="text-right">
+                                            <span id="shippingCost">
+                                                Rp 0
+                                            </span>
+                                        </td>
+                                    </tr>
 
-                                        <tr>
-                                            <td>Handling Fee</td>
-                                            <td class="text-right">
-                                                <span id="handlingFee">
-                                                    Rp 0
-                                                </span>
-                                            </td>
-                                        </tr>
+                                    <tr id="discountRow" style="display:none;">
+                                        <td class="text-success">
+                                            Diskon
+                                        </td>
+                                        <td class="text-right text-success">
+                                            - <span id="discountAmount">Rp 0</span>
+                                        </td>
+                                    </tr>
 
-                                        <tr id="shippingRow" style="display:none;">
-                                            <td>Ongkos Kirim</td>
-                                            <td class="text-right">
-                                                <span id="shippingCost">
-                                                    Rp 0
-                                                </span>
-                                            </td>
-                                        </tr>
-
-                                        <tr id="discountRow" style="display:none;">
-                                            <td class="text-success">
-                                                Diskon
-                                            </td>
-                                            <td class="text-right text-success">
-                                                - <span id="discountAmount">Rp 0</span>
-                                            </td>
-                                        </tr>
-
-                                        <tr class="table-primary">
-                                            <th>Grand Total</th>
-                                            <th class="text-right">
-
-                                                <span id="grandTotal">
-                                                    Rp <?= number_format($total) ?>
-                                                </span>
-
-                                            </th>
-                                        </tr>
-
-                                        </tfoot>
-                                </table>
-                            </div>
+                                    <tr class="table-primary">
+                                        <th>Grand Total</th>
+                                        <th class="text-right">
+                                            <span id="grandTotal">
+                                                Rp <?= number_format($total + $handlingFee) ?>
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                         <div class="card-footer bg-white">
-                            <button type="submit"
-                                    class="btn btn-success btn-block btn-lg font-weight-bold"
-                                    id="btnCheckout">
-                                <i class="fa fa-check-circle mr-2"></i>Buat Pesanan
+                            <button
+                                type="submit"
+                                class="btn btn-success btn-block btn-lg font-weight-bold"
+                                id="btnCheckout">
+
+                                <i class="fa fa-check-circle mr-2"></i>
+                                Buat Pesanan
                             </button>
+
                             <a href="<?= site_url('cart') ?>"
-                               class="btn btn-outline-secondary btn-block btn-sm mt-2">
-                                <i class="fa fa-arrow-left mr-1"></i> Kembali ke Keranjang
+                            class="btn btn-outline-secondary btn-block btn-sm mt-2">
+                                <i class="fa fa-arrow-left mr-1"></i>
+                                Kembali ke Keranjang
                             </a>
+
                             <p class="text-muted text-center small mt-2 mb-0">
-                                <i class="fa fa-shield mr-1"></i>Transaksi aman
+                                <i class="fa fa-shield mr-1"></i>
+                                Transaksi aman
                             </p>
                         </div>
                     </div>
