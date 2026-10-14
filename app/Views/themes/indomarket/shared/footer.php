@@ -14,12 +14,11 @@
                             </a>
                         </div>
 
-                        <p class="text">From Batter to Bite. Roti manis, soft bun, bolu, donat, mini pizza, dan kue
-                            untuk acara spesial, dibuat di dapur rumahan keluarga kami.
+                        <p class="text">From Batter to Bite. Koleksi roti dan kue yang dibuat di dapur rumahan keluarga kami.
                         </p>
                     
                         <p class="call">
-                            Hubungi Kami
+                            Kontak Admin
                             <span>
                                 <a href="https://wa.me/6285879505277" target="_blank">
                                     +62 858-7950-5277
@@ -51,7 +50,6 @@
                         <ul>
                             <li><a href="#">Metode Pembayaran</a></li>
                             <li><a href="#">Pengembalian Dana</a></li>
-                            <li><a href="#">Pengembalian Barang</a></li>
                             <li><a href="#">Pengiriman</a></li>
                             <li><a href="#">Kebijakan Privasi</a></li>
                         </ul>

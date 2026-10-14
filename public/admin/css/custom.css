@@ -415,7 +415,6 @@ a:hover {
 .small-box.bg-danger,
 .small-box.bg-primary {
 	background-color: var(--bb-white) !important;
-	color: var(--bb-text) !important;
 }
 
 .small-box .inner h3 {
@@ -432,16 +431,16 @@ a:hover {
 	color: var(--bb-beige);
 }
 
-.small-box>.small-box-footer {
+.small-box .small-box-footer {
 	background-color: var(--bb-cream);
-	color: var(--bb-cocoa);
+	color: var(--bb-cocoa-dark)!important;
 	font-size: 13px;
 	font-weight: 500;
 }
 
-.small-box>.small-box-footer:hover {
+.small-box .small-box-footer:hover {
 	background-color: var(--bb-beige);
-	color: var(--bb-cocoa-dark);
+	color: var(--bb-cocoa)!important;
 }
 
 .info-box {

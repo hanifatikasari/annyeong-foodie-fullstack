@@ -6,6 +6,11 @@
     <title><?= $title ?? 'Batterbit' ?></title>
 
     <link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&display=swap" rel="stylesheet">
+
     <link href="<?= base_url('/themes/indomarket/assets/css/nucleo-icons.css') ?>" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link type="text/css" href="<?= base_url('/themes/indomarket/assets/css/jquery-ui.css') ?>" rel="stylesheet">
@@ -41,42 +46,55 @@
     <script src="<?= base_url('/themes/indomarket/assets/js/main.js') ?>"></script>
 
     <script>
-    // AJAX Add to Cart
-    let clickedButton = null;
+        // AJAX Add to Cart
+        let clickedButton = null;
 
-// simpan tombol submit yang diklik
-    $(document).on('click', '.form-add-cart button[type=submit]', e => {
-    clickedButton = $(e.currentTarget);
-    });
+        // simpan tombol submit yang diklik
+        $(document).on('click', '.form-add-cart button[type=submit]', e => {
+        clickedButton = $(e.currentTarget);
+        });
 
-    $(document).on('submit', '.form-add-cart', function(e) {
-    e.preventDefault();
+        $(document).on('submit', '.form-add-cart', function(e) {
+        e.preventDefault();
 
-    const form   = $(this);
-    const buyNow = clickedButton ? clickedButton.data('buy-now') : 0;
-    const url    = buyNow == 1 ? '<?= site_url("cart/buyNow") ?>' : '<?= site_url("cart/add") ?>';
+        const form   = $(this);
+        const buyNow = clickedButton ? clickedButton.data('buy-now') : 0;
+        const url    = buyNow == 1 ? '<?= site_url("cart/buyNow") ?>' : '<?= site_url("cart/add") ?>';
 
-    $.post(url, form.serialize() + '&<?= csrf_token() ?>=<?= csrf_hash() ?>', res => {
-        if (res.success) {
-            // buy now
-        if (buyNow == 1) return window.location.href = res.redirect;
-            // add to cart
-        $('.cart-count').text(res.count);
-        toastMsg(res.message, 'success');
-        } else { 
-            // config prod
-        if (res.needs_variant) return window.location.href = res.redirect;
-        toastMsg(res.message, 'danger');
+        $.post(url, form.serialize() + '&<?= csrf_token() ?>=<?= csrf_hash() ?>', res => {
+            if (res.success) {
+                // buy now
+            if (buyNow == 1) return window.location.href = res.redirect;
+                // add to cart
+            $('.cart-count').text(res.count);
+            toastMsg(res.message, 'success');
+            } else { 
+                // config prod
+            if (res.needs_variant) return window.location.href = res.redirect;
+            toastMsg(res.message, 'danger');
+            }
+        });
+        });
+
+
+        function toastMsg(msg, type) {
+            var toast = $('<div class="alert alert-' + type + ' position-fixed" style="bottom:20px;right:20px;z-index:9999;min-width:280px;">' + msg + '</div>');
+            $('body').append(toast);
+            setTimeout(function() { toast.fadeOut(400, function() { $(this).remove(); }); }, 3000);
         }
-    });
-    });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // ==========================================
+            // PENGATURAN WAKTU CAROUSEL (dalam milidetik)
+            // 1000 = 1 detik | 3000 = 3 detik | 5000 = 5 detik
+            // ==========================================
+            var waktuSlide = 5000; 
 
-
-    function toastMsg(msg, type) {
-        var toast = $('<div class="alert alert-' + type + ' position-fixed" style="bottom:20px;right:20px;z-index:9999;min-width:280px;">' + msg + '</div>');
-        $('body').append(toast);
-        setTimeout(function() { toast.fadeOut(400, function() { $(this).remove(); }); }, 3000);
-    }
+            setInterval(function() {
+                $('#mainCarousel').carousel('next');
+            }, waktuSlide);
+        });
     </script>
 </body>
 </html>

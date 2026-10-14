@@ -115,11 +115,11 @@
             ?>
                 <img src="<?= base_url('uploads/settings/logo.png') ?>">
             <?php endif; ?>
-            <h2>ANNYEONG.FOODIE</h2>
-            <div class="small">Let's Get Something To Eat</div>
-            <div class="small">Since 2022</div>
+            <h2>BATTERBIT</h2>
+            <div class="small">From Batter to Bite</div>
+            <div class="small">Since 2024</div>
             <br>
-            <div class="small">Ruko Triumphant Futsal Bawang</div>
+            <div class="small">Rumah Ibu Zulaikhah, Jl. Sunan Ampel, RT.12/RW.04, Bawang Delimas</div>
             <div class="small">Batang</div>
             <div class="small">0858 7950 5277</div>
         </div>

@@ -29,10 +29,7 @@ $isCarouselEditor = isset($auth) && $auth->loggedIn() && $auth->inGroup(['admin'
                                 <i class="fa fa-edit mr-1"></i> Edit Carousel
                             </a>
                         <?php endif; ?>
-                        <div id="mainCarousel"
-                             class="carousel slide carousel-fade"
-                             data-ride="carousel"
-                             data-interval="5000">
+                        <div id="mainCarousel" class="carousel slide">
                             <?php if (!empty($slides)): ?>
                                 <ol class="carousel-indicators">
                                     <?php foreach ($slides as $i => $slide): ?>

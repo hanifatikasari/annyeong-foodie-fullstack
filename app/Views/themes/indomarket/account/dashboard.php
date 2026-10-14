@@ -25,7 +25,7 @@
                         <div class="card shadow-sm text-center h-100">
                             <div class="card-body">
                                 <i class="fa fa-shopping-bag fa-3x text-primary mb-2"></i>
-                                <h4 class="font-weight-bold"><?= count($orders) ?></h4>
+                                <h4 class="font-weight-bold count-number"><?= count($orders) ?></h4>
                                 <p class="text-muted mb-2">Total Pesanan</p>
                                 <a href="<?= site_url('account/orders') ?>" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
                             </div>
@@ -34,8 +34,8 @@
                     <div class="col-md-4 mb-3">
                         <div class="card shadow-sm text-center h-100">
                             <div class="card-body">
-                                <i class="fa fa-clock-o fa-3x text-warning mb-2"></i>
-                                <h4 class="font-weight-bold">
+                                <i class="fa fa-clock fa-3x text-primary mb-2"></i>
+                                <h4 class="font-weight-bold count-number">
                                     <?= count(array_filter($orders, fn($o) => in_array($o->order_status, ['pending']))) ?>
                                 </h4>
                                 <p class="text-muted mb-2">Menunggu Verifikasi</p>
@@ -45,8 +45,8 @@
                     <div class="col-md-4 mb-3">
                         <div class="card shadow-sm text-center h-100">
                             <div class="card-body">
-                                <i class="fa fa-check-circle fa-3x text-success mb-2"></i>
-                                <h4 class="font-weight-bold">
+                                <i class="fa fa-check-circle fa-3x text-primary mb-2"></i>
+                                <h4 class="font-weight-bold count-number">
                                     <?= count(array_filter($orders, fn($o) => $o->order_status === 'completed')) ?>
                                 </h4>
                                 <p class="text-muted mb-2">Pesanan Selesai</p>

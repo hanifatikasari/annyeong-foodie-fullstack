@@ -22,7 +22,7 @@ class AddCustomerProfileFieldsToUsers extends Migration
                 'after'      => 'address',
             ],
 
-            'province' => [
+            '' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => true,

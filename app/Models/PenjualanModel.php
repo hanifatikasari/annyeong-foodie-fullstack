@@ -44,12 +44,12 @@ class PenjualanModel extends Model
     ];
 
     // ----------------------------------------------------------------
-    // Generate nomor invoice online — Format: AES-YYYYMMDD-001
+    // Generate nomor invoice online — Format: BTB-YYYYMMDD-001
     // ----------------------------------------------------------------
     public function generateOnlineInvoice(): string
     {
         $date   = date('Ymd');
-        $prefix = 'AES-' . $date . '-';
+        $prefix = 'BTB-' . $date . '-';
 
         $last = $this->like('invoice_no', $prefix, 'after')
                      ->orderBy('id', 'DESC')
@@ -186,7 +186,7 @@ class PenjualanModel extends Model
                         ->join('users', 'users.id = t_penjualan.customer_id', 'left')
                         ->join('m_shipping_area', 'm_shipping_area.id = t_penjualan.shipping_area_id', 'left')
                         ->join('users courier', 'courier.id = t_penjualan.delivery_courier_id', 'left')
-                        ->like('t_penjualan.invoice_no', 'AES-', 'after'); // Hanya invoice online (AES-)
+                        ->like('t_penjualan.invoice_no', 'BTB-', 'after'); // Hanya invoice online (BTB-)
 
         if (!empty($status)) {
             $builder->where('t_penjualan.order_status', $status);

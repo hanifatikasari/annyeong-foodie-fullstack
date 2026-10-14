@@ -60,7 +60,7 @@
                 <i class="fa fa-map-marker fa-2x text-primary mb-2"></i>
                 <h6>Alamat</h6>
                 <p class="text-muted"><a href="https://maps.app.goo.gl/YvsK61M7WwdsryRx7?g_st=aw"></a> RT.12/RW.04, Jl.Sunan Ampel, Bantir, Bawang, Batang Regency, Central Java 51274</p>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7918.43763012398!2d109.91358673488767!3d-7.100619299999989!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7013d9c7bff50d%3A0x47f4ef810aead2e4!2sbatterbit!5e0!3m2!1sen!2sid!4v1791722932893!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                <iframe src="https://www.google.com/maps/embed?pb=!4v1791745563138!6m8!1m7!1sxP96mtb8Zoqj3xDE-CkK-A!2m2!1d-7.100720664257272!2d109.9178315727156!3f77.3829514508046!4f-6.418296787831935!5f0.7820865974627469" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
             </div>
             <div class="col-md-4 mb-3">
                 <i class="fab fa-whatsapp fa-2x text-success mb-2"></i>

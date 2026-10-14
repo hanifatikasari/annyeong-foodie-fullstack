@@ -22,6 +22,7 @@ $routes->group('auth', function($routes) {
     $routes->post('login', 'Auth::login');
     $routes->get('logout', 'Auth::logout');
     $routes->get('forgot_password', 'Auth::forgot_password');
+    $routes->post('forgot_password', 'Auth::forgot_password');
     $routes->get('create_user', 'Auth::create_user');
     $routes->post('create_user', 'Auth::create_user');
     $routes->get('change_password', 'Auth::change_password');

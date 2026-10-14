@@ -195,7 +195,7 @@ class Migration_Install_ion_auth_custom extends \CodeIgniter\Database\Migration
 				'type'       => 'int',
 				'constraint' => '11',
 				'unsigned'   => true,
-			],
+			], 
 		]);
 		$this->forge->addKey('id', true);
 
