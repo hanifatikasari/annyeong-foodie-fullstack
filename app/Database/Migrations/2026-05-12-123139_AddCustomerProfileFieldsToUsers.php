@@ -8,6 +8,7 @@ class AddCustomerProfileFieldsToUsers extends Migration
 {
     public function up()
     {
+        
         $fields = [
             'address' => [
                 'type'  => 'TEXT',
@@ -22,7 +23,7 @@ class AddCustomerProfileFieldsToUsers extends Migration
                 'after'      => 'address',
             ],
 
-            '' => [
+            'province' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => true,

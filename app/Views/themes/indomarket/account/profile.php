@@ -80,7 +80,7 @@ $user = $user ?? $currentUser ?? null;
                             <div class="row">
                                 <!-- Nama Depan -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="first_name">Nama Depan <span class="text-danger">*</span></label>
                                         <input type="text"
                                                id="first_name"
@@ -93,7 +93,7 @@ $user = $user ?? $currentUser ?? null;
 
                                 <!-- Nama Belakang -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="last_name">Nama Belakang</label>
                                         <input type="text"
                                                id="last_name"
@@ -105,7 +105,7 @@ $user = $user ?? $currentUser ?? null;
 
                                 <!-- Email (read-only) -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label>Email</label>
                                         <input type="email"
                                                class="form-control bg-light"
@@ -117,7 +117,7 @@ $user = $user ?? $currentUser ?? null;
 
                                 <!-- No. HP -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="phone">No. HP / WhatsApp</label>
                                         <input type="tel"
                                                id="phone"
@@ -128,57 +128,124 @@ $user = $user ?? $currentUser ?? null;
                                     </div>
                                 </div>
 
-                                <!-- Alamat -->
+                                <!-- Alamat Lengkap -->
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="form-group mb-3">
                                         <label for="alamat">Alamat Lengkap</label>
                                         <textarea id="alamat"
                                                   name="alamat"
                                                   class="form-control"
                                                   rows="3"
-                                                  placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan"><?= esc(old('alamat', $user->address ?? '')) ?></textarea>
+                                                  placeholder="Jl. ..., RT/RW, Desa/Kelurahan"><?= esc(old('alamat', $user->address ?? '')) ?></textarea>
                                         <small class="text-muted">
-                                            Alamat ini akan otomatis diisi saat checkout.
+                                            Alamat ini akan otomatis terisi saat checkout.
                                         </small>
                                     </div>
                                 </div>
 
-                                <!-- Kota -->
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="kota">Kota</label>
-                                        <input type="text"
-                                               id="kota"
-                                               name="kota"
-                                               class="form-control"
-                                               value="<?= esc(old('kota', $user->city ?? '')) ?>">
+                                <!-- Area Pengiriman (Sebelah Kiri) -->
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="shipping_area_id">
+                                            Area Pengiriman <span class="text-danger">*</span>
+                                        </label>
+                                        <select id="shipping_area_id" name="shipping_area_id" class="form-control" required>
+                                            <option value="">-- Pilih Area Pengiriman --</option>
+                                            <?php foreach (($shippingAreas ?? []) as $area): ?>
+                                                <option
+                                                    value="<?= esc($area->id) ?>"
+                                                    <?= (string) old(
+                                                        'shipping_area_id',
+                                                        $user->shipping_area_id ?? ''
+                                                    ) === (string) $area->id ? 'selected' : '' ?>
+                                                >
+                                                    <?= esc($area->area_name) ?> — Rp <?= number_format($area->ongkir, 0, ',', '.') ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </div>
                                 </div>
 
-                                <!-- Provinsi -->
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="provinsi">Provinsi</label>
-                                        <input type="text"
-                                               id="provinsi"
-                                               name="provinsi"
-                                               class="form-control"
-                                               value="<?= esc(old('provinsi', $user->province ?? '')) ?>">
+                                <!-- Link Google Maps -->
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="gmaps_link">Link Google Maps (Opsional)</label>
+                                        <input type="url" id="gmaps_link" name="gmaps_link" class="form-control"
+                                               placeholder="https://maps.app.goo.gl/xxxx"
+                                               value="<?= esc(old('gmaps_link', $user->gmaps_link ?? '')) ?>">
+                                        <small class="text-muted d-block mt-1">
+                                            Tempelkan link lokasi rumah untuk memudahkan kurir mengantar pesanan.
+                                        </small>
                                     </div>
                                 </div>
 
-                                <!-- Kode Pos -->
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="kode_pos">Kode Pos</label>
-                                        <input type="text"
-                                               id="kode_pos"
-                                               name="kode_pos"
-                                               class="form-control"
-                                               placeholder="52300"
-                                               value="<?= esc(old('kode_pos', $user->postal_code ?? '')) ?>">
-                                    </div>
-                                </div>
+                               
+<!-- Provinsi -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label for="provinsi">Provinsi *</label>
+
+        <select id="provinsi" name="provinsi" class="form-control" required>
+            <option value="">-- Pilih Provinsi --</option>
+
+            <?php foreach (($provinceOptions ?? []) as $province): ?>
+                <option
+                    value="<?= esc($province) ?>"
+                    <?= old('provinsi', $user->province ?? '') === $province
+                        ? 'selected'
+                        : '' ?>
+                >
+                    <?= esc($province) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+
+<!-- Kota / Kabupaten -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label for="kota">Kota / Kabupaten *</label>
+
+        <select id="kota" name="kota" class="form-control" required>
+            <option value="">-- Pilih Kota/Kabupaten --</option>
+
+            <?php foreach (($cityOptions ?? []) as $city): ?>
+                <option
+                    value="<?= esc($city) ?>"
+                    <?= old('kota', $user->city ?? '') === $city
+                        ? 'selected'
+                        : '' ?>
+                >
+                    <?= esc($city) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+
+<!-- Kode Pos -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label for="kode_pos">Kode Pos *</label>
+
+        <select id="kode_pos" name="kode_pos" class="form-control" required>
+            <option value="">-- Pilih Kode Pos --</option>
+
+            <?php foreach (($postalCodeOptions ?? []) as $postalCode): ?>
+                <option
+                    value="<?= esc($postalCode) ?>"
+                    <?= old('kode_pos', $user->postal_code ?? '') === $postalCode
+                        ? 'selected'
+                        : '' ?>
+                >
+                    <?= esc($postalCode) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+
                             </div>
 
                             <hr>

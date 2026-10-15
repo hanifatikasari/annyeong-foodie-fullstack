@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\PenjualanModel;
+use App\Models\ShippingAreaModel;
 
 class Account extends BaseController
 {
@@ -106,31 +107,43 @@ class Account extends BaseController
             return redirect()->to('auth/login');
         }
 
+        $db = \Config\Database::connect();
         // Ambil data terbaru langsung dari DB (bukan dari session Ion Auth)
-        $user = \Config\Database::connect()
+        $user = $db
             ->table('users')
             ->where('id', $this->currentUser->id)
             ->get()
             ->getRow(); // getRow() → object
 
+             // Ambil area pengiriman yang aktif
+        $shippingAreas = model(ShippingAreaModel::class)
+            ->where('is_active', 1)
+            ->orderBy('area_name', 'ASC')
+            ->findAll();
+
         $this->data['user']  = $user ?? $this->currentUser;
+        $this->data['shippingAreas'] = $shippingAreas;
         $this->data['title'] = 'Profil Saya';
+
+         // Pilihan wilayah untuk formulir Batterbit
+        $this->data['provinceOptions'] = [
+            'Jawa Tengah',
+        ];
+
+        $this->data['cityOptions'] = [
+            'Batang', 'Pekalongan'
+        ];
+
+        // Sesuaikan daftar ini dengan kode pos yang sudah kamu verifikasi
+        $this->data['postalCodeOptions'] = [
+            '51274','51273', '51271'
+        ];
 
         return view('themes/indomarket/account/profile', $this->data);
     }
 
     // ---------------------------------------------------------------
     // UPDATE PROFIL
-    // FIX ISSUE #1: Pemetaan field form → kolom DB yang benar
-    //
-    // Form menggunakan nama Indonesia:
-    //   alamat   → address
-    //   kota     → city
-    //   provinsi → province
-    //   kode_pos → postal_code
-    //
-    // Kolom DB aktual (dari prompt):
-    //   address, city, province, postal_code
     // ---------------------------------------------------------------
     public function updateProfile()
     {
@@ -140,11 +153,19 @@ class Account extends BaseController
 
         $userId = $this->currentUser->id;
 
+        $provinceOptions = ['Jawa Tengah'];
+        $cityOptions = ['Batang', 'Pekalongan'];
+        $postalCodeOptions = ['51274','51273', '51271'];
         // Validasi minimal
         $rules = [
             'first_name' => 'required|min_length[2]|max_length[50]',
             'last_name'  => 'permit_empty|max_length[50]',
             'phone'      => 'permit_empty|max_length[20]',
+            'alamat'     => 'permit_empty|max_length[255]',
+            'provinsi'   => 'required|in_list[' . implode(',', $provinceOptions) . ']',
+            'kota'       => 'required|in_list[' . implode(',', $cityOptions) . ']',
+            'kode_pos'   => 'required|in_list[' . implode(',', $postalCodeOptions) . ']',
+            'shipping_area_id' => 'required|is_natural_no_zero',
         ];
 
         if (!$this->validate($rules)) {
@@ -153,12 +174,34 @@ class Account extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
+            $db = \Config\Database::connect();
+
+        // Pastikan area yang dipilih benar-benar ada dan aktif.
+        // Validasi ini penting karena dropdown bisa dimanipulasi.
+        $areaId = (int) $this->request->getPost('shipping_area_id');
+
+        $area = $db->table('m_shipping_area')
+            ->where('id', $areaId)
+            ->where('is_active', 1)
+            ->get()
+            ->getRow();
+
+        if (!$area) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', [
+                    'Area pengiriman tidak valid atau sudah tidak aktif.',
+                ]);
+        }
+
         // FIX #1: Peta nama field form → nama kolom DB aktual
         $updateData = [
             'first_name'  => $this->request->getPost('first_name'),
             'last_name'   => $this->request->getPost('last_name') ?? '',
             'phone'       => $this->request->getPost('phone') ?? '',
-            'address'     => $this->request->getPost('alamat') ?? '',      // form: alamat  → DB: address
+            'address'     => $this->request->getPost('alamat') ?? '',
+            'shipping_area_id' => $areaId,
+            'gmaps'       => $this->request->getPost('gmaps_link') ?? '', // form: gmaps_link → DB: gmaps
             'city'        => $this->request->getPost('kota') ?? '',        // form: kota    → DB: city
             'province'    => $this->request->getPost('provinsi') ?? '',    // form: provinsi → DB: province
             'postal_code' => $this->request->getPost('kode_pos') ?? '',   // form: kode_pos → DB: postal_code
@@ -184,7 +227,6 @@ class Account extends BaseController
         }
 
         // FIX #1: Gunakan QueryBuilder raw — lebih aman dan langsung
-        $db     = \Config\Database::connect();
         $result = $db->table('users')
                      ->where('id', $userId)
                      ->update($updateData);
