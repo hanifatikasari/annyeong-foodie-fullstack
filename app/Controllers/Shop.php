@@ -121,43 +121,4 @@ class Shop extends BaseController
         return view('themes/indomarket/pages/about', $this->data);
     }
 
-    // ---------------------------------------------------------------
-    // SUBMIT REVIEW
-    // ---------------------------------------------------------------
-    public function submitReview()
-    {
-        if (!$this->auth->loggedIn()) {
-            return redirect()->to('auth/login')
-                ->with('error', 'Login terlebih dahulu untuk memberikan ulasan.');
-        }
-
-        $productId = (int) $this->request->getPost('product_id');
-        $rating    = (int) $this->request->getPost('rating');
-        $ulasan    = trim($this->request->getPost('ulasan') ?? '');
-        $userId    = $this->currentUser->id;
-
-        if ($rating < 1 || $rating > 5) {
-            return redirect()->back()->with('error', 'Rating tidak valid.');
-        }
-
-        $reviewModel = model('ReviewModel');
-        $existing    = $reviewModel->where('product_id', $productId)
-                                   ->where('user_id', $userId)
-                                   ->first();
-
-        if ($existing) {
-            $reviewModel->update($existing->id, ['rating' => $rating, 'ulasan' => $ulasan]);
-            $msg = 'Ulasan berhasil diperbarui!';
-        } else {
-            $reviewModel->insert([
-                'product_id' => $productId,
-                'user_id'    => $userId,
-                'rating'     => $rating,
-                'ulasan'     => $ulasan,
-            ]);
-            $msg = 'Ulasan berhasil dikirim! Terima kasih.';
-        }
-
-        return redirect()->back()->with('success', $msg);
-    }
 }

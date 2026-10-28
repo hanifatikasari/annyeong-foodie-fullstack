@@ -110,6 +110,16 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </li>
                 <?php endif; ?>
 
+                <?php if ($ionAuth->inGroup(['admin', 'pemilik', 'penjualan'])): ?>
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/reviews') ?>"
+                           class="nav-link <?= ($currentAdminMenu == 'reviews') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-star"></i>
+                            <p>Manajemen Ulasan</p>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
                 <!-- MENU WITH SUBMENU -->
                 <!-- ===================================================== -->
                 <!-- SALES / TRANSACTIONS -->

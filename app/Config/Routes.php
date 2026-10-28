@@ -242,6 +242,15 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('markAsRead/(:num)', 'Admin\Notification::markAsRead/$1');
         $routes->post('markAllAsRead', 'Admin\Notification::markAllAsRead');
     });
+
+    // --- REVIEWS (Moderasi Ulasan) ---
+    $routes->group('reviews', ['filter' => 'authAdmin:admin,penjualan,pemilik'], function($routes) {
+        $routes->get('/', 'Admin\Reviews::index');
+        $routes->post('toggle/(:num)', 'Admin\Reviews::toggleVisibility/$1');
+        $routes->post('show/(:num)', 'Admin\Reviews::show/$1');
+        $routes->post('hide/(:num)', 'Admin\Reviews::hide/$1');
+        $routes->post('delete/(:num)', 'Admin\Reviews::delete/$1');
+    });
     
 });
 
@@ -297,6 +306,7 @@ $routes->post('midtrans/notification', 'MidtransNotification::handle');
         $routes->get('profile', 'Account::profile');
         $routes->post('profile/update', 'Account::updateProfile');
         $routes->get('track', 'Track::index');
+        $routes->post('reviews/submit', 'Account::submitReview');
     });
     
 
@@ -308,7 +318,7 @@ $routes->post('midtrans/notification', 'MidtransNotification::handle');
     $routes->get('about',                  'Shop::about');
 
     // Reviews
-    $routes->post('products/review',       'Shop::submitReview');
+    $routes->post('reviews/submit', 'Account::submitReview');
 
     // ============================================================
     // ADMIN EXTENSION - Payment & Order Management

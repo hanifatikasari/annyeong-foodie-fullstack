@@ -275,43 +275,6 @@
 
                     <!-- Ulasan -->
                     <div class="tab-pane" id="review">
-                        <?php if ($auth->loggedIn()): ?>
-                            <form action="<?= site_url('products/review') ?>"
-                                  method="post"
-                                  class="mb-4 p-3 bg-light rounded">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="product_id" value="<?= $product->id ?>">
-                                <h6 class="font-weight-bold">Tulis Ulasan</h6>
-                                <div class="form-group">
-                                    <label>Rating</label>
-                                    <select name="rating"
-                                            class="form-control form-control-sm"
-                                            style="max-width:120px;">
-                                        <?php for ($i = 5; $i >= 1; $i--): ?>
-                                            <option value="<?= $i ?>">
-                                                <?= str_repeat('⭐', $i) ?> (<?= $i ?>)
-                                            </option>
-                                        <?php endfor; ?>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Ulasan</label>
-                                    <textarea name="ulasan"
-                                              class="form-control"
-                                              rows="3"
-                                              placeholder="Bagikan pengalaman Anda..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    Kirim Ulasan
-                                </button>
-                            </form>
-                        <?php else: ?>
-                            <div class="alert alert-info">
-                                <a href="<?= site_url('auth/login') ?>">Login</a>
-                                untuk menulis ulasan.
-                            </div>
-                        <?php endif; ?>
-
                         <?php if (!empty($reviews)): ?>
                             <?php foreach ($reviews as $review): ?>
                                 <div class="media mb-3 pb-3 border-bottom">

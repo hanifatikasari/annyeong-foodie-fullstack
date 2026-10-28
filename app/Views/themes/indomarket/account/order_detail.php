@@ -23,6 +23,22 @@
                 ];
                 ?>
 
+                <!-- Flash Messages -->
+                <?php if (session()->getFlashdata('success')): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fa fa-check-circle mr-1"></i>
+                        <?= session()->getFlashdata('success') ?>
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                <?php endif; ?>
+                <?php if (session()->getFlashdata('error')): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa fa-exclamation-circle mr-1"></i>
+                        <?= session()->getFlashdata('error') ?>
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                <?php endif; ?>
+
                 <div class="card shadow-sm mb-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Detail Pesanan</h5>
@@ -190,6 +206,123 @@
                             </div>
                         <?php endif; ?>
 
+                        <!-- =====================================================
+                             SECTION: Ulasan Produk (hanya untuk pesanan completed)
+                             ===================================================== -->
+                        <?php if ($order->order_status === 'completed'): ?>
+                            <hr class="my-4">
+                            <h5 class="font-weight-bold mb-3">
+                                <i class="fa fa-star text-warning mr-1"></i> Ulasan Produk
+                            </h5>
+
+                            <?php
+                            // Deduplikasi produk: jika produk sama muncul >1x dalam pesanan,
+                            // tampilkan form review hanya sekali
+                            $reviewedProductIds = [];
+                            ?>
+
+                            <?php foreach ($details as $d): ?>
+                                <?php
+                                $pid = (int) $d->product_id;
+                                if (in_array($pid, $reviewedProductIds)) continue;
+                                $reviewedProductIds[] = $pid;
+
+                                $existingReview = $existingReviews[$pid] ?? null;
+                                $formId = 'reviewForm_' . $pid;
+                                ?>
+
+                                <div class="card mb-3 border">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="font-weight-bold mb-0"><?= esc($d->product_name) ?></h6>
+                                                <small class="text-muted">SKU: <?= esc($d->sku) ?></small>
+                                            </div>
+                                            <?php if ($existingReview): ?>
+                                                <span class="badge badge-success p-2">
+                                                    <i class="fa fa-check mr-1"></i> Sudah Diulas
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <?php if ($existingReview): ?>
+                                            <!-- Tampilkan review yang sudah ada -->
+                                            <div class="bg-light rounded p-3 mb-2">
+                                                <div class="star-rating mb-1" style="font-size:16px; color:#f5a623;">
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <i class="fa fa-star<?= $i <= $existingReview->rating ? '' : '-o' ?>"></i>
+                                                    <?php endfor; ?>
+                                                </div>
+                                                <p class="mb-1"><?= esc($existingReview->ulasan) ?></p>
+                                                <small class="text-muted">
+                                                    Dikirim: <?= date('d M Y H:i', strtotime($existingReview->created_at)) ?>
+                                                    <?php if ($existingReview->updated_at && $existingReview->updated_at !== $existingReview->created_at): ?>
+                                                        · Diperbarui: <?= date('d M Y H:i', strtotime($existingReview->updated_at)) ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </div>
+
+                                            <!-- Toggle edit form -->
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    onclick="document.getElementById('<?= $formId ?>').classList.toggle('d-none')">
+                                                <i class="fa fa-pencil mr-1"></i> Edit Ulasan
+                                            </button>
+                                        <?php endif; ?>
+
+                                        <!-- Form Review (tersembunyi jika sudah ada review) -->
+                                        <form action="<?= site_url('reviews/submit') ?>" 
+                                              method="post" 
+                                              id="<?= $formId ?>"
+                                              class="mt-3 p-3 bg-light rounded <?= $existingReview ? 'd-none' : '' ?>">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="product_id" value="<?= $pid ?>">
+                                            <input type="hidden" name="order_id" value="<?= (int) $order->id ?>">
+
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">Rating <span class="text-danger">*</span></label>
+                                                <div class="star-rating-input" data-form="<?= $formId ?>">
+                                                    <?php 
+                                                    $currentRating = $existingReview ? (int) $existingReview->rating : 5;
+                                                    ?>
+                                                    <input type="hidden" name="rating" id="rating_<?= $pid ?>" value="<?= $currentRating ?>">
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <i class="fa fa-star star-select" 
+                                                           data-rating="<?= $i ?>" 
+                                                           data-product="<?= $pid ?>"
+                                                           style="font-size:24px; cursor:pointer; color:<?= $i <= $currentRating ? '#f5a623' : '#ddd' ?>;"
+                                                        ></i>
+                                                    <?php endfor; ?>
+                                                    <span class="ml-2 text-muted rating-label" id="ratingLabel_<?= $pid ?>"><?= $currentRating ?>/5</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">Ulasan</label>
+                                                <textarea name="ulasan" 
+                                                          class="form-control" 
+                                                          rows="3" 
+                                                          maxlength="1000"
+                                                          placeholder="Bagikan pengalaman Anda tentang produk ini..."><?= esc($existingReview->ulasan ?? '') ?></textarea>
+                                                <small class="text-muted">Maks. 1000 karakter</small>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-paper-plane mr-1"></i>
+                                                <?= $existingReview ? 'Perbarui Ulasan' : 'Kirim Ulasan' ?>
+                                            </button>
+                                            
+                                            <?php if ($existingReview): ?>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary ml-1" 
+                                                        onclick="document.getElementById('<?= $formId ?>').classList.add('d-none')">
+                                                    Batal
+                                                </button>
+                                            <?php endif; ?>
+                                        </form>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+
                         <div class="mt-3">
                             <a href="<?= site_url('account/orders') ?>" class="btn btn-outline-secondary btn-sm">
                                 <i class="fa fa-arrow-left mr-1"></i> Kembali
@@ -201,5 +334,48 @@
         </div>
     </div>
 </section>
+
+<!-- Star Rating Interactive JS -->
+<script>
+document.querySelectorAll('.star-select').forEach(function(star) {
+    star.addEventListener('click', function() {
+        var rating = parseInt(this.dataset.rating);
+        var productId = this.dataset.product;
+        var input = document.getElementById('rating_' + productId);
+        var label = document.getElementById('ratingLabel_' + productId);
+        
+        if (input) input.value = rating;
+        if (label) label.textContent = rating + '/5';
+        
+        // Update star colors
+        var allStars = document.querySelectorAll('.star-select[data-product="' + productId + '"]');
+        allStars.forEach(function(s) {
+            var sRating = parseInt(s.dataset.rating);
+            s.style.color = sRating <= rating ? '#f5a623' : '#ddd';
+        });
+    });
+    
+    star.addEventListener('mouseenter', function() {
+        var rating = parseInt(this.dataset.rating);
+        var productId = this.dataset.product;
+        var allStars = document.querySelectorAll('.star-select[data-product="' + productId + '"]');
+        allStars.forEach(function(s) {
+            var sRating = parseInt(s.dataset.rating);
+            s.style.color = sRating <= rating ? '#f5a623' : '#ddd';
+        });
+    });
+    
+    star.addEventListener('mouseleave', function() {
+        var productId = this.dataset.product;
+        var input = document.getElementById('rating_' + productId);
+        var currentRating = input ? parseInt(input.value) : 5;
+        var allStars = document.querySelectorAll('.star-select[data-product="' + productId + '"]');
+        allStars.forEach(function(s) {
+            var sRating = parseInt(s.dataset.rating);
+            s.style.color = sRating <= currentRating ? '#f5a623' : '#ddd';
+        });
+    });
+});
+</script>
 
 <?= $this->endSection() ?>

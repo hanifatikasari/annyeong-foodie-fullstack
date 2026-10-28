@@ -88,13 +88,110 @@ class Account extends BaseController
         // Ambil detail item pesanan
         $details = model('PenjualanDetailModel')->getDetailByPenjualan($order->id);
 
+        // Jika pesanan completed, ambil review yang sudah dibuat user untuk produk-produk di pesanan ini
+        $existingReviews = [];
+        if ($order->order_status === 'completed') {
+            $reviewModel = model('ReviewModel');
+            $userId = $this->currentUser->id;
+
+            foreach ($details as $d) {
+                $review = $reviewModel->getByProductAndUser((int) $d->product_id, (int) $userId);
+                if ($review) {
+                    $existingReviews[$d->product_id] = $review;
+                }
+            }
+        }
+
         // Kirim data ke view
-        $this->data['order']   = $order;
-        $this->data['details'] = $details;
-        $this->data['title']   = 'Detail Pesanan ' . $order->invoice_no;
+        $this->data['order']           = $order;
+        $this->data['details']         = $details;
+        $this->data['existingReviews'] = $existingReviews;
+        $this->data['title']           = 'Detail Pesanan ' . $order->invoice_no;
 
         // Tampilkan halaman detail pesanan
         return view('themes/indomarket/account/order_detail', $this->data);
+    }
+
+    // ---------------------------------------------------------------
+    // SUBMIT REVIEW (dari halaman detail pesanan)
+    // ---------------------------------------------------------------
+    public function submitReview()
+    {
+        // 1. Cek login
+        if (!$this->auth->loggedIn()) {
+            return redirect()->to('auth/login')
+                ->with('error', 'Login terlebih dahulu untuk memberikan ulasan.');
+        }
+
+        $userId    = (int) $this->currentUser->id;
+        $productId = (int) $this->request->getPost('product_id');
+        $orderId   = (int) $this->request->getPost('order_id');
+        $rating    = (int) $this->request->getPost('rating');
+        $ulasan    = trim($this->request->getPost('ulasan') ?? '');
+
+        // 2. Validasi rating
+        if ($rating < 1 || $rating > 5) {
+            return redirect()->back()->with('error', 'Rating harus antara 1 sampai 5.');
+        }
+
+        // 3. Validasi komentar
+        if (mb_strlen($ulasan) > 1000) {
+            return redirect()->back()->with('error', 'Ulasan terlalu panjang (maks 1000 karakter).');
+        }
+
+        // 4. Validasi: Pesanan ada dan milik user ini
+        $order = model('PenjualanModel')->find($orderId);
+        if (!$order) {
+            return redirect()->back()->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        if ((int) ($order->customer_id ?? 0) !== $userId) {
+            return redirect()->back()->with('error', 'Akses ditolak.');
+        }
+
+        // 5. Validasi: Pesanan berstatus completed
+        if ($order->order_status !== 'completed') {
+            return redirect()->back()->with('error', 'Ulasan hanya dapat diberikan untuk pesanan yang sudah selesai.');
+        }
+
+        // 6. Validasi: Produk ada di detail pesanan
+        $detail = $this->db->table('t_penjualan_detail')
+            ->where('penjualan_id', $orderId)
+            ->where('product_id', $productId)
+            ->get()
+            ->getRow();
+
+        if (!$detail) {
+            return redirect()->back()->with('error', 'Produk tidak ditemukan dalam pesanan ini.');
+        }
+
+        // 7. Simpan atau update review
+        $reviewModel = model('ReviewModel');
+        $existing = $reviewModel->getByProductAndUser($productId, $userId);
+
+        if ($existing) {
+            // Update review yang sudah ada
+            $reviewModel->update($existing->id, [
+                'rating'              => $rating,
+                'ulasan'              => $ulasan,
+                'penjualan_detail_id' => $detail->id,
+            ]);
+            $msg = 'Ulasan berhasil diperbarui!';
+        } else {
+            // Buat review baru
+            $reviewModel->insert([
+                'product_id'          => $productId,
+                'user_id'             => $userId,
+                'rating'              => $rating,
+                'ulasan'              => $ulasan,
+                'is_visible'          => 1,
+                'penjualan_detail_id' => $detail->id,
+            ]);
+            $msg = 'Ulasan berhasil dikirim! Terima kasih.';
+        }
+
+        return redirect()->to('account/orders/detail/' . $orderId)
+            ->with('success', $msg);
     }
 
     // ---------------------------------------------------------------
