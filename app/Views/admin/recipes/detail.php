@@ -128,6 +128,7 @@
                         <table class="table table-hover table-bordered">
                             <thead class="bg-light">
                                 <tr>
+                                    <th class="text-center">No</th>
                                     <th>Nama Bahan</th>
                                     <th class="text-center">Jumlah</th>
                                     <th class="text-center">Satuan</th>
@@ -140,11 +141,13 @@
                             <tbody>
                                 <?php
                                 $totalHpp = 0;
+                                $no = 1;
                                 foreach ($recipes as $r):
                                     $biaya = $r->jumlah_kebutuhan * $r->harga_beli_satuan;
                                     $totalHpp += $biaya;
                                 ?>
                                 <tr>
+                                    <td class="text-center"><?= $no++ ?></td>
                                     <td><strong><?= esc($r->nama_bahan) ?></strong></td>
                                     <td class="text-center"><?= (float) $r->jumlah_kebutuhan ?></td>
                                     <td class="text-center"><?= esc($r->satuan) ?></td>

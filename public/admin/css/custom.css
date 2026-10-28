@@ -1287,4 +1287,15 @@ button:focus-visible,
 	textarea.form-control {
 		font-size: 16px;
 	}
+
+		.product-description {
+			line-height: 1.8;
+			overflow-wrap: break-word;
+		}
+	
+		.product-description br {
+			display: block;
+			content: "";
+			margin-bottom: 4px;
+		}
 }

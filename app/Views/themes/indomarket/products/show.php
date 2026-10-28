@@ -260,10 +260,18 @@
                 </ul>
                 <div class="tab-content border border-top-0 p-4 rounded-bottom">
 
-                    <!-- Deskripsi -->
-                    <div class="tab-pane active" id="desc">
-                        <?= $product->description ?: '<p class="text-muted">Belum ada deskripsi.</p>' ?>
-                    </div>
+                    
+<!-- Deskripsi -->
+<div class="tab-pane active" id="desc">
+    <?php if (!empty($product->description)): ?>
+        <div class="product-description">
+            <?= nl2br(esc($product->description)) ?>
+        </div>
+    <?php else: ?>
+        <p class="text-muted">Belum ada deskripsi.</p>
+    <?php endif; ?>
+</div>
+
 
                     <!-- Ulasan -->
                     <div class="tab-pane" id="review">

@@ -19,7 +19,7 @@ class ReportModel extends Model
                 (
                     invoice_no LIKE 'INV-%'
                     OR (
-                        invoice_no LIKE 'AES-%'
+                        invoice_no LIKE 'BTB-%'
                         AND order_status = 'completed'
                     )
                 )
@@ -69,7 +69,7 @@ class ReportModel extends Model
                 (
                     t_penjualan.invoice_no LIKE 'INV-%'
                     OR (
-                        t_penjualan.invoice_no LIKE 'AES-%'
+                        t_penjualan.invoice_no LIKE 'BTB-%'
                         AND t_penjualan.order_status='completed'
                     )
                 )

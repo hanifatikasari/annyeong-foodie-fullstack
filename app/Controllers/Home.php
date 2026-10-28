@@ -93,7 +93,7 @@ class Home extends BaseController
 
         $this->data['trendingProducts'] = $trendingProducts;
         $this->data['slides']           = $slides;
-        $this->data['title']            = 'Annyeong Foodie - Korean Food';
+        $this->data['title']            = 'Batterbit - Homade Bakery';
 
         return view('themes/' . $this->data['currentTheme'] . '/pages/home', $this->data);
     }
