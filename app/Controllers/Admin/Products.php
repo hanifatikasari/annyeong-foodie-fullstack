@@ -543,10 +543,7 @@ class Products extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
         
-        if ($product->parent_id) {
-            return redirect()->to('/admin/products/'. $product->parent_id .'/images');
-        }
-
+        // Setiap produk memiliki pengaturan gambarnya sendiri.
        $productImages = model('ProductImageModel')
             ->where('product_id', $product->id)
             ->orderBy('created_at', 'DESC')

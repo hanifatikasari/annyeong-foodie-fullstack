@@ -247,8 +247,22 @@ class Products extends BaseController
 
         // Reviews
         $reviewModel = model('ReviewModel');
-        $reviews     = $reviewModel->getByProduct($product->id);
-        $avgRating   = $reviewModel->getAverageRating($product->id);
+        if ($product->type === 'configurable') {
+            // Ambil review parent dan seluruh variant
+            $reviews = $reviewModel->getByProductWithVariants($product->id);
+
+            // Hitung rata-rata dari seluruh review yang terlihat
+            $avgRating = !empty($reviews)
+                ? array_sum(array_map(
+                    fn($review) => (int) $review->rating,
+                    $reviews
+                )) / count($reviews)
+                : 0;
+        } else {
+            // Produk simple tetap menggunakan mekanisme sebelumnya
+            $reviews   = $reviewModel->getByProduct($product->id);
+            $avgRating = $reviewModel->getAverageRating($product->id);
+        }
 
         // Produk terkait (kategori sama, limit 4)
         $catIds = $db->table('product_categories')

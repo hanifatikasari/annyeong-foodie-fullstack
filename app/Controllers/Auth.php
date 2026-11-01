@@ -35,11 +35,15 @@ class Auth extends \IonAuth\Controllers\Auth
         $remember = (bool)$this->request->getPost('remember');
 
         if ($this->auth->login($identity, $password, $remember)) {
-            // JIKA ADMIN: Masuk ke Dashboard Admin di proyek INI (E-Bisnis)
+        // Gabungkan keranjang guest dengan keranjang akun.
+        helper('cart_helper');
+        merge_guest_cart_into_user_cart();
+    
+        // JIKA ADMIN: Masuk ke Dashboard Admin 
             if ($this->auth->isAdmin()) {
                 return redirect()->to('/')->with('message', 'Login Success!');
             } 
-            // JIKA PELANGGAN: Masuk ke Home E-Bisnis
+            // JIKA PELANGGAN: Masuk ke Home page
             return redirect()->to('/')->with('message', 'Login Success!');
         } else {
             return redirect()->back()->withInput()->with('message', $this->auth->errors());

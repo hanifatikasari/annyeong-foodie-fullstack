@@ -47,7 +47,7 @@ class CreateProductsTable extends Migration
 			],
 			'slug' => [
 				'type' => 'VARCHAR',
-				'constraint' => 120,
+				'constraint' => 120, 
 			],
 			'price' => [
 				'type' => 'mediumint',

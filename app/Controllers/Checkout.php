@@ -39,10 +39,15 @@ class Checkout extends BaseController
                     'image'      => $buyNow['image'],
                 ]
             ];
-        } else {;
-            $cart = get_cart();
+        } else {
+            $cart = get_selected_cart();
         }
-        if (empty($cart)) return redirect()->to('cart')->with('error','Keranjang Anda kosong.');
+        if (empty($cart)) {
+            if (!empty(get_cart())) {
+                return redirect()->to('cart')->with('error', 'Silakan pilih (centang) produk di keranjang yang ingin Anda checkout.');
+            }
+            return redirect()->to('cart')->with('error', 'Keranjang Anda kosong.');
+        }
 
 
         // Ambil data user terbaru dari DB (bukan session)
@@ -126,10 +131,15 @@ class Checkout extends BaseController
                 ]
             ];
         } else {
-            $cart = get_cart();
+            $cart = get_selected_cart();
         }
 
-        if (empty($cart)) return redirect()->to('cart');
+        if (empty($cart)) {
+            if (!empty(get_cart())) {
+                return redirect()->to('cart')->with('error', 'Silakan pilih (centang) produk di keranjang yang ingin Anda checkout.');
+            }
+            return redirect()->to('cart')->with('error', 'Keranjang Anda kosong.');
+        }
 
 
         // ========================================
@@ -402,11 +412,28 @@ class Checkout extends BaseController
                 throw new \Exception('Transaksi database gagal. Silakan coba lagi.');
             }
 
-            // Kosongkan keranjang
-            if(session()->has('buy_now')){
+            // =====================================================
+            // HAPUS PRODUK YANG BERHASIL DI-CHECKOUT
+            // =====================================================
+            if (session()->has('buy_now')) {
+                // Buy Now tidak menggunakan keranjang utama
                 session()->remove('buy_now');
-            }else{
-                clear_cart();
+            } else {
+                // Hapus produk terpilih dari session cart
+                remove_selected_from_cart();
+
+                // Hapus produk terpilih dari database cart user
+                $productIds = array_map(
+                    'intval',
+                    array_column(array_values($cart), 'product_id')
+                );
+
+                if (!empty($productIds)) {
+                    $db->table('user_cart_items')
+                        ->where('user_id', $this->currentUser->id)
+                        ->whereIn('product_id', $productIds)
+                        ->delete();
+                }
             }
 
             // ============================================================

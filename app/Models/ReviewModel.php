@@ -41,6 +41,24 @@ class ReviewModel extends Model
                     ->findAll();
     }
 
+    //mengambil review dengan product_id parent dan child sekaligus.
+    //p.name AS variant_name sehingga setiap review memiliki informasi nama produk yang terkait dengannya.
+    public function getByProductWithVariants(int $parentId): array
+    {
+        return $this->db->table('product_reviews pr')
+            ->select('pr.*, u.first_name, u.last_name, u.avatar, p.name AS variant_name')
+            ->join('users u', 'u.id = pr.user_id', 'left')
+            ->join('products p', 'p.id = pr.product_id', 'left')
+            ->groupStart()
+                ->where('p.id', $parentId)
+                ->orWhere('p.parent_id', $parentId)
+            ->groupEnd()
+            ->where('pr.is_visible', 1)
+            ->orderBy('pr.id', 'DESC')
+            ->get()
+            ->getResult();
+    }
+
     // ------------------------------------------------------------------
     // FRONTEND: Rata-rata rating HANYA review yang visible
     // ------------------------------------------------------------------

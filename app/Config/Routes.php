@@ -276,6 +276,12 @@ $routes->post('midtrans/notification', 'MidtransNotification::handle');
     $routes->post('cart/remove',           'Cart::remove');
     $routes->get('cart/clear',             'Cart::clear');
     $routes->post('cart/buyNow',           'Cart::buyNow');
+    $routes->post('cart/toggleSelect',     'Cart::toggleSelect');
+    $routes->post('cart/selectAll',        'Cart::selectAll');
+    $routes->post('cart/checkout',         'Cart::checkout');
+    $routes->post('cart/removeSelected',   'Cart::removeSelected');
+    $routes->post('cart/syncPrices',       'Cart::syncPrices');
+
 
     // Checkout & Orders (wajib login)
     $routes->group('checkout', ['filter' => 'authFrontend'], function($routes) {

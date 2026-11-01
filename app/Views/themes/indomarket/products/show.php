@@ -261,52 +261,57 @@
                 <div class="tab-content border border-top-0 p-4 rounded-bottom">
 
                     
-<!-- Deskripsi -->
-<div class="tab-pane active" id="desc">
-    <?php if (!empty($product->description)): ?>
-        <div class="product-description">
-            <?= nl2br(esc($product->description)) ?>
-        </div>
-    <?php else: ?>
-        <p class="text-muted">Belum ada deskripsi.</p>
-    <?php endif; ?>
-</div>
+                <!-- Deskripsi -->
+                <div class="tab-pane active" id="desc">
+                    <?php if (!empty($product->description)): ?>
+                        <div class="product-description">
+                            <?= nl2br(esc($product->description)) ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted">Belum ada deskripsi.</p>
+                    <?php endif; ?>
+                </div>
 
-
-                    <!-- Ulasan -->
-                    <div class="tab-pane" id="review">
-                        <?php if (!empty($reviews)): ?>
-                            <?php foreach ($reviews as $review): ?>
-                                <div class="media mb-3 pb-3 border-bottom">
-                                    <div class="mr-3">
-                                        <?php if (!empty($review->avatar)): ?>
-                                            <img src="<?= base_url($review->avatar) ?>"
-                                                 class="rounded-circle"
-                                                 width="45" height="45"
-                                                 style="object-fit:cover;">
-                                        <?php else: ?>
-                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                                                 style="width:45px;height:45px;">
-                                                <?= strtoupper(substr($review->first_name ?? 'U', 0, 1)) ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="media-body">
+                <!-- Ulasan -->
+                <div class="tab-pane" id="review">
+                    <?php if (!empty($reviews)): ?>
+                        <?php foreach ($reviews as $review): ?>
+                            <div class="media mb-3 pb-3 border-bottom">
+                                <div class="mr-3">
+                                    <?php if (!empty($review->avatar)): ?>
+                                        <img src="<?= base_url($review->avatar) ?>"
+                                             class="rounded-circle"
+                                             width="45" height="45"
+                                             style="object-fit:cover;">
+                                    <?php else: ?>
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                            style="width:45px;height:45px;">
+                                            <?= strtoupper(substr($review->first_name ?? 'U', 0, 1)) ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="media-body">
+                                    <div class="d-flex justify-content-between align-items-center">
                                         <h6 class="mb-0">
                                             <?= esc(($review->first_name ?? '') . ' ' . ($review->last_name ?? '')) ?>
                                         </h6>
-                                        <div class="star-rating" style="font-size:13px;">
-                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <i class="fa fa-star<?= $i <= $review->rating ? '' : '-o' ?>"></i>
-                                            <?php endfor; ?>
-                                        </div>
-                                        <p class="mt-1 mb-0"><?= esc($review->ulasan) ?></p>
+
                                         <small class="text-muted">
-                                            <?= date('d M Y', strtotime($review->created_at)) ?>
+                                            <?= esc($review->variant_name ?? $product->name) ?>
                                         </small>
                                     </div>
+                                    <div class="star-rating" style="font-size:13px;">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <i class="fa fa-star<?= $i <= $review->rating ? '' : '-o' ?>"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <p class="mt-1 mb-0"><?= esc($review->ulasan) ?></p>
+                                    <small class="text-muted">
+                                        <?= date('d M Y', strtotime($review->created_at)) ?>
+                                    </small>
                                 </div>
-                            <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
                         <?php else: ?>
                             <p class="text-muted">Belum ada ulasan.</p>
                         <?php endif; ?>

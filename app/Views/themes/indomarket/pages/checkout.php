@@ -1,11 +1,3 @@
-<?php
-echo "<h1 style='color:red'>INI FILE CHECKOUT YANG SEDANG DIPAKAI</h1>";
-
-echo "<pre>";
-print_r($cart);
-echo "</pre>";
-// exit;
-?>
 <?= $this->extend('themes/indomarket/layout') ?>
 <?= $this->section('content') ?>
 

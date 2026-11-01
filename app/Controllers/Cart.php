@@ -9,20 +9,43 @@ class Cart extends BaseController
         helper('cart_helper');
     }
 
+    // ---------------------------------------------------------------
+    // CART INDEX (Shopee Style: checkbox selection & dynamic summary)
+    // ---------------------------------------------------------------
     public function index()
     {
-        $this->data['cart']       = get_cart();
-        $this->data['total']      = cart_total();
-        $this->data['cartCount']  = cart_count();
-        $this->data['categories'] = model('CategoryModel')->getStorefrontCategories();
-        $this->data['title']      = 'Keranjang Belanja';
+        // Sinkronkan harga terlebih dahulu sebelum menghitung ringkasan.
+        sync_cart_prices();
+        $cart              = get_cart();
+        $selectedCart      = get_selected_cart();
+        $selectedTotal     = cart_selected_total();
+        $selectedCount     = cart_selected_count();
+        $selectedItemCount = count($selectedCart);
+
+        // Cek apakah semua produk yang tersedia (stok > 0) sedang tercentang
+        $availableItems = array_filter($cart, function($item) {
+            return ($item['stok'] ?? 0) > 0;
+        });
+        $isAllSelected = !empty($availableItems) && ($selectedItemCount >= count($availableItems));
+
+        $this->data['cart']              = $cart;
+        $this->data['selectedCart']      = $selectedCart;
+        $this->data['total']             = $selectedTotal; // Total default yang dihitung adalah yang terpilih
+        $this->data['selectedTotal']     = $selectedTotal;
+        $this->data['selectedCount']     = $selectedCount;
+        $this->data['selectedItemCount'] = $selectedItemCount;
+        $this->data['isAllSelected']     = $isAllSelected;
+        $this->data['cartTotal']         = cart_total();
+        $this->data['cartCount']         = cart_count();
+        $this->data['categories']        = model('CategoryModel')->getStorefrontCategories();
+        $this->data['title']             = 'Keranjang Belanja';
 
         return view('themes/indomarket/pages/cart', $this->data);
     }
 
     // ---------------------------------------------------------------
     // ADD TO CART
-    // NEW: Cek configurable product — redirect ke detail + pilih varian
+    // Status default: UNCHECKED / tidak langsung terpilih
     // ---------------------------------------------------------------
     public function add()
     {
@@ -68,7 +91,7 @@ class Cart extends BaseController
                 'success' => $success,
                 'count'   => cart_count(),
                 'message' => $success
-                    ? 'Produk ditambahkan ke keranjang!'
+                    ? 'masuk keranjang.'
                     : 'Stok tidak mencukupi.',
             ]);
         }
@@ -85,6 +108,7 @@ class Cart extends BaseController
     // ---------------------------------------------------------------
     public function update()
     {
+        sync_cart_prices();
         $productId = (int) $this->request->getPost('product_id');
         $qty       = (int) $this->request->getPost('qty');
         $action    = $this->request->getPost('action'); // 'set', 'increment', 'decrement'
@@ -103,19 +127,105 @@ class Cart extends BaseController
             $cart = get_cart();
             $item = $cart[$productId] ?? null;
             return $this->response->setJSON([
-                'success'   => true,
-                'newQty'    => $item ? $item['qty'] : 0,
-                'subtotal'  => $item
-                    ? number_format($item['price'] * $item['qty'])
-                    : '0',
-                'cartTotal' => number_format(cart_total()),
-                'count'     => cart_count(),
+                'success'           => true,
+                'newQty'            => $item ? $item['qty'] : 0,
+                'subtotal'          => $item ? number_format($item['price'] * $item['qty']) : '0',
+                'rawSubtotal'       => $item ? ($item['price'] * $item['qty']) : 0,
+                'selected'          => $item ? (!empty($item['selected'])) : false,
+                'selectedTotal'     => number_format(cart_selected_total()),
+                'rawSelectedTotal'  => cart_selected_total(),
+                'selectedCount'     => cart_selected_count(),
+                'selectedItemCount' => cart_selected_item_count(),
+                'cartTotal'         => number_format(cart_total()),
+                'count'             => cart_count(),
+                'csrf_token'        => csrf_hash(),
             ]);
         }
 
         return redirect()->to('cart')->with('success', 'Keranjang diperbarui.');
     }
 
+    // ---------------------------------------------------------------
+    // TOGGLE CHECKBOX ITEM (AJAX)
+    // ---------------------------------------------------------------
+    public function toggleSelect()
+    {
+        $productId = (int) $this->request->getPost('product_id');
+        $selected  = (bool) $this->request->getPost('selected');
+
+        update_cart_selected($productId, $selected);
+
+        $cart              = get_cart();
+        $selectedCart      = get_selected_cart();
+        $availableItems    = array_filter($cart, function($item) {
+            return ($item['stok'] ?? 0) > 0;
+        });
+        $isAllSelected     = !empty($availableItems) && (count($selectedCart) >= count($availableItems));
+
+        return $this->response->setJSON([
+            'success'           => true,
+            'selectedTotal'     => number_format(cart_selected_total()),
+            'rawSelectedTotal'  => cart_selected_total(),
+            'selectedCount'     => cart_selected_count(),
+            'selectedItemCount' => count($selectedCart),
+            'isAllSelected'     => $isAllSelected,
+            'csrf_token'        => csrf_hash(),
+        ]);
+    }
+
+    // ---------------------------------------------------------------
+    // SELECT ALL ITEMS (AJAX)
+    // ---------------------------------------------------------------
+    public function selectAll()
+    {
+        $selected = (bool) $this->request->getPost('selected');
+
+        update_cart_select_all($selected);
+
+        $selectedCart = get_selected_cart();
+
+        return $this->response->setJSON([
+            'success'           => true,
+            'selectedTotal'     => number_format(cart_selected_total()),
+            'rawSelectedTotal'  => cart_selected_total(),
+            'selectedCount'     => cart_selected_count(),
+            'selectedItemCount' => count($selectedCart),
+            'isAllSelected'     => $selected,
+            'csrf_token'        => csrf_hash(),
+        ]);
+    }
+
+    // ---------------------------------------------------------------
+    // CHECKOUT PROCESOR DARI KERANJANG
+    // Membawa hanya produk yang dicentang ke halaman transaksi
+    // ---------------------------------------------------------------
+    public function checkout()
+    {
+        sync_cart_prices();
+        $selectedItems = $this->request->getPost('selected_items');
+
+        if (is_array($selectedItems)) {
+            set_selected_items($selectedItems);
+        }
+
+        $selectedCart = get_selected_cart();
+
+        if (empty($selectedCart)) {
+            return redirect()->to('cart')
+                ->with('error', 'Silakan pilih (centang) minimal 1 produk untuk melanjutkan checkout.');
+        }
+
+        // Hapus session buy_now jika ada agar alur checkout menggunakan keranjang terpilih
+        if (session()->has('buy_now')) {
+            session()->remove('buy_now');
+        }
+
+        return redirect()->to('checkout');
+    }
+
+    // ---------------------------------------------------------------
+    // HAPUS SATU ITEM
+    // ---------------------------------------------------------------
     public function remove()
     {
         $productId = (int) $this->request->getPost('product_id');
@@ -123,21 +233,84 @@ class Cart extends BaseController
 
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
-                'success'   => true,
-                'count'     => cart_count(),
-                'cartTotal' => number_format(cart_total()),
+                'success'           => true,
+                'count'             => cart_count(),
+                'cartTotal'         => number_format(cart_total()),
+                'selectedTotal'     => number_format(cart_selected_total()),
+                'rawSelectedTotal'  => cart_selected_total(),
+                'selectedCount'     => cart_selected_count(),
+                'selectedItemCount' => cart_selected_item_count(),
+                'csrf_token'        => csrf_hash(),
             ]);
         }
 
         return redirect()->to('cart')->with('success', 'Produk dihapus dari keranjang.');
     }
 
+    // ---------------------------------------------------------------
+    // HAPUS HANYA PRODUK YANG SEDANG DICENTANG
+    // ---------------------------------------------------------------
+    public function removeSelected()
+    {
+        $selectedItems = $this->request->getPost('selected_items');
+
+        if (is_array($selectedItems) && !empty($selectedItems)) {
+            remove_selected_items($selectedItems);
+        } else {
+            remove_selected_from_cart();
+        }
+
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success'           => true,
+                'count'             => cart_count(),
+                'cartTotal'         => number_format(cart_total()),
+                'selectedTotal'     => number_format(cart_selected_total()),
+                'rawSelectedTotal'  => cart_selected_total(),
+                'selectedCount'     => cart_selected_count(),
+                'selectedItemCount' => cart_selected_item_count(),
+                'csrf_token'        => csrf_hash(),
+            ]);
+        }
+
+        return redirect()->to('cart')->with('success', 'Produk yang dipilih berhasil dihapus dari keranjang.');
+    }
+
+    // ---------------------------------------------------------------
+    // KOSONGKAN SELURUH KERANJANG
+    // ---------------------------------------------------------------
     public function clear()
     {
         clear_cart();
         return redirect()->to('cart');
     }
 
+    
+    public function syncPrices()
+    {
+        $cart = sync_cart_prices();
+        $items = [];
+
+        foreach ($cart as $productId => $item) {
+            $items[] = [
+                'product_id' => (int) $productId,
+                'price'      => (int) $item['price'],
+                'qty'        => (int) $item['qty'],
+                'stok'       => isset($item['stok']) ? (int) $item['stok'] : null,
+                'subtotal'   => (int) $item['price'] * (int) $item['qty'],
+            ];
+        }
+
+        return $this->response->setJSON([
+            'success'    => true,
+            'items'      => $items,
+            'csrf_token' => csrf_hash(),
+        ]);
+    }
+ 
+    // ---------------------------------------------------------------
+    // BUY NOW
+    // ---------------------------------------------------------------
     public function buyNow()
     {
         $productId = (int) $this->request->getPost('product_id');
@@ -176,5 +349,4 @@ class Cart extends BaseController
 
         return $this->response->setJSON(['success'=>true,'redirect'=>site_url('checkout')]);
     }
-
 }

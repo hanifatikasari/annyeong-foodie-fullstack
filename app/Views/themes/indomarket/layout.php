@@ -66,6 +66,7 @@
                 // buy now
             if (buyNow == 1) return window.location.href = res.redirect;
                 // add to cart
+            $('#cartCountBadge').text(res.count);
             $('.cart-count').text(res.count);
             toastMsg(res.message, 'success');
             } else { 
