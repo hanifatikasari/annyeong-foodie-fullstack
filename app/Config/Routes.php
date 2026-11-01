@@ -20,6 +20,8 @@ $routes->group('auth', function($routes) {
     $routes->get('/', 'Auth::index');
     $routes->get('login', 'Auth::login');
     $routes->post('login', 'Auth::login');
+    $routes->get('register', 'Auth::create_user');
+    $routes->post('register', 'Auth::create_user');
     $routes->get('logout', 'Auth::logout');
     $routes->get('forgot_password', 'Auth::forgot_password');
     $routes->post('forgot_password', 'Auth::forgot_password');

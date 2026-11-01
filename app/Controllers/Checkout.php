@@ -27,7 +27,7 @@ class Checkout extends BaseController
              $product = model('ProductModel')->find($buyNow['product_id']);
             if (!$product) {
                 session()->remove('buy_now');
-                return redirect()->to('products');
+                return redirect()->to('products'); 
             }
            $cart = [
                 $buyNow['product_id'] => [

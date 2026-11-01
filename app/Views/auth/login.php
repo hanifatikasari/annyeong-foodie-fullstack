@@ -47,6 +47,12 @@
     <p class="mt-3 text-center">
         <a href="forgot_password"><?php echo lang('Auth.login_forgot_password');?></a>
     </p>
+
+    <div class="text-center mt-4">
+        <p class="mb-1 ">Don't have an acc ount? 
+            <a href="<?= site_url('auth/register') ?>" class="text-primary fw-bold ms-1">Sign Up</a>
+        </p>
+    </div>
 </div>
 
 <?= $this->endSection() ?>

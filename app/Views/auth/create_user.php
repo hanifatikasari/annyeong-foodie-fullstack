@@ -74,5 +74,11 @@
 
       <p><?php echo form_submit('submit', lang('Auth.create_user_submit_btn'));?></p>
 
+      <div class="text-center mt-3"><p class="mb-1">Already have an account?</p>
+            <a href="<?= site_url('auth/login') ?>">
+                  Login now
+            </a>
+      </div>
+
 <?php echo form_close();?>
 <?= $this->endSection() ?>

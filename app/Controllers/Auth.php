@@ -50,7 +50,7 @@ class Auth extends \IonAuth\Controllers\Auth
         }
     }
 
-    public function forgot_password()
+    public function forgot_password() 
     {
         $this->data['title'] = "Forgot Password - Annyeong Foodie";
         
