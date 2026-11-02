@@ -29,6 +29,13 @@ $routes->group('auth', function($routes) {
     $routes->post('create_user', 'Auth::create_user');
     $routes->get('change_password', 'Auth::change_password');
     $routes->post('change_password', 'Auth::change_password');
+
+    // --- GOOGLE OAUTH ---
+    $routes->get('google', 'GoogleAuth::start');
+    $routes->get('google/callback', 'GoogleAuth::callback');
+    $routes->get('google/link', 'GoogleAuth::linkForm');
+    $routes->post('google/link', 'GoogleAuth::linkSubmit');
+    $routes->get('google/cancel', 'GoogleAuth::cancel');
 });
 
 // 3. ADMIN AREA (ERP/Dashboard) - PAKAI FILTER

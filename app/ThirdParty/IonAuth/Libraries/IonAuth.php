@@ -26,6 +26,8 @@ namespace IonAuth\Libraries;
  */
 class IonAuth
 {
+	public $session; // Deklarasikan di sini
+    //
 	/**
 	 * Configuration
 	 *

@@ -2,6 +2,7 @@
 
 class Auth extends \IonAuth\Controllers\Auth
 {
+     protected $auth;
     // Pastikan mengarah ke folder Views/auth di proyek E-Bisnis
     protected $viewsFolder = 'auth'; 
 
