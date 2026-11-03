@@ -144,7 +144,10 @@ class GoogleAuth extends BaseController
         }
 
         $this->accounts()->clearPendingLink();
-
+        // Gabungkan keranjang guest dengan keranjang akun.
+        helper('cart_helper');
+        merge_guest_cart_into_user_cart();
+        
         return redirect()->to('/')->with('message', 'Login Success! Akun Google berhasil dihubungkan.');
     }
 
@@ -168,6 +171,9 @@ class GoogleAuth extends BaseController
 
             return $this->failure('Login dengan Google gagal. Silakan coba lagi atau gunakan email dan password.');
         }
+        // Gabungkan keranjang guest dengan keranjang akun.
+        helper('cart_helper');
+        merge_guest_cart_into_user_cart();
 
         return redirect()->to('/')->with('message', 'Login Success!');
     }

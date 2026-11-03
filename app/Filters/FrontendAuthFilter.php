@@ -28,7 +28,18 @@ class FrontendAuthFilter implements FilterInterface
 
             return redirect()->to(site_url('auth/login'));
         }
+        // Pastikan user yang tersimpan dalam session masih ada.
+        $userQuery = $auth->user();
+        $currentUser = $userQuery ? $userQuery->row() : null;
+
+        if ($currentUser === null) {
+            $auth->logout();
+            session()->setFlashdata('message', 'Sesi login berakhir. Silakan login kembali.');
+
+            return redirect()->to(site_url('auth/login'));
+        }
     }
+    
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {

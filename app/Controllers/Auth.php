@@ -53,6 +53,10 @@ class Auth extends \IonAuth\Controllers\Auth
 
     public function forgot_password() 
     {
+        // Jika form dikirim, serahkan proses ke controller IonAuth.
+        if ($this->request->is('post')) {
+            return parent::forgot_password();
+        }
         $this->data['title'] = "Forgot Password - Annyeong Foodie";
         
         // Setting validasi (bisa disesuaikan dengan config IonAuth)

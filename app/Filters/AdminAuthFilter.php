@@ -15,14 +15,25 @@ class AdminAuthFilter implements FilterInterface
             return redirect()->to('/auth/login');
         }
 
-        $currentUser = $auth->user()->row();
-        
+        // Ambil user dari database.
+        $userQuery = $auth->user();
+        $currentUser = $userQuery ? $userQuery->row() : null;
+            
+        // Session ada tetapi user tidak ditemukan.
+        if ($currentUser === null) {
+            $auth->logout();
+
+            return redirect()->to(site_url('auth/login'))
+                ->with('message', 'Sesi login berakhir. Silakan login kembali.');
+        }
+
+        // Periksa hak akses berdasarkan group.
         if (!empty($arguments)) {
             if (!$auth->inGroup($arguments, $currentUser->id)) {
-                // Kasih pesan error yang jelas
-                session()->setFlashdata("errors", "Akses Ditolak! Akun Anda tidak memiliki izin untuk halaman ini.");
-                
-                // Buang ke halaman utama
+                session()->setFlashdata(
+                    'errors',
+                    'Akses Ditolak! Akun Anda tidak memiliki izin untuk halaman ini.'
+                );
                 return redirect()->to('/');
             }
         }

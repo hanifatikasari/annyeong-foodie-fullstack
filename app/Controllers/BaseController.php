@@ -60,30 +60,33 @@ abstract class BaseController extends Controller
 		//--------------------------------------------------------------------
 		
         //  // --- COPY BAGIAN INI DARI TEMPLATE ---
-         $this->session = \Config\Services::session();
+        $this->session = \Config\Services::session();
         $this->data['session'] = $this->session;
 
-        // Catatan: Pastikan IonAuth sudah terinstall, jika belum, baris ini mungkin akan error nanti
         $this->auth = new \IonAuth\Libraries\IonAuth();
-        $this->currentUser = $this->auth->user()->row();
-    
+        $this->currentUser = null;
+
+        // Periksa apakah session menyatakan pengguna sudah login.
+        if ($this->auth->loggedIn()) {
+            // Ambil ulang data user dari database.
+            $userQuery = $this->auth->user();
+            $this->currentUser = $userQuery ? $userQuery->row() : null;
+            // Jika user tidak ditemukan, session sudah tidak valid.
+            if ($this->currentUser === null) {
+                // Logout melalui IonAuth agar session dibersihkan
+                // menggunakan mekanisme bawaan library.
+                $this->auth->logout();
+                $this->session->setFlashdata(
+                    'message',
+                    'Sesi login berakhir karena akun tidak lagi tersedia. Silakan login kembali.'
+                );
+            }
+        }
+
         $this->data['auth'] = $this->auth;
         $this->data['currentUser'] = $this->currentUser;
 
         $this->data['currentTheme'] = 'indomarket';
-
         $this->db = \Config\Database::connect();
-
-        $router = service('router');
-        $controllerName = $router->controllerName();
-
-        // Cek apakah user sedang mengakses Controller di dalam folder Admin
-        if (strpos($controllerName, '\Admin\\') !== false) {
-            if (!$this->auth->loggedIn()) {
-                return header('Location: ' . base_url('auth/login'));
-                exit();
-            }
-        }
-        // E.g.: $this->session = service('session');
     }
 }

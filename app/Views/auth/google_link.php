@@ -35,9 +35,14 @@
         </div>
     </form>
 
-    <p class="mt-3 text-center">
+    <div class="mt-3 text-center">
+        <p class="mb-2">
+            <a href="<?= site_url('auth/forgot_password') ?>">
+                Lupa password akun Batterbit?
+            </a>
+        </p>
         <a href="<?= site_url('auth/google/cancel') ?>">Batal</a>
-    </p>
+    </div>
 </div>
 
 <?= $this->endSection() ?>
