@@ -60,7 +60,7 @@ $user = $user ?? null;
                                        id="nama_penerima"
                                        name="nama_penerima"
                                        class="form-control <?= session('errors.nama_penerima') ? 'is-invalid' : '' ?>"
-                                       value="<?= old('nama_penerima', ($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?>"
+                                       value="<?= old('nama_penerima') ?? esc($recipientName ?? '') ?>"
                                        placeholder="Nama lengkap penerima"
                                        required>
                                 <?php if (session('errors.nama_penerima')): ?>
@@ -78,7 +78,7 @@ $user = $user ?? null;
                                        id="no_hp_penerima"
                                        name="no_hp_penerima"
                                        class="form-control <?= session('errors.no_hp_penerima') ? 'is-invalid' : '' ?>"
-                                       value="<?= old('no_hp_penerima', $user->phone ?? '') ?>"
+                                       value="<?= old('no_hp_penerima') ?? esc($recipientPhone ?? '') ?>"
                                        placeholder="contoh: 08123456789"
                                        required>
                                 <?php if (session('errors.no_hp_penerima')): ?>
@@ -98,16 +98,18 @@ $user = $user ?? null;
                                             class="form-control <?= session('errors.alamat_pengiriman') ? 'is-invalid' : '' ?>"
                                             rows="3"
                                             placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan, Kota, Provinsi, Kode Pos"
-                                            required><?= old('alamat_pengiriman', $user->address ?? '') ?></textarea>
+                                            required><?= old('alamat_pengiriman') ?? esc($user->address ?? '') ?></textarea>
                                     <?php if (session('errors.alamat_pengiriman')): ?>
                                         <div class="invalid-feedback"><?= session('errors.alamat_pengiriman') ?></div>
                                     <?php endif; ?>
-                                    <small class="text-muted">
+
+                                    <small class="text-muted d-block">
                                         <i class="fa fa-info-circle mr-1"></i>
-                                        Isi alamat lengkap agar pengiriman tepat sasaran.
-                                        <a href="<?= site_url('account/profile') ?>" target="_blank">Update profil</a>
-                                        untuk mengisi otomatis.
+                                        Alamat diambil dari profil Anda dan masih bisa diubah untuk pesanan ini.
+                                        <a href="<?= site_url('account/profile') ?>" target="_blank" rel="noopener">Edit alamat di profil</a>
+                                        (muat ulang halaman ini setelah menyimpan).
                                     </small>
+
                                 </div>
                             </div>
 
@@ -184,7 +186,8 @@ $user = $user ?? null;
                                 <?php foreach($shippingAreas as $area): ?>
                                     <option
                                         value="<?= $area->id ?>"
-                                        data-cost="<?= $area->ongkir ?>">
+                                        data-cost="<?= $area->ongkir ?>"
+                                        <?= (string) (old('shipping_area_id') ?? ($savedAreaId ?? '')) === (string) $area->id ? 'selected' : '' ?>>
                                         <?= esc($area->area_name) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -426,6 +429,10 @@ const handlingFee = <?= $handlingFee ?>;
 const shippingSelect = document.getElementById('shipping_area_id');
 function updateDeliveryUI(){
     let shipping = 0;
+    const isDelivery = deliveryRadio.checked;
+    document.getElementById('shippingAreaWrapper').style.display = isDelivery ? 'block' : 'none';
+    shippingSelect.disabled = !isDelivery;
+
     if(deliveryRadio.checked){
         deliveryFields.style.display = '';
         shippingRow.style.display = '';

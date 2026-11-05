@@ -76,6 +76,20 @@ class Checkout extends BaseController
             ->where('is_active', 1)
             ->orderBy('area_name', 'ASC')
             ->findAll();
+
+        // Autofill checkout dari profil (nama/HP penerima tetap bisa diedit di form)
+        helper('delivery');
+        $this->data['profileMissing'] = delivery_profile_missing($user);
+        $this->data['recipientName']  = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+        $this->data['recipientPhone'] = $user->phone ?? '';
+        $this->data['savedAreaId']    = null;
+        foreach ($this->data['shippingAreas'] as $area) {
+            if ((string) $area->id === (string) ($user->shipping_area_id ?? '')) {
+                $this->data['savedAreaId'] = $area->id; // hanya terisi bila area masih aktif
+                break;
+            }
+        }  
+
         //settingan disable/enable metode pembayaran
         $this->data['enableMidtrans'] =
             (bool) $settingModel->getValue(
@@ -115,6 +129,7 @@ class Checkout extends BaseController
     // ---------------------------------------------------------------
     public function process()
     {
+        helper('delivery');
         $buyNow = session()->get('buy_now');
         if ($buyNow) {
             $product = model('ProductModel')->find($buyNow['product_id']);
@@ -153,19 +168,19 @@ class Checkout extends BaseController
         // ========================================
         $rules = [
             'delivery_type' => ['rules' => 'required|in_list[pickup,delivery]','label' => 'Metode Pengiriman'],
-            'nama_penerima' => ['rules' => 'required|min_length[3]','label' => 'Nama Penerima'],
-            'no_hp_penerima' => ['rules' => 'required|min_length[6]','label' => 'Nomor HP'],
+            'nama_penerima' => ['rules' => 'required|min_length[3]|max_length[100]','label' => 'Nama Penerima'],
+            'no_hp_penerima' => ['rules' => 'required|regex_match[/^[0-9+\-\s()]{6,20}$/]','label' => 'Nomor HP'],
             'pembayaran' => ['rules' => 'required|in_list[QRIS,Transfer,Midtrans]','label' => 'Metode Pembayaran']
         ];
 
         // Tambahkan validasi khusus DELIVERY
         if ($deliveryType === 'delivery') {
             $rules['alamat_pengiriman'] = [
-                'rules' => 'required|min_length[5]',
+                'rules' => 'required|min_length[10]|max_length[500]',
                 'label' => 'Alamat Pengiriman'
             ];
             $rules['shipping_area_id'] = [
-                'rules' => 'required|integer',
+                'rules' => 'required|is_natural_no_zero',
                 'label' => 'Area Pengiriman'
             ];
         }
@@ -188,8 +203,8 @@ class Checkout extends BaseController
         $shippingAreaId = null;
         $shippingCost = 0;
         if ($deliveryType === 'delivery') {
-            $shippingAreaId = $this->request->getPost('shipping_area_id');
-            $shippingArea = model('ShippingAreaModel')->find($shippingAreaId);
+            $shippingAreaId = (int) $this->request->getPost('shipping_area_id');
+            $shippingArea   = delivery_find_active_area($shippingAreaId); // ada + aktif + tidak terhapus
 
             if (!$shippingArea) {
                 return redirect()->back()
@@ -260,10 +275,56 @@ class Checkout extends BaseController
                 ->get()
                 ->getRow();
        
-        if ($deliveryType === 'pickup') {
-            $shippingAddress = trim($user->address .', ' . $user->city .', ' . $user->province);
+        // Snapshot data pengiriman untuk order ini. Wilayah & lokasi diambil dari profil di DB
+        // (bukan dari POST) supaya tidak bisa dimanipulasi dari browser.
+        $recipientName  = trim(strip_tags((string) $this->request->getPost('nama_penerima')));
+        $recipientPhone = trim(strip_tags((string) $this->request->getPost('no_hp_penerima')));
+
+        $snapshot = [
+            'shipping_recipient_name'  => $recipientName,
+            'shipping_recipient_phone' => $recipientPhone,
+            'shipping_area_name'       => null,
+            'shipping_province'        => null,
+            'shipping_city'            => null,
+            'shipping_postal_code'     => null,
+            'shipping_latitude'        => null,
+            'shipping_longitude'       => null,
+            'shipping_gmaps_link'      => null,
+        ];
+
+        if ($deliveryType === 'delivery') {
+            $missing = [];
+            if (trim((string) ($user->province ?? '')) === '') {
+                $missing[] = 'Provinsi';
+            }
+            if (trim((string) ($user->city ?? '')) === '') {
+                $missing[] = 'Kota/Kabupaten';
+            }
+            if (trim((string) ($user->postal_code ?? '')) === '') {
+                $missing[] = 'Kode pos';
+            }
+
+            if ($missing !== []) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Lengkapi data pengiriman di profil Anda terlebih dahulu: '
+                        . implode(', ', $missing) . '.');
+            }
+
+            $hasCoords = delivery_valid_coordinates($user->latitude ?? null, $user->longitude ?? null);
+
+            $shippingAddress = trim(strip_tags((string) $this->request->getPost('alamat_pengiriman')));
+
+            $snapshot['shipping_area_name']   = $shippingArea->area_name;
+            $snapshot['shipping_province']    = $user->province;
+            $snapshot['shipping_city']        = $user->city;
+            $snapshot['shipping_postal_code'] = $user->postal_code;
+            $snapshot['shipping_latitude']    = $hasCoords ? round((float) $user->latitude, 7) : null;
+            $snapshot['shipping_longitude']   = $hasCoords ? round((float) $user->longitude, 7) : null;
+            $snapshot['shipping_gmaps_link']  = delivery_normalize_gmaps_url($user->gmaps ?? null);
         } else {
-            $shippingAddress = $this->request->getPost('alamat_pengiriman');
+            // Pickup: tanpa alamat/area/lokasi. Ongkir tetap 0 (shippingCost sudah 0 di atas).
+            $shippingAddress = 'Pickup di toko';
         }
 
         $subtotal = 0;
@@ -307,6 +368,7 @@ class Checkout extends BaseController
                 'order_status'     => 'pending',
                 'payment_status'   => 'unpaid',
                 'shipping_address' => $shippingAddress,
+                                ...$snapshot,
                 'catatan_customer' => $this->request->getPost('catatan_customer') ?? '',
                 'snap_token'       => null, 
                 'delivery_type'    => $deliveryType,

@@ -257,8 +257,8 @@ class Account extends BaseController
         $rules = [
             'first_name' => 'required|min_length[2]|max_length[50]',
             'last_name'  => 'permit_empty|max_length[50]',
-            'phone'      => 'permit_empty|max_length[20]',
-            'alamat'     => 'permit_empty|max_length[255]',
+            'phone'      => 'required|max_length[20]|regex_match[/^[0-9+\-\s()]{8,20}$/]',
+            'alamat'     => 'required|min_length[10]|max_length[255]',
             'provinsi'   => 'required|in_list[' . implode(',', $provinceOptions) . ']',
             'kota'       => 'required|in_list[' . implode(',', $cityOptions) . ']',
             'kode_pos'   => 'required|in_list[' . implode(',', $postalCodeOptions) . ']',
@@ -291,6 +291,21 @@ class Account extends BaseController
                 ]);
         }
 
+        // Validasi link Google Maps manual (fallback lokasi)
+        helper('delivery');
+        $gmapsInput = trim((string) $this->request->getPost('gmaps_link'));
+        $gmapsLink  = '';
+        if ($gmapsInput !== '') {
+            $gmapsLink = delivery_normalize_gmaps_url($gmapsInput);
+            if ($gmapsLink === null) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('errors', [
+                        'Link Google Maps tidak valid. Gunakan link dari Google Maps, misalnya https://maps.app.goo.gl/xxxx',
+                    ]);
+            }
+        }
+
         // FIX #1: Peta nama field form → nama kolom DB aktual
         $updateData = [
             'first_name'  => $this->request->getPost('first_name'),
@@ -298,7 +313,7 @@ class Account extends BaseController
             'phone'       => $this->request->getPost('phone') ?? '',
             'address'     => $this->request->getPost('alamat') ?? '',
             'shipping_area_id' => $areaId,
-            'gmaps'       => $this->request->getPost('gmaps_link') ?? '', // form: gmaps_link → DB: gmaps
+            'gmaps'       => $gmapsLink, // form: gmaps_link → DB: gmaps (sudah divalidasi)
             'city'        => $this->request->getPost('kota') ?? '',        // form: kota    → DB: city
             'province'    => $this->request->getPost('provinsi') ?? '',    // form: provinsi → DB: province
             'postal_code' => $this->request->getPost('kode_pos') ?? '',   // form: kode_pos → DB: postal_code
@@ -336,6 +351,20 @@ class Account extends BaseController
 
         return redirect()->to('account/profile')
             ->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    /**
+     * Semua respons menyertakan token CSRF terbaru karena Config\Security::$regenerate = true
+     * (token berubah setelah setiap POST yang lolos filter).
+     */
+    private function locationResponse(array $payload, int $status = 200)
+    {
+        $payload['csrf'] = ['name' => csrf_token(), 'hash' => csrf_hash()];
+
+        return $this->response
+            ->setStatusCode($status)
+            ->setHeader('Cache-Control', 'no-store')
+            ->setJSON($payload);
     }
 
     // ---------------------------------------------------------------

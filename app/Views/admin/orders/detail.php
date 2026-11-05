@@ -37,9 +37,21 @@
                                 <strong>No. HP:</strong>
                                 <?= esc($order->phone ?? '-') ?><br>
 
+                                <?php helper('delivery'); $navUrl = delivery_order_maps_url($order); ?>
                                 <strong>Alamat:</strong><br>
                                 <?= nl2br(esc($order->shipping_address ?? '-')) ?>
+                                <?php if (!empty($order->shipping_recipient_name)): ?>
+                                    <br><strong>Penerima:</strong> <?= esc($order->shipping_recipient_name) ?>
+                                    <?php if (!empty($order->shipping_recipient_phone)): ?>(<?= esc($order->shipping_recipient_phone) ?>)<?php endif; ?>
+                                <?php endif; ?>
+                                <?php if (!empty($order->shipping_city) || !empty($order->shipping_province)): ?>
+                                    <br><?= esc(trim(($order->shipping_city ?? '') . ', ' . ($order->shipping_province ?? '') . ' ' . ($order->shipping_postal_code ?? ''), ' ,')) ?>
+                                <?php endif; ?>
+                                <?php if ($navUrl): ?>
+                                    <br><a href="<?= esc($navUrl, 'attr') ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary mt-1"><i class="fa fa-map-marker"></i> Buka Navigasi Google Maps</a>
+                                <?php endif; ?>
                             </div>
+                            
                             <div class="col-md-6">
                                 <strong>Tanggal:</strong> <?= date('d M Y H:i', strtotime($order->created_at)) ?><br>
                                 <strong>Metode Pengiriman:</strong>

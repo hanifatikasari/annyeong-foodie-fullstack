@@ -11,6 +11,21 @@
 
             <!-- Main Content -->
             <div class="col-lg-9">
+                <?php if (!empty($profileMissing)): ?>
+                    <div class="alert alert-warning d-flex align-items-start shadow-sm mb-4" role="alert">
+                        <i class="fa fa-exclamation-triangle mr-3 mt-1"></i>
+                        <div>
+                            <strong>Lengkapi data pengiriman Anda.</strong>
+                            <div class="small">
+                                Agar checkout dengan pengiriman lebih cepat, lengkapi:
+                                <?= esc(implode(', ', $profileMissing)) ?>.
+                                Anda tetap bisa berbelanja dan memilih Pickup di Toko.
+                            </div>
+                            <a href="<?= site_url('account/profile') ?>" class="btn btn-sm btn-warning mt-2">Lengkapi Profil</a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
                         <h5 class="font-weight-bold">

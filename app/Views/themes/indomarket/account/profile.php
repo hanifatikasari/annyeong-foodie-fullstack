@@ -166,13 +166,125 @@ $user = $user ?? $currentUser ?? null;
                                     </div>
                                 </div>
 
+                                <script>
+                                (function () {
+                                    var box      = document.getElementById('locationSection');
+                                    var btn      = document.getElementById('btnUseLocation');
+                                    var statusEl = document.getElementById('locationStatus');
+                                    var savedEl  = document.getElementById('hasSavedCoords');
+                                    if (!box || !btn || !statusEl || !savedEl) { return; }
+
+                                    var url      = box.getAttribute('data-url');
+                                    var csrfName = box.getAttribute('data-csrf-name');
+                                    var csrfHash = box.getAttribute('data-csrf-hash');
+
+                                    var geoErrors = {
+                                        1: 'Izin lokasi ditolak. Aktifkan izin lokasi untuk situs ini di pengaturan browser, lalu coba lagi.',
+                                        2: 'Lokasi perangkat tidak tersedia. Pastikan GPS/layanan lokasi aktif, atau gunakan link Google Maps.',
+                                        3: 'Waktu pencarian lokasi habis. Coba lagi di tempat dengan sinyal lebih baik.'
+                                    };
+
+                                    function setStatus(message, type) {
+                                        var cls = { ok: 'text-success', err: 'text-danger', wait: 'text-muted' }[type] || 'text-muted';
+                                        statusEl.className = 'ml-2 small ' + cls;
+                                        statusEl.textContent = message;
+                                    }
+
+                                    function showSaved(mapsUrl) {
+                                        setStatus('Lokasi berhasil disimpan. ', 'ok');
+                                        if (typeof mapsUrl === 'string' && mapsUrl.indexOf('https://www.google.com/maps/') === 0) {
+                                            var a = document.createElement('a');
+                                            a.href = mapsUrl;
+                                            a.target = '_blank';
+                                            a.rel = 'noopener noreferrer';
+                                            a.textContent = 'Lihat di Google Maps';
+                                            statusEl.appendChild(a);
+                                        }
+                                    }
+
+                                    // Config\Security::$regenerate = true: token berubah setelah tiap POST.
+                                    // Perbarui semua field CSRF di halaman agar form profil tidak kedaluwarsa.
+                                    function refreshCsrf(csrf) {
+                                        if (!csrf || !csrf.name || !csrf.hash) { return; }
+                                        csrfName = csrf.name;
+                                        csrfHash = csrf.hash;
+                                        var fields = document.getElementsByName(csrf.name);
+                                        for (var i = 0; i < fields.length; i++) { fields[i].value = csrf.hash; }
+                                    }
+
+                                    function saveCoords(lat, lng) {
+                                        setStatus('Menyimpan lokasi...', 'wait');
+
+                                        var body = new URLSearchParams();
+                                        body.append(csrfName, csrfHash);
+                                        body.append('latitude', lat.toFixed(7));
+                                        body.append('longitude', lng.toFixed(7));
+
+                                        fetch(url, {
+                                            method: 'POST',
+                                            credentials: 'same-origin',
+                                            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                                            body: body
+                                        }).then(function (res) {
+                                            return res.json();
+                                        }).then(function (data) {
+                                            refreshCsrf(data.csrf);
+                                            if (data.success) {
+                                                savedEl.value = '1';
+                                                showSaved(data.mapsUrl);
+                                            } else {
+                                                setStatus(data.message || 'Lokasi gagal disimpan.', 'err');
+                                            }
+                                        }).catch(function () {
+                                            setStatus('Lokasi gagal disimpan (sesi atau keamanan halaman kedaluwarsa). Muat ulang halaman lalu coba lagi.', 'err');
+                                        }).then(function () {
+                                            btn.disabled = false;
+                                        });
+                                    }
+
+                                    btn.addEventListener('click', function () {
+                                        if (!('geolocation' in navigator)) {
+                                            setStatus('Browser Anda tidak mendukung layanan lokasi. Gunakan link Google Maps.', 'err');
+                                            return;
+                                        }
+                                        if (window.isSecureContext === false) {
+                                            setStatus('Layanan lokasi hanya berfungsi di halaman HTTPS. Gunakan link Google Maps.', 'err');
+                                            return;
+                                        }
+                                        if (savedEl.value === '1' &&
+                                            !window.confirm('Lokasi pengiriman sudah tersimpan. Ganti dengan lokasi Anda saat ini?')) {
+                                            return;
+                                        }
+
+                                        btn.disabled = true;
+                                        setStatus('Meminta izin dan mencari lokasi...', 'wait');
+
+                                        navigator.geolocation.getCurrentPosition(function (pos) {
+                                            var lat = pos.coords.latitude;
+                                            var lng = pos.coords.longitude;
+                                            if (typeof lat !== 'number' || typeof lng !== 'number' ||
+                                                !isFinite(lat) || !isFinite(lng) ||
+                                                lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                                                setStatus('Koordinat dari perangkat tidak valid. Silakan coba lagi.', 'err');
+                                                btn.disabled = false;
+                                                return;
+                                            }
+                                            saveCoords(lat, lng);
+                                        }, function (err) {
+                                            setStatus(geoErrors[err.code] || 'Gagal mendapatkan lokasi. Silakan coba lagi.', 'err');
+                                            btn.disabled = false;
+                                        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+                                    });
+                                })();
+                                </script>
+
                                 <!-- Link Google Maps -->
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="gmaps_link">Link Google Maps (Opsional)</label>
                                         <input type="url" id="gmaps_link" name="gmaps_link" class="form-control"
                                                placeholder="https://maps.app.goo.gl/xxxx"
-                                               value="<?= esc(old('gmaps_link', $user->gmaps_link ?? '')) ?>">
+                                               value="<?= esc(old('gmaps_link', $user->gmaps ?? '')) ?>">
                                         <small class="text-muted d-block mt-1">
                                             Tempelkan link lokasi rumah untuk memudahkan kurir mengantar pesanan.
                                         </small>

@@ -26,6 +26,6 @@ class AddShippingAreaAndGmapsToUsers extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('users', ['shipping_area_id', 'gmaps_link']);
+        $this->forge->dropColumn('users', ['shipping_area_id', 'gmaps']);
     }
 }

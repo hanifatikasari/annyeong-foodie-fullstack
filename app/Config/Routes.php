@@ -324,7 +324,6 @@ $routes->post('midtrans/notification', 'MidtransNotification::handle');
         $routes->post('reviews/submit', 'Account::submitReview');
     });
     
-
     // Track order (publik)
     $routes->get('track', 'Track::index');
     $routes->get('track/search', 'Track::search');

@@ -41,6 +41,16 @@ class PenjualanModel extends Model
         'shipping_cost',
         'handling_fee',
         'delivery_courier_id',
+         // === Snapshot data pengiriman ===
+        'shipping_recipient_name',
+        'shipping_recipient_phone',
+        'shipping_area_name',
+        'shipping_province',
+        'shipping_city',
+        'shipping_postal_code',
+        'shipping_latitude',
+        'shipping_longitude',
+        'shipping_gmaps_link',
     ];
 
     // ----------------------------------------------------------------
