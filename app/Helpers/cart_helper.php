@@ -572,3 +572,8 @@ if (!function_exists('cart_selected_item_count')) {
         return count(get_selected_cart());
     }
 }
+
+function cart_item_count(): int
+{
+    return count(get_cart());
+}

@@ -212,10 +212,15 @@ foreach ($cart as $it) {
                                                                         <?= ($item['qty'] <= 1 || $isOutOfStock) ? 'disabled' : '' ?>>
                                                                     <i class="fa fa-minus"></i>
                                                                 </button>
-                                                                <span class="qty-display px-2 text-center"
-                                                                      id="qty-<?= $item['product_id'] ?>">
-                                                                    <?= $item['qty'] ?>
-                                                                </span>
+                                                                <input type="number"
+                                                                class="qty-display qty-input"
+                                                                id="qty-<?= $item['product_id'] ?>"
+                                                                data-product-id="<?= $item['product_id'] ?>"
+                                                                min="1"
+                                                                max="<?= (int) $item['stok'] ?>"
+                                                                value="<?= (int) $item['qty'] ?>"
+                                                                <?= $isOutOfStock ? 'disabled' : '' ?>
+                                                                aria-label="Jumlah <?= esc($item['name']) ?>">
                                                                 <button type="button"
                                                                         class="btn-qty-control btn-qty-plus"
                                                                         data-product-id="<?= $item['product_id'] ?>"
@@ -809,58 +814,98 @@ document.addEventListener('DOMContentLoaded', function() {
     // -------------------------------------------------------------
     // EVENT: STEPPER QUANTITY ([-] & [+])
     // -------------------------------------------------------------
-    function updateQtyAjax(productId, action, btnTrigger) {
+    function updateQtyAjax(productId, action, btnTrigger, directQty = null) {
         var row = document.getElementById('cartRow-' + productId);
         if (!row) return;
+
+        var inputEl = document.getElementById('qty-' + productId);
 
         var formData = new FormData();
         formData.append('product_id', productId);
         formData.append('action', action);
+
+        if (action === 'set') {
+            formData.append('qty', directQty);
+        }
+
         formData.append(csrfName, csrfToken);
 
         if (btnTrigger) btnTrigger.disabled = true;
+        if (inputEl) inputEl.disabled = true;
 
         fetch('<?= site_url("cart/update") ?>', {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             body: formData
         })
-        .then(function(res) { return res.json(); })
+        .then(function(res) {
+            return res.json();
+        })
         .then(function(data) {
-            if (btnTrigger) btnTrigger.disabled = false;
+
             if (data.csrf_token) updateCsrf(data.csrf_token);
 
-            if (data.success) {
-                // Update tampilan qty & dataset
-                var qtySpan = document.getElementById('qty-' + productId);
-                if (qtySpan) qtySpan.textContent = data.newQty;
-                row.dataset.qty = data.newQty;
+            if (!data.success) {
+                showToast(data.message || 'Gagal memperbarui quantity.', 'warning');
 
-                // Update subtotal item
-                var subtotalSpan = document.getElementById('subtotal-' + productId);
-                if (subtotalSpan) subtotalSpan.textContent = 'Rp ' + data.subtotal;
+                if (inputEl) {
+                    inputEl.value = row.dataset.qty;
+                }
 
-                // Atur status disabled tombol minus/plus
-                var stok     = parseInt(row.dataset.stok) || 999;
-                var minusBtn = row.querySelector('.btn-qty-minus');
-                var plusBtn  = row.querySelector('.btn-qty-plus');
-
-                if (minusBtn) minusBtn.disabled = (data.newQty <= 1);
-                if (plusBtn)  plusBtn.disabled  = (data.newQty >= stok);
-
-                // Update cart badge di header
-                var badge = document.getElementById('cartCountBadge');
-                if (badge) badge.textContent = data.count;
-                var cartCounts = document.querySelectorAll('.cart-count');
-                cartCounts.forEach(function(el) { el.textContent = data.count; });
-
-                // Recalculate
-                recalculateSelected();
+                return;
             }
+
+            // Update quantity input
+            if (inputEl) {
+                inputEl.value = data.newQty;
+            }
+
+            // Update dataset sebagai sumber perhitungan frontend
+            row.dataset.qty = data.newQty;
+
+            // Update subtotal produk
+            var subtotal = document.getElementById('subtotal-' + productId);
+
+            if (subtotal) {
+                subtotal.textContent = 'Rp ' + data.subtotal;
+            }
+
+            // Update tombol plus dan minus
+            var stok = parseInt(row.dataset.stok) || 0;
+
+            var minusBtn = row.querySelector('.btn-qty-minus');
+            var plusBtn = row.querySelector('.btn-qty-plus');
+
+            if (minusBtn) minusBtn.disabled = data.newQty <= 1;
+            if (plusBtn) plusBtn.disabled = data.newQty >= stok;
+
+            // Update badge keranjang
+            var badge = document.getElementById('cartCountBadge');
+
+            if (badge) badge.textContent = data.count;
+
+            document.querySelectorAll('.cart-count').forEach(function(el) {
+                el.textContent = data.count;
+            });
+
+            // Hitung ulang ringkasan belanja
+            recalculateSelected();
+
         })
         .catch(function(err) {
+            console.error('Update quantity error:', err);
+
+            if (inputEl) {
+                inputEl.value = row.dataset.qty;
+            }
+
+            showToast('Terjadi kesalahan saat memperbarui quantity.', 'danger');
+        })
+        .finally(function() {
             if (btnTrigger) btnTrigger.disabled = false;
-            console.error('Update qty error:', err);
+            if (inputEl) inputEl.disabled = false;
         });
     }
 
@@ -1027,6 +1072,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // -------------------------------------------------------------
+    // EVENT: INPUT QUANTITY MANUAL (Ketik langsung di kotak angka)
+    // -------------------------------------------------------------
+    document.querySelectorAll('.qty-input').forEach(function(input) {
+
+        input.addEventListener('change', function() {
+
+            var productId = this.dataset.productId;
+            var row = document.getElementById('cartRow-' + productId);
+
+            var newQty = parseInt(this.value, 10);
+            var stok = parseInt(row.dataset.stok) || 0;
+
+            // Validasi quantity
+            if (isNaN(newQty) || newQty < 1) {
+                this.value = row.dataset.qty;
+                return;
+            }
+
+            if (newQty > stok) {
+                showToast('Stok hanya tersedia ' + stok + ' pcs.', 'warning');
+                this.value = row.dataset.qty;
+                return;
+            }
+
+            updateQtyAjax(productId, 'set', null, newQty);
+        });
+
+    });
+
+    // Tangani event 'change' atau 'blur' pada input quantity
+    document.querySelectorAll('.qty-input').forEach(function(input) {
+        input.addEventListener('change', function() {
+            var productId = this.dataset.productId;
+            var val = parseInt(this.value, 10);
+            updateQtyDirectAjax(productId, val, this);
+        });
+    });
+    
 });
 </script>
 

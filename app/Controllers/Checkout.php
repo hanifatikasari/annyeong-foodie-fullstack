@@ -407,39 +407,71 @@ class Checkout extends BaseController
                 }
             }
 
-            // *** Simpan detail item + kurangi stok ***
-            $invModel = model('ProductInventoryModel');
+            
+                // *** Simpan detail item + kurangi stok secara atomik ***
+                foreach ($cart as $item) {
+                    $productId = (int) $item['product_id'];
+                    $qty       = (int) $item['qty'];
+                    $price     = (int) $item['price'];
 
-            foreach ($cart as $item) {
-                $product = model('ProductModel')->find($item['product_id']);
-                $hpp     = $product ? ($product->hpp_total ?? 0) : 0;
-                $price   = $item['price'];
-                $qty     = $item['qty'];
+                    // Validasi jumlah pembelian
+                    if ($productId <= 0 || $qty <= 0) {
+                        throw new \Exception(
+                            'Data produk atau jumlah pembelian tidak valid.'
+                        );
+                    }
 
-                $detailModel->insert([
-                    'penjualan_id'  => $orderId,
-                    'product_id'    => $item['product_id'],
-                    'qty'           => $qty,
-                    'selling_price' => $price,
-                    'subtotal'      => $price * $qty,
-                    'hpp_price'     => $hpp,
-                ]);
+                    // ==========================================
+                    // 1. KURANGI STOK SECARA ATOMIK
+                    // ==========================================
 
-                //-----------------------------------------------
-                // Kurangi stok di inventory (jika ada)
-                //-----------------------------------------------
-                $inv = $invModel
-                    ->where('product_id', $item['product_id'])
-                    ->first();
-                
-                if ($inv) {
-                    $newQty = max(0, (int) $inv->qty - $qty);
-                    $invModel->update(
-                        $inv->id, 
-                        ['qty' => $newQty]
-                    );
+                    $stockUpdated = $db->table('product_inventories')
+                        ->set('qty', 'qty - ' . $qty, false)
+                        ->where('product_id', $productId)
+                        ->where('qty >=', $qty)
+                        ->update();
+
+                    // Periksa apakah tepat satu baris stok berhasil diperbarui
+                    if (!$stockUpdated || $db->affectedRows() !== 1) {
+                        throw new \Exception(
+                            'Stok produk ' . ($item['name'] ?? 'tersebut')
+                            . ' tidak mencukupi atau sudah habis. '
+                            . 'Silakan periksa kembali keranjang Anda.'
+                        );
+                    }
+
+                    // ==========================================
+                    // 2. AMBIL DATA PRODUK TERBARU
+                    // ==========================================
+
+                    $product = model('ProductModel')->find($productId);
+
+                    if (!$product) {
+                        throw new \Exception(
+                            'Produk tidak ditemukan.'
+                        );
+                    }
+                    $hpp = (int) ($product->hpp_total ?? 0);
+
+                    // ==========================================
+                    // 3. SIMPAN DETAIL PENJUALAN
+                    // ==========================================
+                    $detailInserted = $detailModel->insert([
+                        'penjualan_id'  => $orderId,
+                        'product_id'    => $productId,
+                        'qty'           => $qty,
+                        'selling_price' => $price,
+                        'subtotal'      => $price * $qty,
+                        'hpp_price'     => $hpp,
+                    ]);
+
+                    if (!$detailInserted) {
+                        throw new \Exception(
+                            'Gagal menyimpan detail produk pesanan.'
+                        );
+                    }
                 }
-            }
+
 
             // =====================================================
             // CREATE NOTIFICATIONS FOR ADMIN/OWNER

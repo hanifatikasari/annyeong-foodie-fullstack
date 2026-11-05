@@ -106,7 +106,7 @@ $currentUser = $currentUser ?? null;
                                           display:flex;align-items:center;justify-content:center;
                                           line-height:1;
                                       ">
-                                    <?= function_exists('cart_count') ? cart_count() : 0 ?>
+                                    <?= function_exists('cart_item_count') ? cart_item_count() : 0 ?>
                                 </span>
                             </a>
                         </div>

@@ -57,7 +57,7 @@ class Cart extends BaseController
             if ($this->request->isAJAX()) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'count'   => cart_count(),
+                    'count'   => cart_item_count(),
                     'message' => 'Produk tidak valid.',
                 ]);
             }
@@ -75,7 +75,7 @@ class Cart extends BaseController
                 return $this->response->setJSON([
                     'success'       => false,
                     'needs_variant' => true,
-                    'count'         => cart_count(),
+                    'count'         => cart_item_count(),
                     'message'       => 'Silakan pilih varian produk terlebih dahulu.',
                     'redirect'      => $detailUrl,
                 ]);
@@ -89,7 +89,7 @@ class Cart extends BaseController
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => $success,
-                'count'   => cart_count(),
+                'count'   => cart_item_count(),
                 'message' => $success
                     ? 'masuk keranjang.'
                     : 'Stok tidak mencukupi.',
@@ -121,7 +121,23 @@ class Cart extends BaseController
             $qty = $cart[$productId]['qty'] - 1;
         }
 
-        update_cart($productId, $qty);
+        if ($qty < 1) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Jumlah produk minimal 1.',
+                'csrf_token' => csrf_hash(),
+            ]);
+        }
+
+        $updated = update_cart($productId, $qty);
+
+        if (!$updated) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Stok tidak mencukupi atau keranjang tidak valid.',
+                'csrf_token' => csrf_hash(),
+            ]);
+        }
 
         if ($this->request->isAJAX()) {
             $cart = get_cart();
@@ -137,7 +153,7 @@ class Cart extends BaseController
                 'selectedCount'     => cart_selected_count(),
                 'selectedItemCount' => cart_selected_item_count(),
                 'cartTotal'         => number_format(cart_total()),
-                'count'             => cart_count(),
+                'count'             => cart_item_count(),
                 'csrf_token'        => csrf_hash(),
             ]);
         }
@@ -234,7 +250,7 @@ class Cart extends BaseController
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success'           => true,
-                'count'             => cart_count(),
+                'count'             => cart_item_count(),
                 'cartTotal'         => number_format(cart_total()),
                 'selectedTotal'     => number_format(cart_selected_total()),
                 'rawSelectedTotal'  => cart_selected_total(),
@@ -246,6 +262,19 @@ class Cart extends BaseController
 
         return redirect()->to('cart')->with('success', 'Produk dihapus dari keranjang.');
     }
+
+    public function updateDirect()
+{
+    if (!$this->request->isAJAX()) {
+        return $this->response->setStatusCode(403);
+    }
+
+    $productId = $this->request->getPost('product_id');
+    $newQty    = (int) $this->request->getPost('qty');
+
+    // Lakukan validasi stok dan pembaruan session cart di sini...
+    // Kembalikan response JSON berisi status success, subtotal, dan csrf_token baru.
+}
 
     // ---------------------------------------------------------------
     // HAPUS HANYA PRODUK YANG SEDANG DICENTANG
@@ -263,7 +292,7 @@ class Cart extends BaseController
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success'           => true,
-                'count'             => cart_count(),
+                'count'             => cart_item_count(),
                 'cartTotal'         => number_format(cart_total()),
                 'selectedTotal'     => number_format(cart_selected_total()),
                 'rawSelectedTotal'  => cart_selected_total(),
