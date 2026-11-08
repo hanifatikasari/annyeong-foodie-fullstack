@@ -112,10 +112,23 @@ class MidtransNotification extends Controller
             $updateData['verified_by'] = null;
         }
 
-        $penjualanModel->update($order->id, $updateData);
-
+        $updated = $penjualanModel->update($order->id, $updateData);
+        // Buat notifikasi hanya saat pembayaran pertama kali menjadi paid
+        if ($updated &&
+            $newPaymentStatus === 'paid' &&
+            $order->payment_status !== 'paid'
+        ) {
+            model('NotificationModel')->insert([
+                'user_id'      => $order->customer_id,
+                'type'         => 'payment_verified',
+                'reference_id' => (string) $order->id,
+                'title'        => 'Pembayaran Berhasil',
+                'message'      => 'Pembayaran pesanan ' .$order->invoice_no .
+                                ' telah diterima. Pesanan sedang diproses.',
+                'is_read'      => 0,
+            ]);
+        }
         log_message('info', "[Midtrans Webhook] Invoice={$invoiceNo} berhasil diupdate. order_status={$newOrderStatus}, payment_status={$newPaymentStatus}");
-
         return $this->response->setStatusCode(200)->setJSON(['message' => 'OK', 'invoice' => $invoiceNo]);
     }
 }

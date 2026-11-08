@@ -500,6 +500,19 @@ class Checkout extends BaseController
                 $db->table('notifications')->insertBatch($notifData);
             }
 
+            //notif customer
+            $db->table('notifications')->insert([
+                'user_id'      => $this->currentUser->id,
+                'type'         => 'order_created',
+                'reference_id' => (string) $orderId,
+                'title'        => 'Pesanan Berhasil Dibuat',
+                'message'      => 'Pesanan ' . $invoiceNo .
+                                ' berhasil dibuat. Silakan selesaikan pembayaran.',
+                'is_read'      => 0,
+                'created_at'   => date('Y-m-d H:i:s'),
+                'updated_at'   => date('Y-m-d H:i:s'),
+            ]);
+
             $db->transComplete();
 
             if ($db->transStatus() === false) {

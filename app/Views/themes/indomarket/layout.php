@@ -97,5 +97,39 @@
             }, waktuSlide);
         });
     </script>
+
+    <script>
+    $(document).ready(function () {
+
+        function loadNotificationCount() {
+
+            $.get(
+                '<?= site_url("account/notifications/unread-count") ?>',
+                function (response) {
+
+                    if (response.status === 'success') {
+
+                        const badge = $('#notificationCountBadge');
+                        const count = response.count;
+
+                        if (count > 0) {
+                            badge.text(count > 99 ? '99+' : count);
+                            badge.css('display', 'flex');
+                        } else {
+                            badge.hide();
+                        }
+                    }
+                }
+            );
+        }
+
+        // Saat halaman pertama kali dibuka
+        loadNotificationCount();
+
+        // Periksa kembali setiap 20 detik
+        setInterval(loadNotificationCount, 20000);
+
+    });
+    </script>
 </body>
 </html>

@@ -91,6 +91,36 @@ $currentUser = $currentUser ?? null;
                                 <i class="fa fa-user-circle fa-lg"></i>
                             </a>
                         </div>
+                        <?php if (isset($auth) && $auth->loggedIn()): ?>
+                            <div class="notification-icon-wrap mr-3"
+                                style="position:relative;">
+
+                                <a href="<?= site_url('account/notifications') ?>"
+                                title="Notifikasi"
+                                class="text-dark">
+
+                                    <i class="far fa-bell fa-lg"></i>
+
+                                    <span id="notificationCountBadge"
+                                        style="
+                                            position:absolute;
+                                            top:-8px;
+                                            right:-10px;
+                                            background:#e83e8c;
+                                            color:#fff;
+                                            border-radius:50%;
+                                            width:19px;
+                                            height:19px;
+                                            font-size:11px;
+                                            font-weight:700;
+                                            display:none;
+                                            align-items:center;
+                                            justify-content:center;
+                                        ">
+                                    </span>
+                                </a>
+                            </div>
+                        <?php endif; ?>
                         <div class="cart-icon-wrap" style="position:relative;">
                             <a href="<?= site_url('cart') ?>" title="Keranjang" class="text-dark">
                                 <i class="fa fa-shopping-cart fa-lg"></i>

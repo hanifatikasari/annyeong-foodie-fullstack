@@ -119,6 +119,16 @@ class Orders extends BaseController
             session()->get('user_id')
         );
 
+        model('NotificationModel')->insert([
+            'user_id'      => $order->customer_id,
+            'type'         => 'payment_verified',
+            'reference_id' => (string) $order->id,
+            'title'        => 'Pembayaran Terverifikasi',
+            'message'      => 'Pembayaran pesanan ' . $order->invoice_no .
+                            ' telah diterima. Pesanan sedang diproses.',
+            'is_read'      => 0,
+        ]);
+
         return redirect()->to('admin/orders/detail/' . $id)
             ->with('success', 'Pembayaran berhasil diverifikasi! Pesanan sedang diproses.');
     }
@@ -235,6 +245,40 @@ class Orders extends BaseController
                 'success',
                 'Status pesanan berhasil diperbarui!'
             );
+
+        $messages = [
+            'processing' => [
+                'title' => 'Pesanan Sedang Diproses',
+                'message' => 'Pesanan ' . $order->invoice_no .
+                            ' sedang dipersiapkan.'
+            ],
+            'shipped' => [
+                'title' => 'Pesanan Sedang Dikirim',
+                'message' => 'Pesanan ' . $order->invoice_no .
+                            ' sedang dalam perjalanan.'
+            ],
+            'completed' => [
+                'title' => 'Pesanan Selesai',
+                'message' => 'Pesanan ' . $order->invoice_no .
+                            ' telah selesai. Terima kasih!'
+            ],
+            'cancelled' => [
+                'title' => 'Pesanan Dibatalkan',
+                'message' => 'Pesanan ' . $order->invoice_no .
+                            ' telah dibatalkan.'
+            ],
+        ];
+
+        if (isset($messages[$newStatus])) {
+            model('NotificationModel')->insert([
+                'user_id'      => $order->customer_id,
+                'type'         => 'order_' . $newStatus,
+                'reference_id' => (string) $order->id,
+                'title'        => $messages[$newStatus]['title'],
+                'message'      => $messages[$newStatus]['message'],
+                'is_read'      => 0,
+            ]);
+        }
     }
 
     // ---------------------------------------------------------------
