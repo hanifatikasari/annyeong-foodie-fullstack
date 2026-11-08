@@ -8,6 +8,17 @@ class CustomerNotification extends BaseController
 {
     protected $notificationModel;
 
+    private function isStaff(): bool
+    {
+        return $this->auth->inGroup([
+            'admin',
+            'gudang',
+            'produksi',
+            'penjualan',
+            'pemilik'
+        ]);
+    }
+
     public function __construct()
     {
         $this->notificationModel = new NotificationModel();
@@ -16,6 +27,14 @@ class CustomerNotification extends BaseController
     // Mengambil notifikasi milik pelanggan
     public function index()
     {
+        if ($this->isStaff()) {
+            return $this->response
+                ->setStatusCode(403)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Akses khusus pelanggan.'
+                ]);
+        }
         $userId = $this->currentUser->id;
 
         $notifications = $this->notificationModel
@@ -32,6 +51,14 @@ class CustomerNotification extends BaseController
     // Menghitung notifikasi yang belum dibaca
     public function unreadCount()
     {
+        if ($this->isStaff()) {
+            return $this->response
+                ->setStatusCode(403)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Akses khusus pelanggan.'
+                ]);
+        }
         $userId = $this->currentUser->id;
 
         $count = $this->notificationModel
@@ -91,6 +118,10 @@ class CustomerNotification extends BaseController
 
     public function page()
     {
+        if ($this->isStaff()) {
+            return redirect()->to('admin/dashboard')
+                ->with('error', 'Halaman ini khusus untuk pelanggan.');
+        }
         $userId = (int) $this->currentUser->id;
 
         $notifications = $this->notificationModel

@@ -11,6 +11,15 @@
 // Guard: pastikan $categories tidak null
 $categories  = $categories ?? [];
 $currentUser = $currentUser ?? null;
+// Identifikasi akun admin/staf
+$isAdmin = isset($auth) && $auth->loggedIn()
+    && $auth->inGroup([
+        'admin',
+        'gudang',
+        'produksi',
+        'penjualan',
+        'pemilik'
+    ]);
 ?>
 <header class="header clearfix">
 
@@ -91,7 +100,7 @@ $currentUser = $currentUser ?? null;
                                 <i class="fa fa-user-circle fa-lg"></i>
                             </a>
                         </div>
-                        <?php if (isset($auth) && $auth->loggedIn()): ?>
+                        <?php if (isset($auth) && $auth->loggedIn() && !$isAdmin): ?>
                             <div class="notification-icon-wrap mr-3"
                                 style="position:relative;">
 

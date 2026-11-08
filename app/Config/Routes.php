@@ -324,18 +324,13 @@ $routes->post('midtrans/notification', 'MidtransNotification::handle');
         $routes->post('reviews/submit', 'Account::submitReview');
 
         // CUSTOMER NOTIFICATIONS
-        // Halaman riwayat notifikasi
-        $routes->get('notifications','CustomerNotification::page');
-        // Endpoint JSON untuk mengambil data notifikasi
-        $routes->get('notifications/data','CustomerNotification::index');
-        // Endpoint jumlah notifikasi belum dibaca
-        $routes->get('notifications/unread-count','CustomerNotification::unreadCount');
-        // Tandai sudah dibaca (AJAX)
-        $routes->post('notifications/read/(:num)','CustomerNotification::markAsRead/$1');
-        $routes->post('notifications/read-all','CustomerNotification::markAllAsRead');
-        $routes->post('notifications/read-all','CustomerNotification::markAllAsReadPage');
-        // Buka notifikasi, tandai dibaca, lalu menuju detail pesanan
-        $routes->post('notifications/open/(:num)','CustomerNotification::open/$1');
+        $routes->get('notifications', 'CustomerNotification::page');
+        $routes->get('notifications/data', 'CustomerNotification::index');
+        $routes->get('notifications/unread-count', 'CustomerNotification::unreadCount');
+
+        $routes->post('notifications/read/(:num)', 'CustomerNotification::markAsRead/$1');
+        $routes->post('notifications/read-all', 'CustomerNotification::markAllAsRead');
+        $routes->post('notifications/open/(:num)', 'CustomerNotification::open/$1');
     });
     
     // Track order (publik)

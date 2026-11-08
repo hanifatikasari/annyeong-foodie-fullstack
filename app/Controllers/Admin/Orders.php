@@ -108,16 +108,28 @@ class Orders extends BaseController
     // ---------------------------------------------------------------
     public function verify(int $id)
     {
+        $penjualanModel = model('PenjualanModel');
+        $notificationModel = model('NotificationModel');
         $order = model('PenjualanModel')->find($id);
 
         if (!$order) {
             return redirect()->back()->with('error', 'Order tidak ditemukan.');
         }
 
-        model('PenjualanModel')->verifyPayment(
-            $id,
-            session()->get('user_id')
-        );
+        // Cegah verifikasi ulang
+        if ($order->payment_status === 'paid') {
+            return redirect()
+                ->to('admin/orders/detail/' . $id)
+                ->with('info', 'Pembayaran pesanan ini sudah terverifikasi.');
+        }
+
+        $updated = $penjualanModel->verifyPayment($id, session()->get('user_id'));
+
+       if (!$updated) {
+            return redirect()
+                ->to('admin/orders/detail/' . $id)
+                ->with('error', 'Gagal memverifikasi pembayaran.');
+        }
 
         model('NotificationModel')->insert([
             'user_id'      => $order->customer_id,
@@ -153,6 +165,8 @@ class Orders extends BaseController
                 ->with('error', 'Status tidak valid.');
         }
 
+        $penjualanModel = model('PenjualanModel');
+        $notificationModel = model('NotificationModel');
         $order = model('PenjualanModel')->find($id);
 
         if (!$order) {
@@ -186,12 +200,8 @@ class Orders extends BaseController
                 'cancelled'
             ],
 
-            'shipped' => [
-                'completed'
-            ],
-
+            'shipped' => ['completed'],
             'completed' => [],
-
             'cancelled' => [],
         ];
 
@@ -235,16 +245,13 @@ class Orders extends BaseController
                 }
             }
         }
-
-        model('PenjualanModel')
-            ->updateOrderStatus($id, $newStatus);
-
-        return redirect()
-            ->to('admin/orders/detail/' . $id)
-            ->with(
-                'success',
-                'Status pesanan berhasil diperbarui!'
-            );
+        // Simpan perubahan status pesanan
+        $updated = $penjualanModel->updateOrderStatus($id, $newStatus);
+        if (!$updated) {
+            return redirect()
+                ->to('admin/orders/detail/' . $id)
+                ->with('error', 'Gagal memperbarui status pesanan.');
+        }
 
         $messages = [
             'processing' => [
@@ -268,7 +275,7 @@ class Orders extends BaseController
                             ' telah dibatalkan.'
             ],
         ];
-
+          // Buat notifikasi untuk pemilik pesanan
         if (isset($messages[$newStatus])) {
             model('NotificationModel')->insert([
                 'user_id'      => $order->customer_id,
@@ -279,6 +286,10 @@ class Orders extends BaseController
                 'is_read'      => 0,
             ]);
         }
+
+        return redirect()
+            ->to('admin/orders/detail/' . $id)
+            ->with('success', 'Status pesanan berhasil diperbarui!');
     }
 
     // ---------------------------------------------------------------
