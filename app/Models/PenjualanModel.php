@@ -16,6 +16,8 @@ class PenjualanModel extends Model
         'customer_id',
         'subtotal_produk',
         'diskon',
+        'promo_id',
+        'kode_promo',
         'grand_total',
         'pembayaran',
         'uang_diterima',

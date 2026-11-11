@@ -63,6 +63,12 @@ class Checkout extends BaseController
             $total += $item['price'] * $item['qty'];
         }
         $this->data['total'] = $total;
+        $promo = model('PromoModel')->getAutomaticPromo((int) $total);
+        $this->data['promo'] = $promo;
+        $this->data['diskon'] = $promo
+            ? (int) $promo->diskon_aktual
+            : 0;
+
         $this->data['user']  = $user ?? $this->currentUser;
         $this->data['title'] = 'Checkout';
 
@@ -328,10 +334,19 @@ class Checkout extends BaseController
         }
 
         $subtotal = 0;
-        foreach($cart as $item){
-            $subtotal += $item['price'] * $item['qty'];
+        foreach ($cart as $item) {
+            $subtotal += (int) $item['price'] * (int) $item['qty'];
         }
-        $diskon = 0;
+
+        // Hitung ulang promo di server.
+        // Jangan mengambil nilai diskon dari browser.
+        $promo = model('PromoModel')->getAutomaticPromo((int) $subtotal);
+
+        $diskon = $promo
+            ? (int) $promo->diskon_aktual
+            : 0;
+
+        $promoId = $promo ? (int) $promo->id : null;
 
         $totalHarga =
             $subtotal
@@ -362,6 +377,8 @@ class Checkout extends BaseController
                 'handling_fee'     => $handlingFee,
                 'shipping_cost'    => $shippingCost,
                 'diskon'           => $diskon,
+                'promo_id'         => $promoId,
+                'kode_promo'       => null,
                 'grand_total'      => $totalHarga,
                 'pembayaran'       => $pembayaran,
                 'uang_diterima'    => 0,

@@ -360,12 +360,14 @@ $user = $user ?? null;
                                         </td>
                                     </tr>
 
-                                    <tr id="discountRow" style="display:none;">
+                                    <tr id="discountRow" style="<?= !empty($diskon) ? '' : 'display:none;' ?>">
                                         <td class="text-success">
                                             Diskon
                                         </td>
                                         <td class="text-right text-success">
-                                            - <span id="discountAmount">Rp 0</span>
+                                            - <span id="discountAmount">
+                                                Rp <?= number_format((int) ($diskon ?? 0), 0, ',', '.') ?>
+                                            </span>
                                         </td>
                                     </tr>
 
@@ -424,8 +426,9 @@ const deliveryFields = document.getElementById('deliveryFields');
 const shippingRow = document.getElementById('shippingRow');
 const alamatField = document.getElementById("alamat_pengiriman");
 
-const subtotal = <?= $total ?>;
-const handlingFee = <?= $handlingFee ?>;
+const subtotal = <?= (int) $total ?>;
+const handlingFee = <?= (int) $handlingFee ?>;
+const diskon = <?= (int) ($diskon ?? 0) ?>;
 const shippingSelect = document.getElementById('shipping_area_id');
 function updateDeliveryUI(){
     let shipping = 0;
@@ -455,7 +458,13 @@ function updateDeliveryUI(){
         document.getElementById("shippingCost").innerHTML =
             "Rp " + shipping.toLocaleString('id-ID');
 
-        const grandTotal = subtotal + handlingFee + shipping;
+        const grandTotal = subtotal + handlingFee + shipping - diskon;
+
+        document.getElementById("discountRow").style.display =
+            diskon > 0 ? "" : "none";
+
+        document.getElementById("discountAmount").innerHTML =
+            "Rp " + diskon.toLocaleString('id-ID');
 
         document.getElementById("grandTotal").innerHTML =
             "Rp " + grandTotal.toLocaleString('id-ID');
