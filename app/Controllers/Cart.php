@@ -39,6 +39,8 @@ class Cart extends BaseController
         $this->data['cartCount']         = cart_count();
         $this->data['categories']        = model('CategoryModel')->getStorefrontCategories();
         $this->data['title']             = 'Keranjang Belanja';
+        // Tingkatan promo untuk banner (tampilan saja).
+        $this->data['promoTiers']        = model('PromoModel')->getAutomaticTiers();
 
         return view('themes/indomarket/pages/cart', $this->data);
     }

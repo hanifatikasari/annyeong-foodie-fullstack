@@ -63,10 +63,22 @@ class Checkout extends BaseController
             $total += $item['price'] * $item['qty'];
         }
         $this->data['total'] = $total;
+        
         $promo = model('PromoModel')->getAutomaticPromo((int) $total);
         $this->data['promo'] = $promo;
         $this->data['diskon'] = $promo
             ? (int) $promo->diskon_aktual
+            : 0;
+
+        // Info tingkatan & progres promo (tampilan saja).
+        // Diskon yang dipakai tetap hasil getAutomaticPromo() di atas.
+        $promoModel               = model('PromoModel');
+        $promoTiers               = $promoModel->getAutomaticTiers();
+        $promoNext                = $promoModel->getNextTier($promoTiers, (int) $total);
+        $this->data['promoTiers'] = $promoTiers;
+        $this->data['promoNext']  = $promoNext;
+        $this->data['promoKurang'] = $promoNext
+            ? (int) $promoNext->min_subtotal - (int) $total
             : 0;
 
         $this->data['user']  = $user ?? $this->currentUser;

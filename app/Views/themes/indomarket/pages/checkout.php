@@ -381,6 +381,40 @@ $user = $user ?? null;
                                     </tr>
                                 </tfoot>
                             </table>
+                                                        <?php if (!empty($promoTiers)): ?>
+                            <div class="px-3 py-3 border-top" id="promoCheckoutBox"
+                                 style="background:#FFF4E8;">
+                                <div class="small font-weight-bold mb-2" style="color:#6B3818;">
+                                    <i class="fa fa-tags mr-1"></i>Promo Batterbit
+                                </div>
+
+                                <?php if (!empty($promo)): ?>
+                                    <div class="text-success font-weight-bold">
+                                        <i class="fa fa-check-circle mr-1"></i>Promo berhasil diterapkan!
+                                    </div>
+                                    <div class="small mt-1">
+                                        Diskon belanja
+                                        <strong class="text-success">-Rp<?= number_format((int) $diskon, 0, ',', '.') ?></strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        Kamu mendapatkan diskon otomatis karena subtotal produk telah mencapai
+                                        Rp<?= number_format((int) $promo->min_subtotal, 0, ',', '.') ?>.
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if (!empty($promoNext)): ?>
+                                    <div class="small mt-2" style="color:#6B3818;">
+                                        <strong>Rp<?= number_format((int) $promoKurang, 0, ',', '.') ?></strong>
+                                        lagi untuk mendapatkan diskon
+                                        <strong><?= esc($promoNext->diskon_label) ?></strong>!
+                                    </div>
+                                <?php endif; ?>
+
+                                <div class="small text-muted mt-2">
+                                    Promo otomatis, tidak perlu memasukkan kode voucher.
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </div>
                         <div class="card-footer bg-white">
                             <button

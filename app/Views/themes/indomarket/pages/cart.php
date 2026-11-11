@@ -16,6 +16,18 @@ foreach ($cart as $it) {
         $availableCount++;
     }
 }
+
+// Data promo untuk banner (hanya tampilan; diskon final dihitung server saat checkout)
+$promoTiers   = $promoTiers ?? [];
+$promoMaxDisc = 0;
+$promoTiersJs = [];
+foreach ($promoTiers as $t) {
+    $promoMaxDisc   = max($promoMaxDisc, (int) $t->diskon_min);
+    $promoTiersJs[] = [
+        'min'   => (int) $t->min_subtotal,
+        'label' => (string) $t->diskon_label,
+    ];
+}
 ?>
 
 <section class="cart-section py-4 py-md-5">
@@ -259,6 +271,56 @@ foreach ($cart as $it) {
                             </div>
                         </div>
 
+                        <?php if (!empty($promoTiers)): ?>
+                        <!-- Banner Promo Otomatis -->
+                        <div class="card border-0 shadow-sm mt-3 promo-banner" id="promoBanner">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="promo-badge">Otomatis</span>
+                          <button type="submit"              <h6 class="font-weight-bold mb-0 mt-1 promo-title">Promo Hemat Batterbit</h6>
+                                        <div class="promo-headline">
+                                            Diskon hingga Rp<?= number_format($promoMaxDisc, 0, ',', '.') ?>
+                                        </div>
+                                    </div>
+                                    <button type="button"
+                                            class="btn btn-link p-0 promo-info-btn"
+                                            data-toggle="modal"
+                                            data-target="#promoTncModal"
+                                            aria-label="Syarat dan ketentuan promo"
+                                            title="Syarat dan ketentuan">
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
+                                </div>
+
+                                <p class="small text-muted mt-2 mb-2">
+                                    Tambahkan produk ke keranjang dan nikmati potongan harga berdasarkan total belanja.
+                                </p>
+
+                                <div class="row no-gutters promo-tier-list">
+                                    <?php foreach ($promoTiers as $t): ?>
+                                        <div class="col-6 col-md p-1">
+                                            <div class="promo-tier" data-min="<?= (int) $t->min_subtotal ?>">
+                                                <div class="small text-muted">Belanja minimal</div>
+                                                <div class="font-weight-bold">
+                                                    Rp<?= number_format((int) $t->min_subtotal, 0, ',', '.') ?>
+                                                </div>
+                                                <div class="promo-tier-diskon">
+                                                    Diskon <?= esc($t->diskon_label) ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <p class="small text-muted mb-0 mt-2">
+                                    *Promo berlaku otomatis saat checkout. Minimal belanja dihitung dari subtotal
+                                    produk sebelum ongkir dan biaya penanganan. Hanya satu tingkat diskon yang
+                                    berlaku untuk setiap transaksi.
+                                </p>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Order Summary Column (Desktop Sidebar) -->
@@ -294,7 +356,7 @@ foreach ($cart as $it) {
                                         Rp <?= number_format($selectedTotal, 0, ',', '.') ?>
                                     </strong>
                                 </div>
-
+                                <div id="promoProgress" class="promo-progress small mb-3" style="display:none;"></div>
                                 <button type="submit"
                                         class="btn btn-primary btn-block btn-lg shadow-sm font-weight-bold py-3 btn-checkout-action"
                                         id="checkoutSubmitBtn"
@@ -375,6 +437,31 @@ foreach ($cart as $it) {
 
     </div>
 </section>
+
+<?php if (!empty($promoTiers)): ?>
+<div class="modal fade" id="promoTncModal" tabindex="-1" role="dialog" aria-labelledby="promoTncTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title font-weight-bold" id="promoTncTitle">Syarat &amp; Ketentuan Promo</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body small">
+                <ul class="pl-3 mb-0">
+                    <li>Promo berlaku untuk pembelian melalui website Batterbit.</li>
+                    <li>Minimal belanja dihitung dari subtotal produk.</li>
+                    <li>Ongkir dan biaya penanganan tidak termasuk minimal belanja.</li>
+                    <li>Diskon otomatis diterapkan sesuai tingkat subtotal tertinggi yang terpenuhi.</li>
+                    <li>Tidak dapat digabung dengan promo lain.</li>
+                    <li>Promo berlaku selama periode aktif.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- ============================================================ -->
 <!-- STYLES & RESPONSIVE TWEAKS (All dimensions friendly / 360px)  -->
@@ -565,6 +652,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // -------------------------------------------------------------
+    // INFO PROMO (TAMPILAN SAJA)
+    // Diskon final tetap dihitung server saat checkout.
+    // -------------------------------------------------------------
+    var promoTiers = <?= json_encode($promoTiersJs, JSON_UNESCAPED_UNICODE) ?>;
+
+    function updatePromoProgress(total) {
+        var box = document.getElementById('promoProgress');
+        if (!box || !promoTiers.length) return;
+
+        var current = null;
+        var next    = null;
+        promoTiers.forEach(function(t) {
+            if (total >= t.min) {
+                current = t;
+            } else if (!next) {
+                next = t;
+            }
+        });
+
+        document.querySelectorAll('.promo-tier').forEach(function(el) {
+            var reached = current && parseInt(el.dataset.min, 10) === current.min;
+            el.classList.toggle('is-reached', !!reached);
+        });
+
+        var msg;
+        if (total <= 0) {
+            msg = 'Centang produk untuk melihat promo. Belanja minimal Rp' +
+                formatRupiah(promoTiers[0].min) + ' dan dapatkan diskon ' + promoTiers[0].label + '.';
+        } else if (current && next) {
+            msg = 'Diskon ' + current.label + ' akan diterapkan. Tambah Rp' +
+                formatRupiah(next.min - total) + ' lagi untuk diskon ' + next.label + '!';
+        } else if (current) {
+            msg = 'Diskon tertinggi ' + current.label + ' akan diterapkan.';
+        } else {
+            msg = 'Rp' + formatRupiah(next.min - total) +
+                ' lagi untuk mendapatkan diskon ' + next.label + '!';
+        }
+
+        box.textContent = msg;
+        box.style.display = '';
+    }
+    // -------------------------------------------------------------
     // KALKULASI DINAMIS CLIENT-SIDE (Shopee Style)
     // Menghitung HANYA item yang checkbox-nya dicentang
     // -------------------------------------------------------------
@@ -610,6 +739,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var btnCheckoutMobileCount   = document.getElementById('btnCheckoutMobileCount');
         if (mobileSummaryTotal) mobileSummaryTotal.textContent = 'Rp ' + formatRupiah(totalAmount);
         if (btnCheckoutMobileCount) btnCheckoutMobileCount.textContent = selectedCount;
+        updatePromoProgress(totalAmount);
 
         // Status Tombol Checkout
         var checkoutButtons = document.querySelectorAll('.btn-checkout-action');

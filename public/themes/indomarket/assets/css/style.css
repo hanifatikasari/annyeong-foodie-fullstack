@@ -1546,3 +1546,69 @@ html, body {
             -moz-appearance: textfield;
         }
 }
+
+/* Banner promo */
+.promo-banner {
+    background: #FFF4E8;
+    border-left: 4px solid #C88048 !important;
+}
+
+.promo-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: #C88048;
+    border-radius: 20px;
+}
+
+.promo-title {
+    color: #6B3818;
+}
+
+.promo-headline {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #6B3818;
+    line-height: 1.2;
+}
+
+.promo-info-btn {
+    color: #C88048;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.promo-tier {
+    height: 100%;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid #E8D4C0;
+    border-radius: 8px;
+    transition: all .2s ease;
+}
+
+.promo-tier-diskon {
+    font-weight: 700;
+    color: #C88048;
+}
+
+.promo-tier.is-reached {
+    background: #6B3818;
+    border-color: #6B3818;
+}
+
+.promo-tier.is-reached .text-muted,
+.promo-tier.is-reached .font-weight-bold,
+.promo-tier.is-reached .promo-tier-diskon {
+    color: #fff !important;
+}
+
+.promo-progress {
+    padding: 8px 10px;
+    background: #FFF4E8;
+    border: 1px dashed #C88048;
+    border-radius: 8px;
+    color: #6B3818;
+}
