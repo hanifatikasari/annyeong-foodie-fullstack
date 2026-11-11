@@ -88,6 +88,14 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                             <p>Handling Fee</p>
                         </a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/promo') ?>"
+                           class="nav-link <?= ($currentAdminSubMenu == 'promo') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-tags"></i>
+                            <p>Promo &amp; Diskon</p>
+                        </a>
+                    </li>
                 <?php endif; ?>
 
                 <?php if ($ionAuth->inGroup(['admin','penjualan'])): ?>

@@ -145,4 +145,75 @@ class PromoModel extends Model
 
         return null;
     }
+
+    // ---------------------------------------------------------------
+    // ADMIN: daftar promo otomatis + jumlah pemakaian di t_penjualan
+    // ---------------------------------------------------------------
+    public function adminList(string $keyword = ''): self
+    {
+        $this->select(
+            'm_promo.*, (SELECT COUNT(*) FROM t_penjualan tp WHERE tp.promo_id = m_promo.id) AS dipakai',
+            false
+        )->where('tipe_promo', 'automatic');
+
+        if ($keyword !== '') {
+            $this->like('nama_promo', $keyword);
+        }
+
+        return $this->orderBy('min_subtotal', 'ASC');
+    }
+
+    /**
+     * Status promo untuk tampilan admin. Aturannya sama dengan filter
+     * di getAutomaticPromo()/getAutomaticTiers().
+     */
+    public function getStatus(object $promo): string
+    {
+        if (! (int) $promo->is_active) {
+            return 'nonaktif';
+        }
+
+        $now = date('Y-m-d H:i:s');
+
+        if ($promo->starts_at !== null && $promo->starts_at > $now) {
+            return 'dijadwalkan';
+        }
+
+        if ($promo->ends_at !== null && $promo->ends_at < $now) {
+            return 'berakhir';
+        }
+
+        if ($promo->usage_limit !== null
+            && (int) $promo->usage_count >= (int) $promo->usage_limit) {
+            return 'kuota_habis';
+        }
+
+        return 'berjalan';
+    }
+
+    /**
+     * Sudah ada promo otomatis AKTIF lain dengan minimal belanja yang sama?
+     */
+    public function hasActiveTier(int $minSubtotal, ?int $exceptId = null): bool
+    {
+        $this->where('tipe_promo', 'automatic')
+            ->where('is_active', 1)
+            ->where('min_subtotal', $minSubtotal);
+
+        if ($exceptId !== null) {
+            $this->where('id !=', $exceptId);
+        }
+
+        return $this->countAllResults() > 0;
+    }
+
+    /**
+     * Jumlah transaksi yang memakai promo ini.
+     */
+    public function countUsage(int $id): int
+    {
+        return (int) $this->db->table('t_penjualan')
+            ->where('promo_id', $id)
+            ->countAllResults();
+    }
 }

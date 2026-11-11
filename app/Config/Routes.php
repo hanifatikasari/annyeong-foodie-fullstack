@@ -227,6 +227,17 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->get('delete/(:num)', 'Admin\ShippingArea::delete/$1');
 
     });
+
+    // --- PROMO / DISKON OTOMATIS ---
+    $routes->group('promo', ['filter' => 'authAdmin:admin,pemilik,penjualan'], function ($routes) {
+        $routes->get('/', 'Admin\\Promo::index');
+        $routes->get('create', 'Admin\\Promo::create');
+        $routes->post('store', 'Admin\\Promo::store');
+        $routes->get('edit/(:num)', 'Admin\\Promo::edit/$1');
+        $routes->post('update/(:num)', 'Admin\\Promo::update/$1');
+        $routes->post('toggle/(:num)', 'Admin\\Promo::toggle/$1');
+        $routes->post('delete/(:num)', 'Admin\\Promo::delete/$1');
+    });
     
     // --- CAROUSEL ---
     $routes->group('sliders', ['filter' => 'authAdmin:admin,pemilik, penjualan'], function($routes) {
