@@ -4,20 +4,11 @@ namespace App\Libraries\GoogleOAuth;
 
 use Config\Google as GoogleConfig;
 use Config\Services;
-use Firebase\JWT\JWK;
-use Firebase\JWT\JWT;
 use Throwable;
 
 /**
  * Klien OAuth 2.0 / OpenID Connect untuk Google (Authorization Code Flow + PKCE).
- *
- * Tanggung jawab kelas ini HANYA protokol OAuth:
- *  - membuat URL otorisasi (state, nonce, PKCE disimpan di session)
- *  - memvalidasi callback (state, error, code)
- *  - menukar code -> token (server-to-server, memakai Client Secret)
- *  - memverifikasi ID token (tanda tangan, iss, aud, exp, nonce, email_verified)
- *
- * Kelas ini TIDAK menyentuh database maupun IonAuth.
+ * Menggunakan verifikasi JWT RS256 native PHP (OpenSSL) tanpa dependensi eksternal.
  */
 class OAuthClient
 {
@@ -27,7 +18,7 @@ class OAuthClient
     private const ISSUERS        = ['https://accounts.google.com', 'accounts.google.com'];
 
     private const FLOW_SESSION_KEY = 'google_oauth_flow';
-    private const FLOW_TTL         = 600;   // detik: batas waktu user menyelesaikan login di Google
+    private const FLOW_TTL         = 600;   // detik
     private const JWKS_CACHE_KEY   = 'google_oauth_jwks';
     private const JWKS_CACHE_TTL   = 3600;  // detik
     private const CLOCK_SKEW       = 60;    // detik toleransi selisih jam server
@@ -39,9 +30,6 @@ class OAuthClient
         $this->config = $config ?? config('Google');
     }
 
-    /**
-     * Membuat URL otorisasi Google dan menyimpan state/nonce/PKCE di session.
-     */
     public function buildAuthorizationUrl(): string
     {
         $this->assertConfigured();
@@ -71,34 +59,20 @@ class OAuthClient
         ], '', '&', PHP_QUERY_RFC3986);
     }
 
-    /**
-     * Memproses callback dari Google.
-     *
-     * @param mixed $state  nilai ?state= dari query string
-     * @param mixed $code   nilai ?code= dari query string
-     * @param mixed $error  nilai ?error= dari query string
-     *
-     * @return array{sub:string,email:string,name:string,given_name:string,family_name:string}
-     *
-     * @throws GoogleAuthException
-     */
     public function handleCallback($state, $code, $error): array
     {
         $this->assertConfigured();
 
-        // Flow bersifat sekali pakai: diambil lalu langsung dihapus dari session.
         $flow = $this->pullFlow();
         if ($flow === null) {
             throw new GoogleAuthException('Sesi login Google tidak valid atau sudah kedaluwarsa. Silakan coba lagi.');
         }
 
-        // Validasi state (perlindungan CSRF pada callback).
         if (! is_string($state) || $state === '' || ! hash_equals($flow['state'], $state)) {
             log_message('warning', 'Google OAuth: parameter state tidak cocok.');
             throw new GoogleAuthException('Permintaan login Google tidak valid. Silakan coba lagi.');
         }
 
-        // Pengguna menolak izin / Google mengembalikan error.
         if (is_string($error) && $error !== '') {
             $safeError = preg_replace('/[^a-z_]/i', '', substr($error, 0, 64));
             log_message('info', 'Google OAuth: callback berisi error "' . $safeError . '".');
@@ -114,9 +88,6 @@ class OAuthClient
         return $this->verifyIdToken($idToken, $flow['nonce']);
     }
 
-    /**
-     * Menghapus data flow OAuth dari session (mis. saat user sudah login).
-     */
     public function forget(): void
     {
         session()->remove(self::FLOW_SESSION_KEY);
@@ -145,9 +116,6 @@ class OAuthClient
         return base_url('auth/google/callback');
     }
 
-    /**
-     * @return array{state:string,nonce:string,verifier:string,created_at:int}|null
-     */
     private function pullFlow(): ?array
     {
         $session = session();
@@ -168,10 +136,6 @@ class OAuthClient
         return $flow;
     }
 
-    /**
-     * Menukar authorization code dengan token (server-to-server).
-     * Mengembalikan id_token. Access token tidak dipakai dan tidak disimpan.
-     */
     private function exchangeCode(string $code, string $verifier): string
     {
         try {
@@ -193,7 +157,6 @@ class OAuthClient
                 ],
             ]);
         } catch (Throwable $e) {
-            // Pesan cURL tidak memuat credential. Contoh umum di Windows: "SSL certificate problem".
             log_message('error', 'Google OAuth: koneksi ke token endpoint gagal: ' . $e->getMessage());
             throw new GoogleAuthException('Tidak dapat terhubung ke Google. Silakan coba lagi beberapa saat lagi.');
         }
@@ -216,53 +179,73 @@ class OAuthClient
         return $body['id_token'];
     }
 
-    /**
-     * Verifikasi ID token: tanda tangan (JWKS Google), exp, iss, aud/azp, nonce,
-     * sub, dan email_verified. Mengembalikan klaim yang dibutuhkan saja.
-     *
-     * @return array{sub:string,email:string,name:string,given_name:string,family_name:string}
-     */
     private function verifyIdToken(string $idToken, string $expectedNonce): array
     {
         try {
-            $keys = $this->getKeys();
-            $kid  = $this->readKid($idToken);
+            $parts = explode('.', $idToken);
+            if (count($parts) !== 3) {
+                throw new GoogleAuthException('Format ID token tidak valid.');
+            }
 
-            // Google merotasi kunci secara berkala: kid tidak dikenal -> ambil ulang JWKS sekali.
-            if ($kid === null || ! isset($keys[$kid])) {
+            [$headerB64, $payloadB64, $sigB64] = $parts;
+
+            $header  = json_decode($this->base64UrlDecode($headerB64), true);
+            $claims  = json_decode($this->base64UrlDecode($payloadB64), true);
+            $sig     = $this->base64UrlDecode($sigB64);
+
+            if (! is_array($header) || ! is_array($claims)) {
+                throw new GoogleAuthException('Payload ID token tidak dapat dibaca.');
+            }
+
+            if (($header['alg'] ?? '') !== 'RS256' || empty($header['kid'])) {
+                throw new GoogleAuthException('Algoritma atau Key ID token tidak valid.');
+            }
+
+            $kid  = $header['kid'];
+            $keys = $this->getKeys();
+
+            if (! isset($keys[$kid])) {
                 $keys = $this->getKeys(true);
             }
 
-            $previousLeeway = JWT::$leeway;
-            JWT::$leeway    = self::CLOCK_SKEW;
-
-            try {
-                $decoded = JWT::decode($idToken, $keys); // memverifikasi signature, exp, nbf, iat
-            } finally {
-                JWT::$leeway = $previousLeeway;
+            if (! isset($keys[$kid])) {
+                throw new GoogleAuthException('Public key Google tidak ditemukan untuk kid: ' . $kid);
             }
 
-            $claims = json_decode((string) json_encode($decoded), true);
+            $verified = openssl_verify(
+                $headerB64 . '.' . $payloadB64,
+                $sig,
+                $keys[$kid],
+                OPENSSL_ALGO_SHA256
+            );
+
+            if ($verified !== 1) {
+                throw new GoogleAuthException('Signature ID token tidak valid.');
+            }
+
+            $now = time();
+            if (isset($claims['exp']) && ($now - self::CLOCK_SKEW) >= (int) $claims['exp']) {
+                throw new GoogleAuthException('ID token sudah kedaluwarsa.');
+            }
+            if (isset($claims['nbf']) && ($now + self::CLOCK_SKEW) < (int) $claims['nbf']) {
+                throw new GoogleAuthException('ID token belum berlaku.');
+            }
+            if (isset($claims['iat']) && ($now + self::CLOCK_SKEW) < (int) $claims['iat']) {
+                throw new GoogleAuthException('Waktu pembuatan ID token tidak valid.');
+            }
         } catch (Throwable $e) {
             log_message('error', 'Google OAuth: verifikasi ID token gagal (' . 
-            get_class($e) . '): ' .
-    $e->getMessage() .
-    ' | PHP time: ' . gmdate('Y-m-d H:i:s') .
-    ' | Unix time: ' . time());
+                get_class($e) . '): ' . $e->getMessage() .
+                ' | PHP time: ' . gmdate('Y-m-d H:i:s') .
+                ' | Unix time: ' . time());
             throw new GoogleAuthException('Identitas Google tidak dapat diverifikasi. Silakan coba lagi.');
         }
 
-        if (! is_array($claims)) {
-            throw new GoogleAuthException('Identitas Google tidak dapat diverifikasi. Silakan coba lagi.');
-        }
-
-        // iss
         if (! isset($claims['iss']) || ! in_array($claims['iss'], self::ISSUERS, true)) {
             log_message('error', 'Google OAuth: issuer ID token tidak valid.');
             throw new GoogleAuthException('Identitas Google tidak valid.');
         }
 
-        // aud (+ azp)
         $audList = is_array($claims['aud'] ?? null) ? $claims['aud'] : [$claims['aud'] ?? null];
         if (! in_array($this->config->clientId, $audList, true)) {
             log_message('error', 'Google OAuth: audience ID token tidak cocok dengan Client ID.');
@@ -276,24 +259,21 @@ class OAuthClient
             throw new GoogleAuthException('Identitas Google tidak valid.');
         }
 
-        // nonce (mencegah replay ID token)
         if (! isset($claims['nonce']) || ! is_string($claims['nonce']) || ! hash_equals($expectedNonce, $claims['nonce'])) {
             log_message('error', 'Google OAuth: nonce ID token tidak cocok.');
             throw new GoogleAuthException('Identitas Google tidak valid. Silakan coba lagi.');
         }
 
-        // sub = identitas permanen akun Google
         if (! isset($claims['sub']) || ! is_string($claims['sub']) || ! preg_match('/^[\x21-\x7E]{1,255}$/', $claims['sub'])) {
             throw new GoogleAuthException('Identitas Google tidak valid.');
         }
 
-        // email wajib ada, valid, dan sudah diverifikasi Google
         $email = isset($claims['email']) && is_string($claims['email']) ? strtolower(trim($claims['email'])) : '';
         if ($email === '' || strlen($email) > 254 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             throw new GoogleAuthException('Akun Google Anda tidak menyediakan alamat email yang valid.');
         }
-        $verified = $claims['email_verified'] ?? false;
-        if ($verified !== true && $verified !== 'true') {
+        $verifiedEmail = $claims['email_verified'] ?? false;
+        if ($verifiedEmail !== true && $verifiedEmail !== 'true') {
             throw new GoogleAuthException('Email pada akun Google Anda belum terverifikasi, sehingga tidak dapat dipakai untuk login.');
         }
 
@@ -307,7 +287,7 @@ class OAuthClient
     }
 
     /**
-     * @return array<string, \Firebase\JWT\Key>
+     * @return array<string, string> Map kid => PEM public key
      */
     private function getKeys(bool $forceRefresh = false): array
     {
@@ -315,12 +295,12 @@ class OAuthClient
         $json  = $forceRefresh ? null : $cache->get(self::JWKS_CACHE_KEY);
 
         if (! is_string($json) || $json === '') {
-            $json = $this->fetchJwks();
+            $json = $this->fetchJwks($forceRefresh);
 
             try {
                 $cache->save(self::JWKS_CACHE_KEY, $json, self::JWKS_CACHE_TTL);
             } catch (Throwable) {
-                // Cache gagal bukan masalah fatal; JWKS diambil lagi pada request berikutnya.
+                // Cache error diabaikan
             }
         }
 
@@ -329,36 +309,112 @@ class OAuthClient
             throw new GoogleAuthException('Identitas Google tidak dapat diverifikasi. Silakan coba lagi.');
         }
 
-        return JWK::parseKeySet($set, 'RS256');
-    }
+        $parsedKeys = [];
+        foreach ($set['keys'] as $keyData) {
+            if (empty($keyData['kid']) || empty($keyData['n']) || empty($keyData['e'])) {
+                continue;
+            }
 
-    private function fetchJwks(): string
-    {
-        $http     = Services::curlrequest(['timeout' => 10, 'connect_timeout' => 5, 'http_errors' => false], null, null, false);
-        $response = $http->get(self::JWKS_ENDPOINT);
+            $pem = $this->convertJwksToPem($keyData['n'], $keyData['e']);
+            if ($pem !== null) {
+                $parsedKeys[$keyData['kid']] = $pem;
+            }
+        }
 
-        if ($response->getStatusCode() !== 200) {
-            log_message('error', 'Google OAuth: gagal mengambil JWKS (HTTP ' . $response->getStatusCode() . ').');
+        if (empty($parsedKeys)) {
             throw new GoogleAuthException('Identitas Google tidak dapat diverifikasi. Silakan coba lagi.');
         }
 
-        return (string) $response->getBody();
+        return $parsedKeys;
     }
 
-    private function readKid(string $jwt): ?string
+    private function convertJwksToPem(string $n, string $e): ?string
     {
-        $parts = explode('.', $jwt);
-        if (count($parts) !== 3) {
-            return null;
+        $modulus  = $this->base64UrlDecode($n);
+        $exponent = $this->base64UrlDecode($e);
+
+        $components = [
+            'modulus'        => pack('Ca*a*', 0x02, $this->encodeLength(strlen($modulus)), $modulus),
+            'publicExponent' => pack('Ca*a*', 0x02, $this->encodeLength(strlen($exponent)), $exponent),
+        ];
+
+        $rsaSequence = pack(
+            'Ca*a*a*',
+            0x30,
+            $this->encodeLength(strlen($components['modulus'] . $components['publicExponent'])),
+            $components['modulus'],
+            $components['publicExponent']
+        );
+
+        $rsaAlgorithmIdentifier = pack('H*', '300d06092a864886f70d0101010500');
+        $bitString              = pack('Ca*a*', 0x03, $this->encodeLength(strlen($rsaSequence) + 1), "\x00" . $rsaSequence);
+
+        $publicKeySequence = pack(
+            'Ca*a*a*',
+            0x30,
+            $this->encodeLength(strlen($rsaAlgorithmIdentifier . $bitString)),
+            $rsaAlgorithmIdentifier,
+            $bitString
+        );
+
+        return "-----BEGIN PUBLIC KEY-----\n" .
+               chunk_split(base64_encode($publicKeySequence), 64, "\n") .
+               "-----END PUBLIC KEY-----";
+    }
+
+    private function encodeLength(int $length): string
+    {
+        if ($length <= 0x7F) {
+            return pack('C', $length);
         }
 
-        $header = json_decode(JWT::urlsafeB64Decode($parts[0]), true);
+        $temp = ltrim(pack('N', $length), "\x00");
+        return pack('Ca*', 0x80 | strlen($temp), $temp);
+    }
 
-        return is_array($header) && isset($header['kid']) && is_string($header['kid']) ? $header['kid'] : null;
+    private function fetchJwks(bool $forceRefresh = false): string
+    {
+        $cache = Services::cache();
+        if (! $forceRefresh) {
+            $cachedJwks = $cache->get(self::JWKS_CACHE_KEY);
+            if (is_string($cachedJwks) && $cachedJwks !== '') {
+                return $cachedJwks;
+            }
+        }
+
+        try {
+            $http = Services::curlrequest([
+                'timeout'         => 10,
+                'connect_timeout' => 5,
+                'http_errors'     => false,
+            ], null, null, false);
+
+            $response = $http->get(self::JWKS_ENDPOINT);
+
+            if ($response->getStatusCode() === 200) {
+                $body = (string) $response->getBody();
+                $cache->save(self::JWKS_CACHE_KEY, $body, self::JWKS_CACHE_TTL);
+                return $body;
+            }
+        } catch (Throwable $e) {
+            log_message('error', 'Google OAuth JWKS fetch error: ' . $e->getMessage());
+        }
+
+        throw new GoogleAuthException('Identitas Google tidak dapat diverifikasi. Silakan coba lagi.');
     }
 
     private function base64Url(string $binary): string
     {
         return rtrim(strtr(base64_encode($binary), '+/', '-_'), '=');
+    }
+
+    private function base64UrlDecode(string $data): string
+    {
+        $remainder = strlen($data) % 4;
+        if ($remainder !== 0) {
+            $data .= str_repeat('=', 4 - $remainder);
+        }
+
+        return base64_decode(strtr($data, '-_', '+/')) ?: '';
     }
 }
