@@ -542,6 +542,21 @@ class Checkout extends BaseController
                 'updated_at'   => date('Y-m-d H:i:s'),
             ]);
 
+            // =====================================================
+            // CATAT PEMAKAIAN PROMO
+            // Masih di dalam transaksi database.
+            // Jika gagal, seluruh transaksi checkout ikut dibatalkan.
+            // =====================================================
+            if ($promoId !== null) {
+                $promoRecorded = model('PromoModel')->recordUsage($promoId);
+
+                if (!$promoRecorded) {
+                    throw new \Exception(
+                        'Kuota promo sudah habis. Silakan ulangi checkout.'
+                    );
+                }
+            }
+
             $db->transComplete();
 
             if ($db->transStatus() === false) {

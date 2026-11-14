@@ -54,9 +54,11 @@
 				<!-- form start -->
 				<?php if (!empty($product)): ?>
 					<form role="form" method="post" action="<?= site_url('admin/products/'. $product->id) ?>" novalidate>
+					<?= csrf_field() ?>
 					<input name="_method" type="hidden" value="PUT">
 				<?php else: ?>
 					<form role="form" method="post" action="<?= site_url('admin/products') ?>" novalidate>
+					<?= csrf_field() ?>
 				<?php endif; ?>
 					<input type="hidden" name="id" value="<?= isset($product->id) ? $product->id : null ?>"/>
 					<div class="card-body">
@@ -198,7 +200,8 @@
 				url: "<?= site_url('admin/products/getAttributesByCategory') ?>",
 				type: 'POST',
 				data: {
-					category_ids: categoryIds
+					category_ids: categoryIds,
+					"<?= csrf_token() ?>": "<?= csrf_hash() ?>"
 				},
 				success: function(attributes) {
 					let html = '';

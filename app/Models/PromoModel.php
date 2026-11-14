@@ -216,4 +216,24 @@ class PromoModel extends Model
             ->where('promo_id', $id)
             ->countAllResults();
     }
+
+    /**
+     * Catat satu pemakaian promo secara atomik.
+     * Mengembalikan false jika promo tidak ditemukan
+     * atau kuotanya sudah habis.
+     */
+    public function recordUsage(int $promoId): bool
+    {
+        $builder = $this->builder()
+            ->where('id', $promoId)
+            ->groupStart()
+                ->where('usage_limit IS NULL', null, false)
+                ->orWhere('usage_count < usage_limit', null, false)
+            ->groupEnd();
+
+        $builder->set('usage_count', 'usage_count + 1', false)
+            ->update();
+
+        return $this->db->affectedRows() === 1;
+    }
 }

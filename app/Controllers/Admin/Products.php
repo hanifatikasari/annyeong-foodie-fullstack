@@ -419,23 +419,19 @@ class Products extends BaseController
             return view('admin/products/form', $data);
         }
 
+        // Simpan kategori untuk SEMUA tipe product (Simple maupun Configurable)
+        if (!empty($params['categories'])) {
+            $this->saveProductCategories($id, $params['categories']);
+        } else {
+            $this->db->table('product_categories')->where('product_id', $id)->delete();
+        }
+
         if ($product && $product->type == model('ProductModel')::SIMPLE) {
-            // PERBAIKAN: Pisahkan delete dan insert
             $this->db->table('product_inventories')->where('product_id', $id)->delete();
             $this->db->table('product_inventories')->insert([
                 'product_id' => $id,
                 'qty' => $params['stock'],
             ]);
-
-            $this->db->table('product_categories')->where('product_id', $id)->delete();
-            if (!empty($params['categories'])) {
-                foreach ($params['categories'] as $categoryId) {
-                    $this->db->table('product_categories')->insert([
-                        'product_id' => $id,
-                        'category_id' => $categoryId,
-                    ]);
-                }
-            }
         }
 
         if ($product && $product->type == model('ProductModel')::CONFIGURABLE) {
@@ -738,4 +734,4 @@ class Products extends BaseController
 
         return $prefix . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
-} 
+}
