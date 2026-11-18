@@ -3,15 +3,24 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use CodeIgniter\HTTP\IncomingRequest;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class Users extends BaseController
 {
     protected $internalGroups = ['admin', 'gudang', 'penjualan', 'kurir', 'produksi', 'pemilik'];
+    protected ActivityLogger $activityLogger;
 
-    public function __construct()
-    {
-        helper(['form', 'url']);
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
     }
 
     private function internalUserQuery()
@@ -129,10 +138,28 @@ class Users extends BaseController
             'phone'      => $this->request->getPost('phone'),
         ];
 
-        $group = [$this->request->getPost('group')];
+        $group   = [$this->request->getPost('group')];
         $created = $this->auth->register($identity, $password, $email, $additionalData, $group);
 
         if ($created) {
+            // Catat audit log — tidak menyertakan password
+            $this->activityLogger->log(
+                'create',
+                'user',
+                "Pegawai baru '{$identity}' (group: {$group[0]}) berhasil didaftarkan.",
+                null,
+                [
+                    'username'   => $this->request->getPost('username'),
+                    'email'      => $email,
+                    'first_name' => $additionalData['first_name'],
+                    'last_name'  => $additionalData['last_name'],
+                    'phone'      => $additionalData['phone'],
+                    'group'      => $group[0],
+                ],
+                'user',
+                (int) $created
+            );
+
             return redirect()->to('admin/users')->with('success', 'Pegawai berhasil ditambahkan.');
         }
 
@@ -212,6 +239,20 @@ class Users extends BaseController
             ]);
         }
 
+        // Snapshot data sebelum perubahan (tidak termasuk password)
+        $oldData = [
+            'username'   => $user->username,
+            'email'      => $user->email,
+            'first_name' => $user->first_name,
+            'last_name'  => $user->last_name ?? '',
+            'phone'      => $user->phone ?? '',
+        ];
+
+        // Ambil group lama
+        $oldGroups = $this->auth->getUsersGroups($id)->getResult();
+        $oldGroupName = !empty($oldGroups) ? $oldGroups[0]->name : null;
+        $oldData['group'] = $oldGroupName;
+
         $data = [
             'username'   => $this->request->getPost('username'),
             'email'      => strtolower($this->request->getPost('email')),
@@ -222,8 +263,27 @@ class Users extends BaseController
 
         $this->auth->update($id, $data);
 
+        // Update group
+        $newGroupId   = $this->request->getPost('group');
         $this->auth->removeFromGroup('', $id);
-        $this->auth->addToGroup($this->request->getPost('group'), $id);
+        $this->auth->addToGroup($newGroupId, $id);
+
+        // Ambil nama group baru
+        $newGroupRow  = $this->db->table('groups')->where('id', $newGroupId)->get()->getRow();
+        $newGroupName = $newGroupRow ? $newGroupRow->name : $newGroupId;
+
+        $newData = array_merge($data, ['group' => $newGroupName]);
+
+        // Catat audit log
+        $this->activityLogger->log(
+            'update',
+            'user',
+            "Data pegawai '{$user->username}' (ID: {$id}) diperbarui.",
+            $oldData,
+            $newData,
+            'user',
+            $id
+        );
 
         return redirect()->to('admin/users')->with('success', 'Data user berhasil diperbarui.');
     }
@@ -234,7 +294,21 @@ class Users extends BaseController
             return $redirect;
         }
 
+        // Snapshot sebelum hapus
+        $user = $this->internalUserQuery()->where('u.id', $id)->get()->getRow();
+        $username = $user ? $user->username : 'unknown';
+
         if ($this->auth->deleteUser($id)) {
+            $this->activityLogger->log(
+                'delete',
+                'user',
+                "Pegawai '{$username}' (ID: {$id}) dihapus.",
+                $user ? ['username' => $username, 'email' => $user->email] : null,
+                null,
+                'user',
+                $id
+            );
+
             return redirect()->to('admin/users')->with('success', 'User berhasil dihapus.');
         }
 
@@ -247,7 +321,19 @@ class Users extends BaseController
             return $redirect;
         }
 
+        $user = $this->internalUserQuery()->where('u.id', $id)->get()->getRow();
+
         if ($this->auth->activate($id)) {
+            $this->activityLogger->log(
+                'update',
+                'user',
+                "Akun pegawai '" . ($user->username ?? $id) . "' (ID: {$id}) diaktifkan.",
+                ['active' => 0],
+                ['active' => 1],
+                'user',
+                $id
+            );
+
             return redirect()->to('admin/users')->with('success', 'User berhasil diaktifkan.');
         }
 
@@ -260,8 +346,20 @@ class Users extends BaseController
             return $redirect;
         }
 
+        $user = $this->internalUserQuery()->where('u.id', $id)->get()->getRow();
+
         if ($this->auth->deactivate($id)) {
-            return redirect()->to('admin/users')->with('success', 'User berhasil dinonaktifkan.');
+            $this->activityLogger->log(
+                'update',
+                'user',
+                "Akun pegawai '" . ($user->username ?? $id) . "' (ID: {$id}) dinonaktifkan.",
+                ['active' => 1],
+                ['active' => 0],
+                'user',
+                $id
+            );
+
+            return redirect()->back()->with('success', 'User berhasil dinonaktifkan.');
         }
 
         return redirect()->back()->with('error', 'Gagal menonaktifkan user.');
@@ -283,7 +381,19 @@ class Users extends BaseController
         }
 
         $password = substr(bin2hex(random_bytes(4)), 0, 8);
+        // Hanya kirim password baru ke IonAuth — tidak disimpan ke log
         $this->auth->update($id, ['password' => $password]);
+
+        // Catat bahwa password direset, TANPA menyimpan nilai passwordnya
+        $this->activityLogger->log(
+            'update',
+            'user',
+            "Password pegawai '{$user->username}' (ID: {$id}) direset oleh admin.",
+            null,
+            null,
+            'user',
+            $id
+        );
 
         return redirect()->to('admin/users')->with('success', 'Password user berhasil direset. Password baru: ' . $password);
     }
@@ -300,6 +410,15 @@ class Users extends BaseController
         foreach ($users as $user) {
             $this->auth->update($user->id, ['password' => $defaultPassword]);
         }
+
+        // Catat reset massal — tanpa nilai password
+        $this->activityLogger->log(
+            'update',
+            'user',
+            'Password semua pegawai internal direset ke password default oleh pemilik.',
+            null,
+            null
+        );
 
         return redirect()->to('admin/users')->with('success', 'Password semua user internal telah direset ke kata sandi default: ' . $defaultPassword);
     }
@@ -318,7 +437,7 @@ class Users extends BaseController
             ->getResult();
 
         return view('admin/users/activity', [
-            'title'               => 'Aktivitas User',
+            'title'               => 'Riwayat Login',
             'currentAdminMenu'    => 'data_management',
             'currentAdminSubMenu' => 'user_management',
             'activities'         => $activities,

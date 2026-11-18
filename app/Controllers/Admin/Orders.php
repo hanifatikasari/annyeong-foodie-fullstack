@@ -3,9 +3,25 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class Orders extends BaseController
 {
+    protected ActivityLogger $activityLogger;
+
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
+    }
+
     // ---------------------------------------------------------------
     // INDEX — Daftar semua pesanan online
     // FIX ISSUE #4: Hapus \IonAuth\Models\UserModel yang tidak ada.
@@ -71,14 +87,13 @@ class Orders extends BaseController
             ->get()
             ->getResult();
 
-            $data = [
+        $data = [
             'title'               => 'Detail Pesanan #' . $order->invoice_no,
             'currentAdminMenu'    => 'sales',
             'currentAdminSubMenu' => 'online_order',
             'order'               => $order,
             'details'             => $details,
             'couriers'            => $couriers,
-            
         ];
 
         return view('admin/orders/detail', $data);
@@ -96,6 +111,17 @@ class Orders extends BaseController
             [
                 'delivery_courier_id' => $courierId
             ]
+        );
+
+        // Catat ke Audit Trail
+        $this->activityLogger->log(
+            'update',
+            'order',
+            "Penugasan kurir (ID: {$courierId}) untuk pesanan ID #{$id}.",
+            null,
+            ['delivery_courier_id' => $courierId],
+            'order',
+            $id
         );
 
         return redirect()
@@ -125,11 +151,22 @@ class Orders extends BaseController
 
         $updated = $penjualanModel->verifyPayment($id, session()->get('user_id'));
 
-       if (!$updated) {
+        if (!$updated) {
             return redirect()
                 ->to('admin/orders/detail/' . $id)
                 ->with('error', 'Gagal memverifikasi pembayaran.');
         }
+
+        // Catat ke Audit Trail
+        $this->activityLogger->log(
+            'verify',
+            'order',
+            "Pembayaran pesanan {$order->invoice_no} (ID: {$id}) berhasil diverifikasi oleh admin.",
+            ['payment_status' => $order->payment_status, 'order_status' => $order->order_status],
+            ['payment_status' => 'paid', 'order_status' => 'processing'],
+            'order',
+            $id
+        );
 
         model('NotificationModel')->insert([
             'user_id'      => $order->customer_id,
@@ -253,6 +290,22 @@ class Orders extends BaseController
                 ->with('error', 'Gagal memperbarui status pesanan.');
         }
 
+        // Catat ke Audit Trail
+        $deskripsi = "Status pesanan {$order->invoice_no} diubah dari '{$currentStatus}' ke '{$newStatus}'.";
+        if ($newStatus === 'cancelled') {
+            $deskripsi .= ' Stok produk dikembalikan ke gudang.';
+        }
+
+        $this->activityLogger->log(
+            'update',
+            'order',
+            $deskripsi,
+            ['order_status' => $currentStatus],
+            ['order_status' => $newStatus],
+            'order',
+            $id
+        );
+
         $messages = [
             'processing' => [
                 'title' => 'Pesanan Sedang Diproses',
@@ -275,7 +328,7 @@ class Orders extends BaseController
                             ' telah dibatalkan.'
             ],
         ];
-          // Buat notifikasi untuk pemilik pesanan
+        // Buat notifikasi untuk pemilik pesanan
         if (isset($messages[$newStatus])) {
             model('NotificationModel')->insert([
                 'user_id'      => $order->customer_id,

@@ -1,5 +1,7 @@
 <?php namespace App\Controllers;
 
+use App\Libraries\ActivityLogger;
+
 class Auth extends \IonAuth\Controllers\Auth
 {
      protected $auth;
@@ -36,19 +38,40 @@ class Auth extends \IonAuth\Controllers\Auth
         $remember = (bool)$this->request->getPost('remember');
 
         if ($this->auth->login($identity, $password, $remember)) {
-        // Gabungkan keranjang guest dengan keranjang akun.
-        helper('cart_helper');
-        merge_guest_cart_into_user_cart();
-    
-        // JIKA ADMIN: Masuk ke Dashboard Admin 
+            // Gabungkan keranjang guest dengan keranjang akun.
+            helper('cart_helper');
+            merge_guest_cart_into_user_cart();
+
+            // Catat aktivitas login berhasil ke audit trail
+            $logger = new ActivityLogger();
+            $logger->log('login', 'auth', "Pengguna '{$identity}' berhasil login.");
+
+            // JIKA ADMIN: Masuk ke Dashboard Admin 
             if ($this->auth->isAdmin()) {
                 return redirect()->to('/')->with('message', 'Login Success!');
-            } 
+            }
             // JIKA PELANGGAN: Masuk ke Home page
             return redirect()->to('/')->with('message', 'Login Success!');
         } else {
             return redirect()->back()->withInput()->with('message', $this->auth->errors());
         }
+    }
+
+    /**
+     * Override logout untuk mencatat aktivitas sebelum session dibersihkan.
+     */
+    public function logout()
+    {
+        // Catat logout SEBELUM IonAuth menghapus session
+        if ($this->auth->loggedIn()) {
+            $logger = new ActivityLogger();
+            $userRow = $this->auth->user()->row();
+            $username = $userRow ? ($userRow->username ?? $userRow->email ?? 'unknown') : 'unknown';
+            $logger->log('logout', 'auth', "Pengguna '{$username}' logout.");
+        }
+
+        // Panggil logout IonAuth parent
+        return parent::logout();
     }
 
     public function forgot_password() 
@@ -57,6 +80,7 @@ class Auth extends \IonAuth\Controllers\Auth
         if ($this->request->is('post')) {
             return parent::forgot_password();
         }
+
         $this->data['title'] = "Forgot Password - Annyeong Foodie";
         
         // Setting validasi (bisa disesuaikan dengan config IonAuth)

@@ -3,11 +3,23 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class BahanBaku extends BaseController {
 
-    public function __construct() {
-        helper(['url', 'form']);
+    protected ActivityLogger $activityLogger;
+
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
     }
 
     public function index()
@@ -97,15 +109,39 @@ class BahanBaku extends BaseController {
             $nextNumber = (!$lastBahan) ? 1 : ((int) substr($lastBahan->kode_bahan, -3)) + 1;
             $kode       = $prefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
+            $stokAwal   = (float) ($this->request->getPost('stok_sekarang') ?? 0);
+            $namaBahan  = $this->request->getPost('nama_bahan');
+            $satuan     = strtolower($this->request->getPost('satuan'));
+
             $bahanModel->save([
                 'kode_bahan'        => $kode,
                 'category_id'       => $catId,
-                'nama_bahan'        => $this->request->getPost('nama_bahan'),
-                'satuan'            => strtolower($this->request->getPost('satuan')),
+                'nama_bahan'        => $namaBahan,
+                'satuan'            => $satuan,
                 'harga_beli_satuan' => $this->request->getPost('harga_beli_satuan'),
-                'stok_sekarang'     => $this->request->getPost('stok_sekarang') ?? 0,
+                'stok_sekarang'     => $stokAwal,
                 'stok_minimal'      => $this->request->getPost('stok_minimal') 
             ]);
+
+            $insertedId = $bahanModel->getInsertID();
+
+            // Catat audit log untuk penambahan bahan baku
+            $this->activityLogger->log(
+                'create',
+                'bahan_baku',
+                "Bahan baku baru '{$namaBahan}' ({$kode}) ditambahkan dengan stok awal {$stokAwal} {$satuan}.",
+                null,
+                [
+                    'kode_bahan'        => $kode,
+                    'nama_bahan'        => $namaBahan,
+                    'satuan'            => $satuan,
+                    'harga_beli_satuan' => (float) $this->request->getPost('harga_beli_satuan'),
+                    'stok_sekarang'     => $stokAwal,
+                    'stok_minimal'      => (float) $this->request->getPost('stok_minimal'),
+                ],
+                'bahan_baku',
+                $insertedId
+            );
 
             return redirect()->to('admin/bahanbaku')->with('success', "Bahan Baku $kode Berhasil Disimpan!");
 
@@ -146,14 +182,48 @@ class BahanBaku extends BaseController {
         }
 
         try {
-            model('BahanBakuModel')->update($id, [
+            $bahanModel = model('BahanBakuModel');
+            $oldBahan   = $bahanModel->find($id);
+
+            if (!$oldBahan) {
+                return redirect()->to('admin/bahanbaku')->with('error', 'Data bahan baku tidak ditemukan');
+            }
+
+            $oldData = [
+                'nama_bahan'        => $oldBahan->nama_bahan,
+                'category_id'       => $oldBahan->category_id,
+                'satuan'            => $oldBahan->satuan,
+                'harga_beli_satuan' => (float) $oldBahan->harga_beli_satuan,
+                'stok_sekarang'     => (float) $oldBahan->stok_sekarang,
+                'stok_minimal'      => (float) $oldBahan->stok_minimal,
+            ];
+
+            $newData = [
                 'nama_bahan'        => $this->request->getPost('nama_bahan'),
                 'category_id'       => $this->request->getPost('category_id'),
                 'satuan'            => strtolower($this->request->getPost('satuan')),
                 'harga_beli_satuan' => round($this->request->getPost('harga_beli_satuan')),
-                'stok_minimal'      => $this->request->getPost('stok_minimal'),
-                'stok_sekarang'     => $this->request->getPost('stok_sekarang')
-            ]);
+                'stok_minimal'      => (float) $this->request->getPost('stok_minimal'),
+                'stok_sekarang'     => (float) $this->request->getPost('stok_sekarang')
+            ];
+
+            $bahanModel->update($id, $newData);
+
+            // Catat audit log untuk perubahan bahan baku (termasuk jika stok disesuaikan manual)
+            $deskripsi = "Data bahan baku '{$newData['nama_bahan']}' (ID: {$id}) diperbarui.";
+            if ($oldData['stok_sekarang'] != $newData['stok_sekarang']) {
+                $deskripsi .= " Stok disesuaikan dari {$oldData['stok_sekarang']} menjadi {$newData['stok_sekarang']} {$newData['satuan']}.";
+            }
+
+            $this->activityLogger->log(
+                'update',
+                'bahan_baku',
+                $deskripsi,
+                $oldData,
+                $newData,
+                'bahan_baku',
+                $id
+            );
 
             return redirect()->to('admin/bahanbaku')->with('success', 'Data Berhasil Diperbarui!');
         } catch (\Exception $e) {
@@ -162,6 +232,23 @@ class BahanBaku extends BaseController {
     }
 
     public function hapus($id) {
+        $bahan = model('BahanBakuModel')->find($id);
+        if ($bahan) {
+            $this->activityLogger->log(
+                'delete',
+                'bahan_baku',
+                "Bahan baku '{$bahan->nama_bahan}' ({$bahan->kode_bahan}, ID: {$id}) dihapus.",
+                [
+                    'kode_bahan'    => $bahan->kode_bahan,
+                    'nama_bahan'    => $bahan->nama_bahan,
+                    'stok_sekarang' => (float) $bahan->stok_sekarang,
+                ],
+                null,
+                'bahan_baku',
+                $id
+            );
+        }
+
         model('BahanBakuModel')->delete($id);
         return redirect()->to('/admin/bahanbaku')->with('success', 'Data Berhasil Dihapus!');
     }

@@ -3,12 +3,23 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class Penjualan extends BaseController
 {
-    public function __construct()
-    {
-        helper(['url', 'form']);
+    protected ActivityLogger $activityLogger;
+
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
     }
 
     public function index()
@@ -91,6 +102,7 @@ class Penjualan extends BaseController
      * 1. Simpan header t_penjualan
      * 2. Simpan detail (snapshot harga)
      * 3. Kurangi stok product_inventories
+     * 4. Catat ke Audit Trail dalam transaksi
      */
     public function simpan()
     {
@@ -171,6 +183,7 @@ class Penjualan extends BaseController
             $penjualanId = $db->insertID();
 
             // 2. Simpan detail & kurangi stok
+            $loggedItems = [];
             foreach ($orderItems as $oi) {
                 $detailModel->save([
                     'penjualan_id'  => $penjualanId,
@@ -181,12 +194,39 @@ class Penjualan extends BaseController
                     'subtotal'      => $oi['subtotal'],
                 ]);
 
+                $loggedItems[] = [
+                    'nama_produk' => $oi['product']->name,
+                    'qty'         => $oi['qty'],
+                    'harga'       => (float) $oi['product']->price,
+                    'subtotal'    => $oi['subtotal'],
+                ];
+
                 // Kurangi stok
                 $inv = $inventoryModel->where('product_id', $oi['product']->id)->first();
                 if ($inv) {
                     $inventoryModel->update($inv->id, ['qty' => $inv->qty - $oi['qty']]);
                 }
             }
+
+            // 3. Catat audit trail dalam transaksi
+            $this->activityLogger->logInTransaction(
+                $db,
+                'create',
+                'penjualan',
+                "Transaksi POS {$invoiceNo} berhasil dibuat. Total: Rp " . number_format($totalBayar, 0, ',', '.') . " ({$pembayaran}).",
+                null,
+                [
+                    'invoice_no'      => $invoiceNo,
+                    'grand_total'     => $totalBayar,
+                    'subtotal_produk' => $totalHarga,
+                    'diskon'          => $diskon,
+                    'pembayaran'      => $pembayaran,
+                    'uang_diterima'   => $uangDiterima,
+                    'items'           => $loggedItems,
+                ],
+                'penjualan',
+                $penjualanId
+            );
 
             $db->transComplete();
 

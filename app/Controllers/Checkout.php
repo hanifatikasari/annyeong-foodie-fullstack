@@ -557,6 +557,31 @@ class Checkout extends BaseController
                 }
             }
 
+            // Catat audit trail dalam transaksi (tanpa data token pembayaran sensitif)
+            $activityLogger = new \App\Libraries\ActivityLogger();
+            $activityLogger->logInTransaction(
+                $db,
+                'create',
+                'order',
+                "Pesanan online $invoiceNo dibuat oleh pelanggan (Total: Rp " . number_format($totalHarga, 0, ',', '.') . ", Pembayaran: $pembayaran, Tipe: $deliveryType).",
+                null,
+                [
+                    'invoice_no'       => $invoiceNo,
+                    'grand_total'      => $totalHarga,
+                    'subtotal_produk'  => $subtotal,
+                    'shipping_cost'    => $shippingCost,
+                    'handling_fee'     => $handlingFee,
+                    'diskon'           => $diskon,
+                    'pembayaran'       => $pembayaran,
+                    'delivery_type'    => $deliveryType,
+                    'order_status'     => 'pending',
+                    'payment_status'   => 'unpaid',
+                    'total_item'       => count($cart),
+                ],
+                'order',
+                (int) $orderId
+            );
+
             $db->transComplete();
 
             if ($db->transStatus() === false) {

@@ -3,12 +3,23 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class StokMasuk extends BaseController
 {
-    public function __construct()
-    {
-        helper(['url', 'form']);
+    protected ActivityLogger $activityLogger;
+
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
     }
 
     public function index()
@@ -89,8 +100,29 @@ class StokMasuk extends BaseController
                 throw new \Exception("Data bahan baku tidak ditemukan!");
             }
             
-            $stokBaru = $dataBahan->stok_sekarang + $totalGram;
+            $stokLama = (float) $dataBahan->stok_sekarang;
+            $stokBaru = $stokLama + $totalGram;
             $bahanModel->update($bahanID, ['stok_sekarang' => $stokBaru]);
+
+            // 3. Catat ke Audit Trail dalam transaksi
+            $supplier = $this->request->getPost('nama_supplier') ?: '-';
+            $this->activityLogger->logInTransaction(
+                $db,
+                'create',
+                'stok_masuk',
+                "Penerimaan stok bahan baku '{$dataBahan->nama_bahan}': +{$totalGram} {$dataBahan->satuan} dari {$supplier} (Stok: {$stokLama} -> {$stokBaru}).",
+                ['stok_sekarang' => $stokLama],
+                [
+                    'bahan_baku_id' => (int) $bahanID,
+                    'nama_bahan'    => $dataBahan->nama_bahan,
+                    'total_tambah'  => $totalGram,
+                    'stok_sekarang' => $stokBaru,
+                    'nama_supplier' => $supplier,
+                    'total_harga'   => (float) $totalHarga,
+                ],
+                'bahan_baku',
+                (int) $bahanID
+            );
 
             $db->transComplete();
 

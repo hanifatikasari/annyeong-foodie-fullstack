@@ -3,15 +3,25 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use App\Models\PromoModel;
 
 class Promo extends BaseController
 {
     protected PromoModel $promoModel;
+    protected ActivityLogger $activityLogger;
 
-    public function __construct()
-    {
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
         $this->promoModel = new PromoModel();
+        $this->activityLogger = new ActivityLogger();
     }
 
     // ---------------------------------------------------------------
@@ -67,6 +77,18 @@ class Promo extends BaseController
         }
 
         $this->promoModel->insert($data);
+        $insertedId = $this->promoModel->getInsertID();
+
+        // Catat ke Audit Trail
+        $this->activityLogger->log(
+            'create',
+            'promo',
+            "Promo baru '{$data['nama_promo']}' berhasil dibuat.",
+            null,
+            $data,
+            'promo',
+            (int) $insertedId
+        );
 
         return redirect()->to(site_url('admin/promo'))
             ->with('success', 'Promo berhasil ditambahkan.');
@@ -101,7 +123,30 @@ class Promo extends BaseController
             return redirect()->back()->withInput()->with('errors', $errors);
         }
 
+        $oldData = [
+            'nama_promo'   => $promo->nama_promo,
+            'jenis_diskon' => $promo->jenis_diskon,
+            'nilai_diskon' => (int) $promo->nilai_diskon,
+            'min_subtotal' => (int) $promo->min_subtotal,
+            'max_diskon'   => $promo->max_diskon !== null ? (int) $promo->max_diskon : null,
+            'starts_at'    => $promo->starts_at,
+            'ends_at'      => $promo->ends_at,
+            'usage_limit'  => $promo->usage_limit !== null ? (int) $promo->usage_limit : null,
+            'is_active'    => (int) $promo->is_active,
+        ];
+
         $this->promoModel->update($promo->id, $data);
+
+        // Catat ke Audit Trail
+        $this->activityLogger->log(
+            'update',
+            'promo',
+            "Promo '{$promo->nama_promo}' (ID: {$promo->id}) diperbarui.",
+            $oldData,
+            $data,
+            'promo',
+            (int) $promo->id
+        );
 
         return redirect()->to(site_url('admin/promo'))
             ->with('success', 'Promo berhasil diperbarui.');
@@ -124,6 +169,17 @@ class Promo extends BaseController
         }
 
         $this->promoModel->update($promo->id, ['is_active' => $newState]);
+
+        // Catat ke Audit Trail
+        $this->activityLogger->log(
+            'toggle',
+            'promo',
+            "Promo '{$promo->nama_promo}' (ID: {$id}) " . ($newState === 1 ? 'diaktifkan.' : 'dinonaktifkan.'),
+            ['is_active' => (int) $promo->is_active],
+            ['is_active' => $newState],
+            'promo',
+            (int) $id
+        );
 
         return redirect()->back()->with(
             'success',
@@ -148,6 +204,21 @@ class Promo extends BaseController
         }
 
         $this->promoModel->delete($promo->id);
+
+        // Catat ke Audit Trail
+        $this->activityLogger->log(
+            'delete',
+            'promo',
+            "Promo '{$promo->nama_promo}' (ID: {$id}) dihapus.",
+            [
+                'nama_promo'   => $promo->nama_promo,
+                'nilai_diskon' => (int) $promo->nilai_diskon,
+                'min_subtotal' => (int) $promo->min_subtotal,
+            ],
+            null,
+            'promo',
+            (int) $id
+        );
 
         return redirect()->to(site_url('admin/promo'))
             ->with('success', 'Promo berhasil dihapus.');

@@ -64,6 +64,17 @@ $currentAdminSubMenu = $currentAdminSubMenu ?? '';
                     </li> 
                 <?php endif; ?>
 
+                <!-- AUDIT TRAIL / LOG AKTIVITAS - hanya admin dan pemilik -->
+                <?php if ($ionAuth->inGroup(['admin', 'pemilik'])): ?>
+                    <li class="nav-item">
+                        <a href="<?= site_url('admin/activity-log') ?>"
+                           class="nav-link <?= ($currentAdminMenu == 'activity_log') ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-history text-info"></i>
+                            <p>Log Aktivitas</p>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
                 <?php if ($ionAuth->inGroup(['admin','pemilik', 'penjualan'])): ?>
                     <li class="nav-item">
                         <a href="<?= site_url('admin/settings/payment') ?>"

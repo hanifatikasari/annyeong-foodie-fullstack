@@ -1,6 +1,10 @@
 <?php namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class Products extends BaseController
 {
@@ -8,13 +12,16 @@ class Products extends BaseController
     protected $auth;
     protected $perPage = 10;
     protected $productImagesModel;
+    protected ActivityLogger $activityLogger;
 
-    public function __construct()
-    {
-        helper('general_helper');
-        $this->auth = new \IonAuth\Libraries\IonAuth();
-        $this->currentUser = $this->auth->user()->row();
-        $this->productImageModel = model('ProductImageModel'); //karena dipakai berkali2 pendekatan property class lebih baik daripada instansiasi berulang di method yang butuh
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
     }
 
     private function getCommonData()
@@ -348,6 +355,25 @@ class Products extends BaseController
                     'qty' => $stock
                 ]);
             }
+
+            // Catat audit log dalam transaksi database
+            $this->activityLogger->logInTransaction(
+                $db,
+                'create',
+                'product',
+                "Produk baru '{$params['name']}' (SKU: {$params['sku']}) dibuat.",
+                null,
+                [
+                    'name'   => $params['name'],
+                    'sku'    => $params['sku'],
+                    'type'   => $typeInput,
+                    'price'  => (float) $params['price'],
+                    'stock'  => ($typeInput == $productModel::SIMPLE) ? ($this->request->getVar('stock') ?? 0) : null,
+                    'status' => $statusInput,
+                ],
+                'product',
+                $productId
+            );
         } else {
                 // Jika save() gagal karena validasi model
                 $db->transRollback();
@@ -374,6 +400,18 @@ class Products extends BaseController
         $productModel = model('ProductModel');
 
         $statusInput = $this->request->getVar('status'); // Ambil dari dropdown view
+
+        // Snapshot data lama sebelum diupdate
+        $oldInventory = $this->db->table('product_inventories')->where('product_id', $id)->get()->getRow();
+        $oldStock = $oldInventory ? $oldInventory->qty : null;
+        $oldData = [
+            'name'   => $product->name,
+            'sku'    => $product->sku,
+            'type'   => $product->type,
+            'price'  => (float) $product->price,
+            'stock'  => $oldStock,
+            'status' => !empty($product->published_at) ? 'active' : 'inactive',
+        ];
 
         $params = [
             'id' => $id,
@@ -438,6 +476,25 @@ class Products extends BaseController
             $this->updateProductVariants($params);
         }
 
+        // Catat audit log dalam transaksi database
+        $this->activityLogger->logInTransaction(
+            $this->db,
+            'update',
+            'product',
+            "Produk '{$product->name}' (ID: {$id}) diperbarui.",
+            $oldData,
+            [
+                'name'   => $params['name'],
+                'sku'    => $params['sku'],
+                'type'   => $params['type'],
+                'price'  => (float) $params['price'],
+                'stock'  => $params['stock'] ?? null,
+                'status' => $statusInput,
+            ],
+            'product',
+            $id
+        );
+
         $this->db->transComplete();
 
         if ($productModel->errors()) {
@@ -470,6 +527,16 @@ class Products extends BaseController
                 ->where('parent_id', $id)
                 ->delete();
         }
+
+        $this->activityLogger->log(
+            'delete',
+            'product',
+            "Produk '{$product->name}' (SKU: {$product->sku}, ID: {$id}) dipindahkan ke tempat sampah.",
+            ['name' => $product->name, 'sku' => $product->sku, 'price' => (float)$product->price],
+            null,
+            'product',
+            $id
+        );
 
         return redirect()
             ->to('/admin/products')
@@ -521,6 +588,16 @@ class Products extends BaseController
                     ])
                     ->update();
             }
+
+            $this->activityLogger->log(
+                'restore',
+                'product',
+                "Produk '{$product->name}' (SKU: {$product->sku}, ID: {$id}) dipulihkan dari tempat sampah.",
+                null,
+                ['name' => $product->name, 'sku' => $product->sku],
+                'product',
+                $id
+            );
 
             $this->session->setFlashdata(
                 'success',

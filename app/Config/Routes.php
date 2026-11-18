@@ -1,6 +1,6 @@
-<?php namespace Config;
+<?php
 
-$routes = Services::routes();
+$routes = \Config\Services::routes();
 
 $routes->setDefaultNamespace('App\Controllers');
 $routes->setDefaultController('Home');
@@ -271,7 +271,15 @@ $routes->group('admin', ['filter' => 'authAdmin:admin,pemilik,gudang,produksi,pe
         $routes->post('hide/(:num)', 'Admin\Reviews::hide/$1');
         $routes->post('delete/(:num)', 'Admin\Reviews::delete/$1');
     });
-    
+
+    // --- AUDIT TRAIL / ACTIVITY LOG ---
+    // Hanya admin dan pemilik yang dapat mengakses
+    $routes->group('activity-log', ['filter' => 'authAdmin:admin,pemilik'], function($routes) {
+        $routes->get('/', 'Admin\ActivityLog::index');
+        $routes->get('detail/(:num)', 'Admin\ActivityLog::detail/$1');
+        // TIDAK ada route update atau delete
+    });
+
 });
 
 // ============================================================

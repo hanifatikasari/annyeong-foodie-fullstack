@@ -3,12 +3,23 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ActivityLogger;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class Produksi extends BaseController
 {
-    public function __construct()
-    {
-        helper(['url', 'form']);
+    protected ActivityLogger $activityLogger;
+
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        parent::initController($request, $response, $logger);
+
+        $this->activityLogger = new ActivityLogger();
     }
 
     public function index()
@@ -132,6 +143,7 @@ class Produksi extends BaseController
      * 2. Simpan detail t_produksi_detail (snapshot)
      * 3. Kurangi stok m_bahan_baku
      * 4. Tambah stok product_inventories
+     * 5. Catat audit log dalam transaksi yang sama
      */
     public function simpan()
     {
@@ -153,6 +165,9 @@ class Produksi extends BaseController
         $statusQc   = $this->request->getPost('status_qc');
         $catatan    = $this->request->getPost('catatan');
         $userId     = session()->get('user_id');
+
+        $product     = model('ProductModel')->find($productId);
+        $productName = $product ? $product->name : ('ID ' . $productId);
 
         // Ambil resep
         $recipes = model('RecipeModel')
@@ -198,6 +213,7 @@ class Produksi extends BaseController
             // 2. Simpan detail & kurangi stok bahan
             $detailModel  = model('ProduksiDetailModel');
             $bahanModel   = model('BahanBakuModel');
+            $bahanUsed    = [];
 
             foreach ($recipes as $r) {
                 $qtyDigunakan = $r->jumlah_kebutuhan * $qty;
@@ -208,6 +224,12 @@ class Produksi extends BaseController
                     'bahan_baku_id' => $r->bahan_baku_id,
                     'qty_digunakan' => $qtyDigunakan,
                 ]);
+
+                $bahanUsed[] = [
+                    'nama_bahan'    => $r->nama_bahan,
+                    'qty_digunakan' => $qtyDigunakan,
+                    'satuan'        => $r->satuan,
+                ];
 
                 // Kurangi stok bahan baku (hanya jika QC Lolos)
                 if ($statusQc === 'Lolos') {
@@ -232,6 +254,27 @@ class Produksi extends BaseController
                     ]);
                 }
             }
+
+            // 4. Catat audit trail dalam transaksi yang sama
+            $this->activityLogger->logInTransaction(
+                $db,
+                'create',
+                'produksi',
+                "Pencatatan produksi {$kode} untuk {$qty} porsi '{$productName}' (Status QC: {$statusQc}).",
+                null,
+                [
+                    'kode_produksi'      => $kode,
+                    'product_name'       => $productName,
+                    'qty_hasil'          => $qty,
+                    'tanggal_produksi'   => $tanggal,
+                    'status_qc'          => $statusQc,
+                    'catatan'            => $catatan,
+                    'bahan_digunakan'    => $bahanUsed,
+                    'stok_produk_tambah' => ($statusQc === 'Lolos' ? $qty : 0),
+                ],
+                'produksi',
+                $produksiId
+            );
 
             $db->transComplete();
 
